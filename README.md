@@ -1,4 +1,11 @@
 # DBA - Desarrollo Basado en Agentes
-# Prueba de commit Bryan.
 
-# Prueba de Aaron
+## Grupo 9
+
+## Miembros:
+
+- **Hugo Maldonado**
+- **Aaron Rodríguez**
+- **Bryan Moreno**
+- **Jose David Torres**
+- **Jose Barón**
