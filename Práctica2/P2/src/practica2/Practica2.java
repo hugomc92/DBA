@@ -10,7 +10,7 @@ import es.upv.dsic.gti_ia.core.AgentsConnection;
  * Clase principal que lanzará toda la aplicación.
  * Básicamente lanzará el agente coche, que empezará con la ejecución de toda la lógica.
  * 
- * @author Hugo Maldonado.
+ * @author Hugo Maldonado & Bryan Moreno Picamán
  */
 public class Practica2 {
 	
@@ -24,7 +24,7 @@ public class Practica2 {
 		// Nuestra configuración privada de conexión con el servidor
 		AgentsConnection.connect("isg2.ugr.es", 6000, "Izar", "Cadenas", "Toro", false);
 		
-		Agent car = new AgentCar(new AgentID("Car"));
+		Agent car = new AgentCar(new AgentID("Car"),"Card");
 		
 		car.start();
 	}

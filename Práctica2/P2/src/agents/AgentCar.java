@@ -5,11 +5,13 @@ import agents.Agent;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.AgentID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Clase que define al agente coche, que va a actuar como controlador y va a ser el único que se conecte al servidor.
  * 
- * @author Hugo Maldonado.
+ * @author Hugo Maldonado & Bryan Moreno Picamán
  */
 public class AgentCar extends Agent {
 	
@@ -34,6 +36,7 @@ public class AgentCar extends Agent {
 	private String radarName;
 	private String gpsName;
 	private String batteryName;
+        private String carName;
 	
 	private JsonObject responseObject;
 	private JsonObject commandObject;
@@ -48,8 +51,10 @@ public class AgentCar extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentCar(AgentID aid) throws Exception {
+	public AgentCar(AgentID aid,String carName) throws Exception {
 		super(aid);
+                this.carName= carName;
+
 	}
 	
 	 /**
@@ -69,7 +74,6 @@ public class AgentCar extends Agent {
 		this.radarName = "Radar";
 		this.gpsName = "GPS";
 		this.batteryName = "Battery";
-		
 		this.responseObject = new JsonObject();
 		
 		this.numAgents = 4;
@@ -81,6 +85,7 @@ public class AgentCar extends Agent {
 	
 	/**
 	  * Método de ejecución del agente Coche.
+          * @au
 	  */
 	@Override
 	public void execute() {
@@ -99,8 +104,13 @@ public class AgentCar extends Agent {
 					Agent radar = new AgentRadar(new AgentID(radarName));
 					radar.start();
 					
-					Agent gps = new AgentGPS(new AgentID(gpsName));
-					gps.start();
+					Agent gps;
+                                        try {
+                                            gps = new AgentGPS(new AgentID(gpsName),radarName,carName,gpsName,movementName);
+                                            gps.start();
+                                        } catch (Exception ex) {
+                                            Logger.getLogger(AgentCar.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
 					
 					Agent battery = new AgentBattery(new AgentID(batteryName));
 					battery.start();
@@ -131,7 +141,7 @@ public class AgentCar extends Agent {
 					String result = responseObject.get("result").asString();
 					
 					if(result.contains("BAD_") || result.equals("CRASHED"))
-						this.state = FINALIZE_MOVEMENT;s
+						this.state = FINALIZE_MOVEMENT;
 					else {
 						this.key = result;
 						

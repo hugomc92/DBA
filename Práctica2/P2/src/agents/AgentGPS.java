@@ -5,6 +5,8 @@ import agents.Agent;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.AgentID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Clase que define al agente GPS, actua como controlador de AgentWorld y AgentRadar.
@@ -32,6 +34,8 @@ public class AgentGPS extends Agent {
         private String worldName = "World";
         private String radarName = "";
         private String carName = "";
+        private String gpsName = "";
+        private String movementName = "";
         
         private int cont=0;
         
@@ -42,15 +46,20 @@ public class AgentGPS extends Agent {
 	 * @param aid El ID de agente para crearlo.
          * @param radarName El nombre del agente radar (para comunicación)
          * @param carName El nombre del agente car (para comunicación)
+         * @param gpsName El nombre del propio agente
+         * @param movementName El nombre del agente movement
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public  AgentGPS(AgentID aid,String radarName,String carName) throws Exception {
+	public AgentGPS(AgentID aid,String radarName,String carName,String gpsName,String movementName) throws Exception {
 		super(aid);
                 this.radarName=radarName;
                 this.carName=carName;
+                this.gpsName=gpsName;
+                this.movementName=movementName;
 	}
-	
+
+
 	 /**
 	  * Método de inicialización del agente GPS.
 	  */
@@ -74,10 +83,14 @@ public class AgentGPS extends Agent {
 		while(!finish) {
 			switch(state) {
 				case WAKE_WORLD:
-                                    Agent worldMap = new AgentWorld(new AgentID(this.worldName));
+                                Agent worldMap;
+                                try {
+                                    worldMap = new AgentWorld(new AgentID(this.worldName),radarName,gpsName,movementName);
                                     worldMap.start();			
                                     this.state = IDLE;
-
+                                } catch (Exception ex) {
+                                    Logger.getLogger(AgentGPS.class.getName()).log(Level.SEVERE, null, ex);
+                                }
                                     break;
                                     
 				case IDLE:
@@ -103,6 +116,7 @@ public class AgentGPS extends Agent {
                                         needUpdate=true;
                                         coordX=nX;
                                         coordY=nY;
+                                        cont++;
                                     }
                                     this.state = UPDATE_WORLD;
                                     
@@ -110,8 +124,11 @@ public class AgentGPS extends Agent {
                                     
 				case UPDATE_WORLD:
                                     this.commandObject = new JsonObject();
-                                    if(needUpdate)
+                                    if(needUpdate){
                                         this.commandObject.add(Integer.toString(coordX),Integer.toString(coordY));
+                                        this.commandObject.add("cont",Integer.toString(cont));
+
+                                    }
                                     else
                                         this.commandObject.add("gps","updated");
 
