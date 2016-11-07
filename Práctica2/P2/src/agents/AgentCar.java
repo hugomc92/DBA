@@ -112,10 +112,15 @@ public class AgentCar extends Agent {
                                             Logger.getLogger(AgentCar.class.getName()).log(Level.SEVERE, null, ex);
                                         }
 					
-					Agent battery = new AgentBattery(new AgentID(batteryName));
-					battery.start();
-					
-					this.state = LOGIN_SERVER;
+					Agent battery;
+                                        try {
+                                            battery = new AgentBattery(new AgentID(batteryName),this.carName);
+                                            battery.start();
+                                            this.state = LOGIN_SERVER;
+                                        } catch (Exception ex) {
+                                            Logger.getLogger(AgentCar.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+
 					
 					break;
 				case LOGIN_SERVER:
