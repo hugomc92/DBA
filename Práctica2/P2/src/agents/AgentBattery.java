@@ -7,7 +7,7 @@ import com.eclipsesource.json.JsonObject;
 /**
  * Clase que define al agente Battery, actua como controlador de AgentWorld y AgentRadar.
  * 
- * @author Bryan Moreno Picamán.
+ * @author Bryan Moreno Picamán & Aarón Rodríguez Bueno 
  */
 public class AgentBattery extends Agent {
 	

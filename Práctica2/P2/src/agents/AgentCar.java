@@ -7,7 +7,7 @@ import com.eclipsesource.json.JsonObject;
 /**
  * Clase que define al agente coche, que va a actuar como controlador y va a ser el único que se conecte al servidor.
  * 
- * @author Hugo Maldonado & Bryan Moreno Picamán
+ * @author Hugo Maldonado & Bryan Moreno Picamán & Aarón Rodríguez Bueno
  */
 public class AgentCar extends Agent {
 	

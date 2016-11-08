@@ -6,6 +6,7 @@ import com.eclipsesource.json.JsonObject;
 
 /**
  * Clase que define al agente World.
+ * @author Bryan Moreno Picamán & Aarón Rodríguez Bueno
  * 
  * @author Bryan Moreno Picamán & Hugo Maldonado.
  */
@@ -22,18 +23,18 @@ public class AgentWorld extends Agent {
     private JsonObject responseObject;
 	private JsonObject commandObject;
         
-	private int state;
-	private boolean finish;
-	private boolean needUpdate;
-	private String radarName;
-	private String gpsName;
-	private String movementName;
-	private String worldName;
-
-	private int cont=0;
+        private int state;
+        private boolean finish;
+        private boolean needUpdate;
+        private String radarName = "";
+        private String gpsName = "";
+        private String movementName = "";
+        private String world = "";
+        
+        private int cont=0;
         
 	/**
-	 * @param worldName El ID de agente para crearlo.
+	 * @param aid El ID de agente para crearlo.
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
@@ -69,23 +70,23 @@ public class AgentWorld extends Agent {
 			switch(state) {
                                 
 				case IDLE:
-					String responseGPS = this.receiveMessage();
-					this.responseObject = Json.parse(responseGPS).asObject();
-					String resultGPS = responseObject.get("gps").asString();
+                                    String responseGPS = this.receiveMessage(this.gpsName);
+                                    this.responseObject = Json.parse(responseGPS).asObject();
+                                    String resultGPS = responseObject.get("gps").asString();
 
-					if(!resultGPS.contains("updated"))
-						this.updateWorld(resultGPS);
-					this.state = WAIT_RADAR;
-					break;
+                                    if(!result.contains("updated"))
+                                        this.updateWorld(resultGPS);
+                                    this.state = WAIT_RADAR;
+                                    break;
                                     
-				case WAIT_RADAR:
-					String responseRadar = this.receiveMessage();
-					this.responseObject = Json.parse(responseRadar).asObject();
-					String resultRadar = responseObject.get("gps").asString();
-					this.updateWorld(resultRadar);
-					this.state = WARN_RADAR;
-					break;
-
+                                case WAIT_RADAR:
+                                    String responseRadar = this.receiveMessage(this.gpsName);
+                                    this.responseObject = Json.parse(responseRadar).asObject();
+                                    String resultRadar = responseObject.get("gps").asString();
+                                    this.updateWorld(resultRadar);
+                                    this.state = WARN_RADAR;
+                                    break;
+                                    
 				case WARN_RADAR:
 					this.commandObject = new JsonObject();
 					if(needUpdate)
@@ -93,22 +94,22 @@ public class AgentWorld extends Agent {
 					else
 						this.commandObject.add("gps","updated");
 
-						this.sendMessage(worldName, commandObject.toString());
-						this.state=WAIT_MOVEMENT;
-
-					break;
+                                        this.sendMessage(worldName, commandObject.toString());
+                                        this.state=WAIT_WORLD;
+                                        
+                                    break;
                                         
 				case WAIT_MOVEMENT:
-					String confirmation = this.receiveMessage();
-					JsonObject confirmationObject = Json.parse(confirmation).asObject();
-					String confirmationResult = confirmationObject.get("sendWorld").toString();
-					if(confirmationResult.contains("request"))
-						this.state= SEND_INFO;
+                                    String confirmation = this.receiveMessage(this.movementName);
+                                    JsonObject confirmationObject = Json.parse(confirmation).asObject();
+                                    String confirmationResult = confirmationObject.get("sendWorld").toString();
+                                    if(confirmationResult.contains("request"))
+                                        this.state= SEND_INFO;
                                         
 				case SEND_INFO:
-					this.sendWorld();
-					this.state=IDLE;
-					break;
+                                    this.sendWorld(movementName);
+                                    this.state=IDLE;
+                                    break;
 
                                     
 				case FINISH:
