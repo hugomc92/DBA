@@ -24,7 +24,7 @@ public class Practica2 {
 		// Nuestra configuración privada de conexión con el servidor
 		AgentsConnection.connect("isg2.ugr.es", 6000, "Izar", "Cadenas", "Toro", false);
 		
-		Agent car = new AgentCar(new AgentID("Car"),"Card");
+		Agent car = new AgentCar("Car", "map1", "Movement", "Scanner", "Radar", "GPS", "World", "Battery");
 		
 		car.start();
 	}

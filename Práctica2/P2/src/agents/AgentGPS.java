@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 /**
  * Clase que define al agente GPS, actua como controlador de AgentWorld y AgentRadar.
  * 
- * @author Bryan Moreno Picamán.
+ * @author Bryan Moreno Picamán & Aarón Rodríguez Bueno
  */
 public class AgentGPS extends Agent {
 	
@@ -31,7 +31,7 @@ public class AgentGPS extends Agent {
         private int state;
         private boolean finish;
         private boolean needUpdate;
-        private String worldName = "World";
+        private String worldName = "";
         private String radarName = "";
         private String carName = "";
         private String gpsName = "";
@@ -51,12 +51,13 @@ public class AgentGPS extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentGPS(AgentID aid,String radarName,String carName,String gpsName,String movementName) throws Exception {
-		super(aid);
+	public AgentGPS(String gpsName,String radarName,String carName,String movementName,String worldName) throws Exception {
+		super(gpsName);
                 this.radarName=radarName;
                 this.carName=carName;
                 this.gpsName=gpsName;
                 this.movementName=movementName;
+                this.worldName=worldName;
 	}
 
 

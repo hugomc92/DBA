@@ -10,7 +10,7 @@ import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
 /**
  *Define una clase abstracta para un agente
- * @author JoseDavid
+ * @author Jose David & Hugo Maldonado
  */
 public class Agent extends SingleAgent {
     

@@ -1,17 +1,13 @@
 
 package agents;
 
-import agents.Agent;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
-import es.upv.dsic.gti_ia.core.AgentID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Clase que define al agente coche, que va a actuar como controlador y va a ser el único que se conecte al servidor.
  * 
- * @author Hugo Maldonado & Bryan Moreno Picamán
+ * @author Hugo Maldonado & Bryan Moreno Picamán & Aarón Rodríguez Bueno
  */
 public class AgentCar extends Agent {
 	
@@ -30,13 +26,13 @@ public class AgentCar extends Agent {
 	private String key;
 	private boolean refuel;
 	
-	private String world;
-	private String movementName;
-	private String scannerName;
-	private String radarName;
-	private String gpsName;
-	private String batteryName;
-        private String carName;
+	private final String map;
+	private final String movementName;
+	private final String scannerName;
+	private final String radarName;
+	private final String gpsName;
+	private final String batteryName;
+	private final String worldName;
 	
 	private JsonObject responseObject;
 	private JsonObject commandObject;
@@ -47,14 +43,26 @@ public class AgentCar extends Agent {
 	
 	
 	/**
-	 * @param aid El ID de agente para crearlo.
+	 * @param carName El nombre del coche de agente para crearlo.
+         * @param map El mapa al que se va a conectar.
+         * @param movementName El nombre del agente encargado del movimiento.
+         * @param radarName El nombre del agente del radar
+         * @param scannerName El nombre del agente del scanner.
+         * @param gpsName El nombre del agente del GPS.
+         * @param batteryName El nombre del agente de la batería.
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentCar(AgentID aid,String carName) throws Exception {
-		super(aid);
-                this.carName= carName;
+	public AgentCar(String carName, String map, String movementName, String scannerName, String radarName, String gpsName, String worldName, String batteryName) throws Exception {
+		super(carName);
 
+		this.map = map;
+		this.movementName = movementName;
+		this.scannerName = scannerName;
+		this.radarName = radarName;
+		this.gpsName = gpsName;
+		this.worldName = worldName;
+		this.batteryName = batteryName;
 	}
 	
 	 /**
@@ -68,12 +76,6 @@ public class AgentCar extends Agent {
 		this.key = "";
 		this.refuel = false;
 		
-		this.world = "map1";
-		this.movementName = "Movement";
-		this.scannerName = "Scanner";
-		this.radarName = "Radar";
-		this.gpsName = "GPS";
-		this.batteryName = "Battery";
 		this.responseObject = new JsonObject();
 		
 		this.numAgents = 4;
@@ -95,31 +97,47 @@ public class AgentCar extends Agent {
 		while(!finish) {
 			switch(state) {
 				case WAKE_AGENTS:
-					Agent movement = new AgentMovement(new AgentID(movementName));
-					movement.start();
 					
-					Agent scanner = new AgentScanner(new AgentID(scannerName));
-					scanner.start();
+					Agent movement;
+					try {
+						movement = new AgentMovement(movementName, worldName, scannerName, this.getName());
+						movement.start();
+					} catch (Exception ex) {
+						System.err.println(ex.getMessage());
+					}
 					
-					Agent radar = new AgentRadar(new AgentID(radarName));
-					radar.start();
+					Agent scanner;
+					try {
+						 scanner = new AgentScanner(scannerName, movementName, gpsName);
+						 scanner.start();
+					} catch (Exception ex) {
+						System.err.println(ex.getMessage());
+					}
+					
+					Agent radar;
+					try {
+						 radar = new AgentRadar(radarName);
+						 radar.start();
+					} catch (Exception ex) {
+						System.err.println(ex.getMessage());
+					}
 					
 					Agent gps;
-                                        try {
-                                            gps = new AgentGPS(new AgentID(gpsName),radarName,carName,gpsName,movementName);
-                                            gps.start();
-                                        } catch (Exception ex) {
-                                            Logger.getLogger(AgentCar.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-					
+					try {
+						gps = new AgentGPS(gpsName, radarName, this.getName(), movementName, worldName);
+						gps.start();
+					} catch (Exception ex) {
+						System.err.println(ex.getMessage());
+					}
+
 					Agent battery;
-                                        try {
-                                            battery = new AgentBattery(new AgentID(batteryName),this.carName);
-                                            battery.start();
-                                            this.state = LOGIN_SERVER;
-                                        } catch (Exception ex) {
-                                            Logger.getLogger(AgentCar.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
+					try {
+						battery = new AgentBattery(batteryName,this.getName());
+						battery.start();
+						this.state = LOGIN_SERVER;
+					} catch (Exception ex) {
+						System.err.println(ex.getMessage());
+					}
 
 					
 					break;
@@ -127,7 +145,7 @@ public class AgentCar extends Agent {
 					JsonObject loginCommand = new JsonObject();
 					
 					loginCommand.add("command", "login");
-					loginCommand.add("world", world);
+					loginCommand.add("world", map);
 					loginCommand.add("radar", radarName);
 					loginCommand.add("scanner", scannerName);
 					loginCommand.add("battery", batteryName);
@@ -139,7 +157,7 @@ public class AgentCar extends Agent {
 					
 					break;
 				case WAIT_SERVER:
-					String response = this.receiveMessage("Izar");
+					String response = this.receiveMessage();
 					
 					this.responseObject = Json.parse(response).asObject();
 					
@@ -157,7 +175,7 @@ public class AgentCar extends Agent {
 				case IDLE:
 					
 					for(int i=0; i<numAgents; i++) {
-						String message = this.receiveMessage("*");
+						String message = this.receiveMessage();
 						
 						if(message.contains("battery")) {
 							this.responseObject = Json.parse(message).asObject();
@@ -192,21 +210,25 @@ public class AgentCar extends Agent {
 						confirmation.add("calculate", gpsCont);
 
 						this.sendMessage(movementName, confirmation.toString());
+						
+						this.state = WAIT_MOVEMENT;
 					}
 					
 					break;
 				case WAIT_MOVEMENT:
 					
-					String movement = this.receiveMessage(movementName);
+					String movementExecution = this.receiveMessage();
 					
-					JsonObject movementObject = Json.parse(movement).asObject();
+					JsonObject movementObject = Json.parse(movementExecution).asObject();
 					
-					movement = movementObject.get("mov").asString();
+					movementExecution = movementObject.get("mov").asString();
 					
 					this.commandObject = new JsonObject();
 					
-					this.commandObject.add("command", movement);
+					this.commandObject.add("command", movementExecution);
 					this.commandObject.add("key", key);
+					
+					this.state = SEND_MOVEMENT;
 					
 					break;
 				case SEND_MOVEMENT:

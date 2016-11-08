@@ -12,7 +12,7 @@ import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
  *
- * @author rodri
+ * @author Aarón Rodríguez Bueno & Bryan Moreno Picamán
  */
 public class AgentMovement extends Agent{
     private static final int IDLE = 0;
@@ -30,7 +30,7 @@ public class AgentMovement extends Agent{
     
     private JsonObject responseObject;
     
-    private String world;
+    private String worldName;
     private String movementName;
     private String scannerName;
     private String carName;
@@ -45,10 +45,10 @@ public class AgentMovement extends Agent{
      * 
      * @author AarÃ³n RodrÃ­guez Bueno
      */
-    public AgentMovement(AgentID aid,String movementName, String world, String scannerName, String carName) throws Exception {
-            super(aid);
+    public AgentMovement(String movementName, String worldName, String scannerName, String carName) throws Exception {
+            super(movementName);
             this.scannerName= scannerName;
-            this.world = world;
+            this.worldName = worldName;
             this.scannerName = scannerName;
             this.carName = carName;
 
@@ -153,7 +153,7 @@ public class AgentMovement extends Agent{
                     responseObject = new JsonObject(); //Lo limpiamos
                     responseObject.add(movementName, "ok");
                     message = responseObject.toString();
-                    sendMessage(world, message);
+                    sendMessage(worldName, message);
                     
                     state = WAIT_WORLD;
                     break;
@@ -175,7 +175,7 @@ public class AgentMovement extends Agent{
                     }
                     break;
                     */
-                    message = this.receiveMessage(world);
+                    message = this.receiveMessage(worldName);
                     this.responseObject = Json.parse(message).asObject();
                     
                     //Actualizamos nuestro world_scanner
