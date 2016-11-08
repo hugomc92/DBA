@@ -10,8 +10,7 @@ import java.util.logging.Logger;
 /**
  * Clase que define al agente GPS, actua como controlador de AgentWorld y AgentRadar.
  * 
- * @author Bryan Moreno Picamán & Aarón Rodríguez Bueno
- * @author Bryan Moreno Picamán & Hugo Maldonado.
+ * @author Bryan Moreno Picamán, Hugo Maldonado & Aarón Rodríguez Bueno.
  */
 public class AgentGPS extends Agent {
 	

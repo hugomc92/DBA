@@ -6,9 +6,7 @@ import com.eclipsesource.json.JsonObject;
 
 /**
  * Clase que define al agente World.
- * @author Bryan Moreno Picamán & Aarón Rodríguez Bueno
- * 
- * @author Bryan Moreno Picamán & Hugo Maldonado.
+ * @author Bryan Moreno Picamán, Aarón Rodríguez Bueno & Hugo Maldonado.
  */
 public class AgentWorld extends Agent {
 	

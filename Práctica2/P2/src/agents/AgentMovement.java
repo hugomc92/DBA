@@ -7,8 +7,7 @@ import com.eclipsesource.json.JsonValue;
 
 /**
  *
- * @author Aarón Rodríguez & Hugo Maldonado.
- * @author Aarón Rodríguez Bueno & Bryan Moreno Picamán
+ * @author Aarón Rodríguez, Hugo Maldonado & Bryan Moreno Picamán
  */
 public class AgentMovement extends Agent{
     private static final int IDLE = 0;

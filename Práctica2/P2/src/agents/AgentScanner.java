@@ -10,8 +10,7 @@ import com.eclipsesource.json.JsonValue;
  * Clase que define al agente Scanner, el cual se va a encargar de controlar los datos relacionados
  * con el scanner dados por el servidor y compartir su informaciÃ³n con el AgentWorld.
  * 
- * @author Aarón Rodríguez Bueno & Bryan Moreno Picamán
- * @author Aarón Rodríguez Bueno & Hugo Maldonado
+ * @author Aarón Rodríguez Bueno, Bryan Moreno Picamán & Hugo Maldonado.
  */
 public class AgentScanner extends Agent {
     
