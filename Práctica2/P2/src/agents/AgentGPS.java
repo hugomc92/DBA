@@ -91,7 +91,7 @@ public class AgentGPS extends Agent {
 				case WAKE_WORLD:
 					Agent worldMap;
 					try {
-						worldMap = new AgentWorld(new AgentID(this.worldName),radarName,gpsName,movementName);
+						worldMap = new AgentWorld(worldName,radarName,gpsName,movementName);
 						worldMap.start();			
 						this.state = IDLE;
 					} catch (Exception ex) {
@@ -100,7 +100,7 @@ public class AgentGPS extends Agent {
 						break;
                                     
 				case IDLE:
-					String response = this.receiveMessage("Izar");
+					String response = this.receiveMessage();
 					this.responseObject = Json.parse(response).asObject();
 					String result = responseObject.get("gps").asString();
 

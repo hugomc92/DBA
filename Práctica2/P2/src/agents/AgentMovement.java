@@ -1,18 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package agents;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
-import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
  *
- * @author rodri
+ * @author Aarón Rodríguez & Hugo Maldonado.
  */
 public class AgentMovement extends Agent{
     private static final int IDLE = 0;
@@ -101,7 +96,7 @@ public class AgentMovement extends Agent{
                     }
                     break;
                     */
-                    message = this.receiveMessage(carName);
+                    message = this.receiveMessage();
                     if (message.contains("ok")){
                         //Le pedimos los datos al Agent Scanner
                         responseObject = new JsonObject(); //Lo limpiamos
@@ -134,7 +129,7 @@ public class AgentMovement extends Agent{
                     }
                     break;
                     */
-                    message = this.receiveMessage(scannerName);
+                    message = this.receiveMessage();
                     this.responseObject = Json.parse(message).asObject();
                     
                     //Actualizamos nuestro map_scanner
@@ -175,7 +170,7 @@ public class AgentMovement extends Agent{
                     }
                     break;
                     */
-                    message = this.receiveMessage(worldName);
+                    message = this.receiveMessage();
                     this.responseObject = Json.parse(message).asObject();
                     
                     //Actualizamos nuestro world_scanner
@@ -206,38 +201,38 @@ public class AgentMovement extends Agent{
                     //Una vez tenemos todos los datos, calculamos el mejor movimiento
                     //PRIMERA HEURISTICA: movernos sÃ³lo en direcciÃ³n al goal en lÃ­nea recta
                     float menor = map_scanner[x-1][y-1]+1;
-                    int nuevax, nuevay;
+                    int newX = -1, newY = -1;
                                        
                     for (int i = x-1; i <= x+1; i++){
                         for (int j = y-1; j <= y+1; j++){
                             if (menor > map_scanner[i][j]){ //No miro que si x!=i o y!=j porque si no estamos ya en el goal, 
                                                             //siempre habrÃ¡ un borde con menos valor que la posiciÃ³n en la que estamos actualmente
-                               nuevax = i;
-                               nuevay = j;
+                               newX = i;
+                               newY = j;
                             }
                         }
                     }
                     
                     responseObject = new JsonObject(); //Lo limpiamos
                     //Comprobamos quÃ© posiciÃ³n respecto a nuestra posiciÃ³n es la que hemos elegido
-                    if (nuevax == x-1){
-                        if (nuevay == y-1)
+                    if (newX == x-1){
+                        if (newY == y-1)
                             responseObject.add("movement", "NO");
-                        else if (nuevay == y)
+                        else if (newY == y)
                             responseObject.add("movement", "N");
                         else
                             responseObject.add("movement", "NE");
                     }
-                    else if (nuevax == x){
-                        if (nuevay == y-1)
+                    else if (newX == x){
+                        if (newY == y-1)
                             responseObject.add("movement", "O");
                         else
                             responseObject.add("movement", "E");
                     }
                     else{
-                        if (nuevay == y-1)
+                        if (newY == y-1)
                             responseObject.add("movement", "SO");
-                        else if (nuevay == y)
+                        else if (newY == y)
                             responseObject.add("movement", "S");
                         else
                             responseObject.add("movement", "SE");
@@ -248,12 +243,7 @@ public class AgentMovement extends Agent{
                     
                     state = IDLE;
                     break;
-                
-                
-                
-                
-                
-                
+
                 
                 case FINISH:    //Matamos al agente
                     this.finalize();
@@ -264,9 +254,9 @@ public class AgentMovement extends Agent{
     
     
     /**
-    * MÃ©todo de finalizaciÃ³n del Agent Movement
+    * Método de finalizaciÃ³n del Agent Movement
      * 
-     * @author AarÃ³n RodrÃ­guez Bueno
+     * @author Aarón Rodríguez Bueno
     */
     @Override
     public void finalize() {

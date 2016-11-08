@@ -1,25 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package agents;
 
-import agents.Agent;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
-import es.upv.dsic.gti_ia.core.AgentID;
-import es.upv.dsic.gti_ia.core.SingleAgent;
-import es.upv.dsic.gti_ia.core.ACLMessage;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 /**
  * Clase que define al agente Scanner, el cual se va a encargar de controlar los datos relacionados
  * con el scanner dados por el servidor y compartir su informaciÃ³n con el AgentWorld.
  * 
- * @author AarÃ³n RodrÃ­guez Bueno
+ * @author Aarón Rodríguez Bueno & Hugo Maldonado
  */
 public class AgentScanner extends Agent {
     
@@ -44,25 +35,21 @@ public class AgentScanner extends Agent {
     
     /**
      * Constructor 
-     * @param aid El ID de agente para crearlo.
+     * @param scannerName El nombre de agente para crearlo.
      * 
      * @throws java.lang.Exception en la creaciÃ³n del agente.
-     * 
-     * @author AarÃ³n RodrÃ­guez Bueno
      */
     public AgentScanner(String scannerName,String movementName,String gpsName) throws Exception {
         super(scannerName);
         this.movementName = movementName;
         this.scannerName = scannerName;
         this.gpsName = gpsName;
-
     }
     
     
     /**
-     * MÃ©todo de inicializaciÃ³n del Agent Scanner
+     * Método de inicialización del Agent Scanner
      * 
-     * @author AarÃ³n RodrÃ­guez Bueno
      */
     @Override
     public void init(){
@@ -79,9 +66,7 @@ public class AgentScanner extends Agent {
     }
     
     /**
-    * MÃ©todo de ejecuciÃ³n del agente Scanner
-    * 
-    * @author AarÃ³n RodrÃ­guez Bueno
+    * Método de ejecución del agente Scanner
     */  
     @Override
     public void execute(){
@@ -98,7 +83,7 @@ public class AgentScanner extends Agent {
                     }
                     break;
                     */
-                    message = this.receiveMessage(carName);
+                    message = this.receiveMessage();
                     
                     
                     this.responseObject = Json.parse(message).asObject();
@@ -118,7 +103,7 @@ public class AgentScanner extends Agent {
                 
                 
                 case WAIT_GPS:    //Esperamos a que nos mande los datos del GPS el GPS Agent
-                    String message;
+                    String messageGPS;
                     int x, y;
                     /*
                     message = this.receiveMessage("*");
@@ -129,9 +114,9 @@ public class AgentScanner extends Agent {
                     }
                     break;
                     */
-                    message = this.receiveMessage(gpsName);
+                    messageGPS = this.receiveMessage();
                         
-                    this.responseObject = Json.parse(message).asObject();
+                    this.responseObject = Json.parse(messageGPS).asObject();
                     
                     x = responseObject.get("x").asInt();
                     y = responseObject.get("y").asInt();
@@ -148,8 +133,8 @@ public class AgentScanner extends Agent {
                     //Avisamos al Agent Car que estamos listos
                     responseObject = new JsonObject(); //Lo limpiamos
                     responseObject.add(scannerName, "ok");
-                    message = responseObject.toString();
-                    sendMessage(carName, message);
+                    messageGPS = responseObject.toString();
+                    sendMessage(carName, messageGPS);
                     
                     state = WAIT_MOVEMENT;
                     break;
@@ -160,7 +145,7 @@ public class AgentScanner extends Agent {
                     
                 case WAIT_MOVEMENT: //Esperamos a que nos avise el Movement Agent nos pida los datos del scanner
                     
-                    String message;
+                    String messageMovement;
                     /*
                     message = this.receiveMessage("*");
                     if(message.contains("CRASHED")||message.contains("logout")) 
@@ -170,11 +155,11 @@ public class AgentScanner extends Agent {
                     }
                     break;
                     */
-                    message = this.receiveMessage(movementName);
+                    messageMovement = this.receiveMessage();
                         
-                    this.responseObject = Json.parse(message).asObject();
+                    this.responseObject = Json.parse(messageMovement).asObject();
                     
-                    if(message.contains("request")){
+                    if(messageMovement.contains("request")){
                         responseObject = new JsonObject(); //Lo limpiamos
                         
                         //Empaquetamos el array entero en un JSon y se lo enviamos
@@ -185,8 +170,8 @@ public class AgentScanner extends Agent {
                             }
                         }
                         responseObject.add("",vector);
-                        message = responseObject.toString();
-                        this.sendMessage(movementName,message);
+                        messageMovement = responseObject.toString();
+                        this.sendMessage(movementName,messageMovement);
                     }
                     else{
                         state = FINISH;
@@ -206,9 +191,9 @@ public class AgentScanner extends Agent {
     }
     
     /**
-    * MÃ©todo de finalizaciÃ³n del Agent Scanner
+    * Método de finalización del Agent Scanner
      * 
-     * @author AarÃ³n RodrÃ­guez Bueno
+     * @author Aarón Rodríguez Bueno
     */
     @Override
     public void finalize() {

@@ -17,7 +17,7 @@ public class AgentCar extends Agent {
 	private static final int IDLE = 3;
 	private static final int SEND_PROCEED = 4;
 	private static final int WAIT_MOVEMENT = 5;
-	private static final int SEND_MOVEMENT = 6;
+	private static final int SEND_COMMAND = 6;
 	private static final int FINALIZE_MOVEMENT = 7;
 	private static final int FINISH = 8;
 	
@@ -205,7 +205,7 @@ public class AgentCar extends Agent {
 						this.commandObject.add("command", "refuel");
 						this.commandObject.add("key", key);
 						
-						this.state = SEND_MOVEMENT;
+						this.state = SEND_COMMAND;
 					}
 					else {
 						JsonObject confirmation = new JsonObject();
@@ -231,10 +231,10 @@ public class AgentCar extends Agent {
 					this.commandObject.add("command", movementExecution);
 					this.commandObject.add("key", key);
 					
-					this.state = SEND_MOVEMENT;
+					this.state = SEND_COMMAND;
 					
 					break;
-				case SEND_MOVEMENT:
+				case SEND_COMMAND:
 					this.sendMessage(this.serverAgent, this.commandObject.toString());
 					
 					this.state = WAIT_SERVER;
