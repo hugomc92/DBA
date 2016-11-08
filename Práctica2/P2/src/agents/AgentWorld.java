@@ -30,6 +30,7 @@ public class AgentWorld extends Agent {
         private String radarName = "";
         private String gpsName = "";
         private String movementName = "";
+        private String world = "";
         
         private int cont=0;
         
@@ -38,8 +39,9 @@ public class AgentWorld extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentWorld(AgentID aid,String radarName,String gpsName,String movementName) throws Exception {
-		super(aid);
+	public AgentWorld(String world,String radarName,String gpsName,String movementName) throws Exception {
+		super(world);
+                this.world = world;
                 this.radarName=radarName;
                 this.gpsName=gpsName;
                 this.movementName=movementName;
