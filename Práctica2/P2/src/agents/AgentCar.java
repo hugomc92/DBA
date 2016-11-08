@@ -26,6 +26,7 @@ public class AgentCar extends Agent {
 	private String key;
 	private boolean refuel;
 	
+	private final String serverAgent;
 	private final String map;
 	private final String movementName;
 	private final String scannerName;
@@ -44,18 +45,21 @@ public class AgentCar extends Agent {
 	
 	/**
 	 * @param carName El nombre del coche de agente para crearlo.
-         * @param world El mapa al que se va a conectar.
-         * @param movementName El nombre del agente encargado del movimiento.
-         * @param radarName El nombre del agente del radar
-         * @param scannerName El nombre del agente del scanner.
-         * @param gpsName El nombre del agente del GPS.
-         * @param batteryName El nombre del agente de la batería.
+	 * @param serverAgent El nombre del agente del servidor con el que se va a comunicar
+	 * @param map El mapa al que se va a conectar.
+	 * @param movementName El nombre del agente encargado del movimiento.
+	 * @param radarName El nombre del agente del radar
+	 * @param scannerName El nombre del agente del scanner.
+	 * @param gpsName El nombre del agente del GPS.
+	 * @param worldName El nombre del agente del mundo.
+	 * @param batteryName El nombre del agente de la batería.
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentCar(String carName, String map, String movementName, String scannerName, String radarName, String gpsName, String worldName, String batteryName) throws Exception {
+	public AgentCar(String carName, String serverAgent, String map, String movementName, String scannerName, String radarName, String gpsName, String worldName, String batteryName) throws Exception {
 		super(carName);
 
+		this.serverAgent = serverAgent;
 		this.map = map;
 		this.movementName = movementName;
 		this.scannerName = scannerName;
@@ -87,7 +91,6 @@ public class AgentCar extends Agent {
 	
 	/**
 	  * Método de ejecución del agente Coche.
-          * @au
 	  */
 	@Override
 	public void execute() {
@@ -151,7 +154,7 @@ public class AgentCar extends Agent {
 					loginCommand.add("battery", batteryName);
 					loginCommand.add("gps", gpsName);
 					
-					this.sendMessage("Izar", loginCommand.toString());
+					this.sendMessage(this.serverAgent, loginCommand.toString());
 					
 					this.state = WAIT_SERVER;
 					
@@ -232,7 +235,7 @@ public class AgentCar extends Agent {
 					
 					break;
 				case SEND_MOVEMENT:
-					this.sendMessage("Izar", this.commandObject.toString());
+					this.sendMessage(this.serverAgent, this.commandObject.toString());
 					
 					this.state = WAIT_SERVER;
 					

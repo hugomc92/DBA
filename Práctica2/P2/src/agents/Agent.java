@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package agents;
 
 import es.upv.dsic.gti_ia.core.ACLMessage;
@@ -12,7 +8,7 @@ import es.upv.dsic.gti_ia.core.SingleAgent;
  *Define una clase abstracta para un agente
  * @author Jose David & Hugo Maldonado
  */
-public class Agent extends SingleAgent {
+public abstract class Agent extends SingleAgent {
     
      /**
      * Constructor
@@ -60,7 +56,4 @@ public class Agent extends SingleAgent {
             return null;
         }
     }
-    
-    
-    
 }

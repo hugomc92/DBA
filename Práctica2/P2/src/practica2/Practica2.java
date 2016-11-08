@@ -14,6 +14,8 @@ import es.upv.dsic.gti_ia.core.AgentsConnection;
  */
 public class Practica2 {
 	
+	private static final String serverAgent = "Izar";
+	
 	/**
 	 * @param args Los argumentos pasados por línea de comandos.
 	 * 
@@ -22,9 +24,9 @@ public class Practica2 {
 	public static void main(String[] args) throws Exception {
 		
 		// Nuestra configuración privada de conexión con el servidor
-		AgentsConnection.connect("isg2.ugr.es", 6000, "Izar", "Cadenas", "Toro", false);
+		AgentsConnection.connect("isg2.ugr.es", 6000, serverAgent, "Cadenas", "Toro", false);
 		
-		Agent car = new AgentCar("Car", "map1", "Movement", "Scanner", "Radar", "GPS", "World", "Battery");
+		Agent car = new AgentCar("Car", serverAgent, "map1", "Movement", "Scanner", "Radar", "GPS", "World", "Battery");
 		
 		car.start();
 	}
