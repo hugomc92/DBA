@@ -15,7 +15,7 @@ import com.eclipsesource.json.JsonObject;
  */
 public class AgentRadar extends Agent {
  
-   /*
+   
     private static final int IDLE= 0;
     private static final int PROCESS_DATA = 1;
     private static final int WAIT_GPS = 2;
@@ -23,42 +23,118 @@ public class AgentRadar extends Agent {
     private static final int WAIT_WORLD = 4;
     private static final int SEND_CONFIRMATION = 5;
     private static final int FINISH= 6;
-    */    
+        
     private int[] infoRadar;//Array que guarda el estado de cada celda
-    JsonObject datosRadar, datosGps; //Datos radar y datos gps
+    private int state;
+    JsonObject datosRadar; //Datos radar y datos gps
     String value; //Valor a enviar
-    boolean activo;
+    boolean finish;
     
     public AgentRadar(String name) throws Exception {
         super(name);
         infoRadar = new int[25];
-        activo = true;
+        finish = false;
+    }
+    
+    @Override
+    public void init(){
+        state = IDLE;
+        finish = false;
+        
+        this.datosRadar = new JsonObject();
+       
     }
     
     public void processRadar() {
         JsonArray arrayDatos = datosRadar.get("radar").asArray(); //obtener datos del radar en array 
-        JsonObject datGps = datosGps.get("gps").asObject();
+        //JsonObject datGps = datosGps.get("gps").asObject();
 
-        int x = datGps.getInt("x", -1);
-        int y = datGps.getInt("y", -1);
+        //int x = datGps.getInt("x", -1);
+        //int y = datGps.getInt("y", -1);
 
-        JsonArray arrayRadar = (JsonArray) Json.array();
-        for(int i=0;i<25;i++){
-                arrayRadar.add(x-2+(i % 5));
-                arrayRadar.add(y-2+i/5);
-                arrayRadar.add(arrayDatos.get(i));
-        }
+        //JsonArray arrayRadar = (JsonArray) Json.array();
+        //for(int i=0;i<25;i++){
+        //        arrayRadar.add(x-2+(i % 5));
+        //        arrayRadar.add(y-2+i/5);
+        //        arrayRadar.add(arrayDatos.get(i));
+        //}
 
         //Creamos objeto json para enviarlo tras convertirlo a string(value)
-        JsonObject obj = Json.object().add("radar", arrayRadar);
+        //JsonObject obj = Json.object().add("radar", arrayRadar);
+        JsonObject obj = Json.object().add("radar",arrayDatos);
         value = obj.toString();
     }
     
     @Override
     public void execute() {
         String mensaje;
-        while (activo) {
-            mensaje = receiveMessage();	//Estamos esperando un mensaje
+        while (!finish) {
+                    
+            switch(state){
+                case IDLE:
+                    mensaje = receiveMessage();
+                    if (mensaje.contains("radar")) { //Recibimos radar primero
+                        datosRadar = (JsonObject) Json.parse(mensaje);    
+                        this.state=PROCESS_DATA;
+                    }
+                    
+                    if(mensaje.contains("gps")){
+                            this.state=WAIT_GPS;
+                    }
+                    
+                    if(mensaje.contains("radarConfirmation")){//Recibimos confirmacion de world (Debemos comprobar si ok o not_ok)
+                        if(mensaje.contains("not_ok")){
+                            this.state=SEND_DATA;
+                            
+                        }else{    
+                            this.state=SEND_CONFIRMATION;
+                        }
+                    }
+                    if(mensaje.contains("finish")){
+                        this.state=FINISH;
+                    }
+                break;
+                 
+                case PROCESS_DATA:
+                    this.state=IDLE;
+                break;
+                
+                case WAIT_GPS:
+                    this.state=SEND_DATA;
+                break;                        
+                case SEND_CONFIRMATION:
+                    JsonObject statusWorld = Json.object();
+                    statusWorld.add("confirmation", "ok");
+                    sendMessage(AgentNames.AgentCar,statusWorld.toString());//Enviamos confirmacion a car
+                    this.state=IDLE;
+                break;
+                
+                case FINISH:
+                    finish=true;
+                    this.finalize();
+                break;
+                case SEND_DATA:
+                    processRadar();
+                    sendMessage(AgentNames.AgentWorld,value);
+                    this.state=IDLE;    
+                break;
+                    
+                case WAIT_WORLD:
+                    this.state=IDLE;
+                break; 
+            }
+        }
+        this.finalize();
+    }
+    
+    @Override
+	public void finalize() {
+		System.out.println("RadarAgent has just finish");
+		super.finalize();
+	}
+}
+            
+/*            mensaje = receiveMessage();	//Estamos esperando un mensaje
 
             if (mensaje.contains("radar")) { //Recibimos radar primero
                 datosRadar = (JsonObject) Json.parse(mensaje);
@@ -99,3 +175,4 @@ public class AgentRadar extends Agent {
     }
     
 }
+*/
