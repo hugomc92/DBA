@@ -10,16 +10,12 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
-import es.upv.dsic.gti_ia.core.AgentID;
-import es.upv.dsic.gti_ia.core.SingleAgent;
-import es.upv.dsic.gti_ia.core.ACLMessage;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 /**
  * Clase que define al agente Scanner, el cual se va a encargar de controlar los datos relacionados
  * con el scanner dados por el servidor y compartir su informaciÃ³n con el AgentWorld.
  * 
- * @author AarÃ³n RodrÃ­guez Bueno
+ * @author Aarón Rodríguez Bueno & Bryan Moreno Picamán
  */
 public class AgentScanner extends Agent {
     

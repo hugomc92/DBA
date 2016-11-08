@@ -12,7 +12,7 @@ import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
  *
- * @author rodri
+ * @author Aarón Rodríguez Bueno
  */
 public class AgentMovement extends Agent{
     private static final int IDLE = 0;
