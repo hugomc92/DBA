@@ -45,8 +45,8 @@ public class AgentMovement extends Agent{
      * 
      * @author AarÃ³n RodrÃ­guez Bueno
      */
-    public AgentMovement(AgentID aid,String movementName, String world, String scannerName, String carName) throws Exception {
-            super(aid);
+    public AgentMovement(String movementName, String world, String scannerName, String carName) throws Exception {
+            super(movementName);
             this.scannerName= scannerName;
             this.world = world;
             this.scannerName = scannerName;

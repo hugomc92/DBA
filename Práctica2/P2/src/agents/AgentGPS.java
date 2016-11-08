@@ -51,8 +51,8 @@ public class AgentGPS extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentGPS(AgentID aid,String radarName,String carName,String gpsName,String movementName) throws Exception {
-		super(aid);
+	public AgentGPS(String radarName,String carName,String gpsName,String movementName) throws Exception {
+		super(gpsName);
                 this.radarName=radarName;
                 this.carName=carName;
                 this.gpsName=gpsName;

@@ -50,8 +50,8 @@ public class AgentScanner extends Agent {
      * 
      * @author AarÃ³n RodrÃ­guez Bueno
      */
-    public AgentScanner(AgentID aid,String scannerName,String movementName,String gpsName) throws Exception {
-        super(aid);
+    public AgentScanner(String scannerName,String movementName,String gpsName) throws Exception {
+        super(scannerName);
         this.movementName = movementName;
         this.scannerName = scannerName;
         this.gpsName = gpsName;

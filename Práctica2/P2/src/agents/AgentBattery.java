@@ -25,6 +25,7 @@ public class AgentBattery extends Agent {
         private boolean finish;
         private boolean refuel=false;
         private String carName = "";
+        private String batteryName = "";
 
 
 	/**
@@ -33,8 +34,9 @@ public class AgentBattery extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentBattery(AgentID aid,String carName) throws Exception {
-		super(aid);
+	public AgentBattery(String batteryName, String carName) throws Exception {
+		super(batteryName);
+                this.batteryName = batteryName;
                 this.carName=carName;
 	}
 
