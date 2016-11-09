@@ -46,7 +46,7 @@ public abstract class Agent extends SingleAgent {
 		
         this.send(outbox);
 		
-        System.out.println(getName() + " ---> " + sendTo +" : " + content);
+        System.out.println(this.getName() + " ---> " + sendTo +" : " + content);
     }
     
     /**

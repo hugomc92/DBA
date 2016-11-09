@@ -20,7 +20,7 @@ public class Practica2 {
 	// Generamos los nombres de los agentes de forma aleatoria y única en cada ejecución para evitar la duplicidad de nombres con otros agentes en la plataforma
 	// Son constantes durante toda la ejecución.
 	private static final AgentID CAR_NAME = new AgentID(UUID.randomUUID().toString());
-	private static final String MAP = UUID.randomUUID().toString();
+	private static final String MAP = "map1";
 	private static final AgentID MOVEMENT_NAME = new AgentID(UUID.randomUUID().toString());
 	private static final AgentID SCANNER_NAME = new AgentID(UUID.randomUUID().toString());
 	private static final AgentID RADAR_NAME = new AgentID(UUID.randomUUID().toString());
@@ -42,5 +42,15 @@ public class Practica2 {
 		Agent car = new AgentCar(CAR_NAME, SERVER_AGENT, MAP, MOVEMENT_NAME, SCANNER_NAME, RADAR_NAME, GPS_NAME, WORLD_NAME, BATTERY_NAME);
 		
 		car.start();
+		
+		System.out.println("SERVER: " + SERVER_AGENT.getLocalName());
+		System.out.println("MAP: " + MAP);
+		System.out.println("CAR: " + CAR_NAME.getLocalName());
+		System.out.println("MOVEMENT: " + MOVEMENT_NAME.getLocalName());
+		System.out.println("SCANNER: " + SCANNER_NAME.getLocalName());
+		System.out.println("RADAR: " + RADAR_NAME.getLocalName());
+		System.out.println("GPS: " + GPS_NAME.getLocalName());
+		System.out.println("WORLD: " + WORLD_NAME.getLocalName());
+		System.out.println("BATTERY: " + BATTERY_NAME.getLocalName());
 	}
 }

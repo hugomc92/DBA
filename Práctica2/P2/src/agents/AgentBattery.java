@@ -64,7 +64,7 @@ public class AgentBattery extends Agent {
 			switch(state) {
 				case IDLE:
 					
-					System.out.println("AgentWorld status: IDLE");
+					System.out.println("AgentBattery status: IDLE");
 					
 					String response = this.receiveMessage();
 					
@@ -79,7 +79,7 @@ public class AgentBattery extends Agent {
 					break;
 				case PROCESS_DATA:
 					
-					System.out.println("AgentWorld status: PROCESS_DATA");
+					System.out.println("AgentBattery status: PROCESS_DATA");
 					
 					Double result = responseObject.get("battery").asDouble();
 					
@@ -91,7 +91,7 @@ public class AgentBattery extends Agent {
 					break;
 				case SEND_CONFIRMATION:
 					
-					System.out.println("AgentWorld status: SEND_CONFIRMATION");
+					System.out.println("AgentBattery status: SEND_CONFIRMATION");
 					
 					this.commandObject = new JsonObject();
 					
@@ -99,10 +99,12 @@ public class AgentBattery extends Agent {
 					
 					this.sendMessage(carName, commandObject.toString());
 					
+					this.state = IDLE;
+					
 					break;
 				case FINISH:
 					
-					System.out.println("AgentWorld status: FINISH");
+					System.out.println("AgentBattery status: FINISH");
 					
 					this.finish = true;
 					

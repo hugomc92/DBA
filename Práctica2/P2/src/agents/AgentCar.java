@@ -110,7 +110,6 @@ public class AgentCar extends Agent {
 						movement.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
-					} finally {
 						this.state = FINALIZE_MOVEMENT;
 					}
 					
@@ -120,7 +119,6 @@ public class AgentCar extends Agent {
 						 scanner.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
-					} finally {
 						this.state = FINALIZE_MOVEMENT;
 					}
 					
@@ -130,7 +128,6 @@ public class AgentCar extends Agent {
 						 radar.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
-					} finally {
 						this.state = FINALIZE_MOVEMENT;
 					}
 					
@@ -140,7 +137,6 @@ public class AgentCar extends Agent {
 						gps.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
-					} finally {
 						this.state = FINALIZE_MOVEMENT;
 					}
 
@@ -151,7 +147,6 @@ public class AgentCar extends Agent {
 						this.state = LOGIN_SERVER;
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
-					} finally {
 						this.state = FINALIZE_MOVEMENT;
 					}
 
@@ -180,6 +175,8 @@ public class AgentCar extends Agent {
 					System.out.println("AgentCar status: WAIT_SERVER");
 					
 					String response = this.receiveMessage();
+					
+					System.out.println("SERVER MESSAGE AFTER LOGIN: \n" + response);
 					
 					this.responseObject = Json.parse(response).asObject();
 					
