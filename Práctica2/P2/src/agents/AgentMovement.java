@@ -79,7 +79,7 @@ public class AgentMovement extends Agent{
     /**
     * MÃ©todo de ejecuciÃ³n del agente Scanner
     * 
-    * @author AarÃ³n RodrÃ­guez Bueno
+    * @author AarÃ³n RodrÃ­guez Bueno & Bryan Moreno Picamán
     */  
     @Override
     public void execute() {
@@ -199,7 +199,7 @@ public class AgentMovement extends Agent{
                 case EXECUTE:   //Calcula la decisiÃ³n y se la manda al Agent Car
                     
                     //Una vez tenemos todos los datos, calculamos el mejor movimiento
-                    //PRIMERA HEURISTICA: movernos sÃ³lo en direcciÃ³n al goal en lÃ­nea recta
+                 /*   //PRIMERA HEURISTICA: movernos sÃ³lo en direcciÃ³n al goal en lÃ­nea recta
                     float menor = map_scanner[x-1][y-1]+1;
                     int newX = -1, newY = -1;
                                        
@@ -211,33 +211,71 @@ public class AgentMovement extends Agent{
                                newY = j;
                             }
                         }
-                    }
-                    
+                    }*/
+                   
+					
+					//SEGUNDA HEURISTICA: elegimos de la siguiente manera
+					//	-Si está el goal en una posición inmediata, vamos directamente
+					//	-Si no es pared, elegimos por la zona que llevemos más tiempo sin pasar
+					//	(si nunca se ha pasado se toma como la zona más lejana)
+					//		*Si hay varias zonas con la misma prioridad (es decir, 
+					//			hay varias zonas por la que no hemos pasado), 
+					//			priorizamos el que esté más cerca del goal
+					/*float less = map_scanner[x-1][y-1];
+					int newX = x-1, newY = y-1;
+					boolean goal_found = false;
+					
+					for (int i = x-1; i <= x+1 && !goal_found; i++){
+						for (int j = y-1; j <= j+1 && !goal_found; j++){
+							if (map_world[i][j] == 2){	//goal
+								goal_found = true;
+								newX = i;
+								newY = j;
+							}
+							else if (map_world[i][j] != 1){	//No es pared, luego es transitable
+								if (less < map_world[i][j] ||	//Hace menos que ha pasado por esta posición
+									(less == map_world[i][j] &&	//Dos zonas por donde no ha pasado
+									 map_scanner[newX][newY] > map_scanner[i][j]	//Este está más cerca del goal
+									)
+								   )
+									
+									newX = i;
+									newY = j;
+									less = map_world[i][j];
+							}
+						}
+					}*/
+					
+					
                     responseObject = new JsonObject(); //Lo limpiamos
-                    //Comprobamos quÃ© posiciÃ³n respecto a nuestra posiciÃ³n es la que hemos elegido
+                    /*
+					//Comprobamos quÃ© posiciÃ³n respecto a nuestra posiciÃ³n es la que hemos elegido
                     if (newX == x-1){
                         if (newY == y-1)
-                            responseObject.add("movement", "NO");
+                            responseObject.add("command", "moveNW");
                         else if (newY == y)
-                            responseObject.add("movement", "N");
+                            responseObject.add("command", "moveN");
                         else
-                            responseObject.add("movement", "NE");
+                            responseObject.add("command", "moveNE");
                     }
                     else if (newX == x){
                         if (newY == y-1)
-                            responseObject.add("movement", "O");
+                            responseObject.add("command", "moveW");
                         else
-                            responseObject.add("movement", "E");
+                            responseObject.add("command", "moveE");
                     }
                     else{
                         if (newY == y-1)
-                            responseObject.add("movement", "SO");
+                            responseObject.add("command", "moveSW");
                         else if (newY == y)
-                            responseObject.add("movement", "S");
+                            responseObject.add("command", "moveS");
                         else
-                            responseObject.add("movement", "SE");
-                    }
+                            responseObject.add("command", "moveSE");
+                    }*/
                     
+					//SÓLO PARA EL PRIMER MAPA
+					responseObject.add("movement", "moveSW");
+					
                     message = responseObject.toString();
                     sendMessage(carName, message);
                     
