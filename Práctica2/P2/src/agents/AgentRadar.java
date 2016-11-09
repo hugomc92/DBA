@@ -7,7 +7,7 @@ import com.eclipsesource.json.JsonObject;
 
 /**
  *
- * @author JoseDavid
+ * @author JoseDavid & Hugo Maldonado
  */
 public class AgentRadar extends Agent {
  
@@ -22,27 +22,33 @@ public class AgentRadar extends Agent {
         
     private int[] infoRadar;//Array que guarda el estado de cada celda
     private int state;
-    JsonObject datosRadar; //Datos radar y datos gps
-    String value; //Valor a enviar
-    boolean finish;
+    private JsonObject dataRadar; //Datos radar y datos gps
+    private String value; //Valor a enviar
+    private boolean finish;
+	
+	private final String carName;
+	private final String worldName;
     
-    public AgentRadar(String name) throws Exception {
-        super(name);
-        infoRadar = new int[25];
-        finish = false;
+    public AgentRadar(String radarName, String carName, String worldName) throws Exception {
+        super(radarName);
+        
+		this.carName = carName;
+		this.worldName = worldName;
     }
     
     @Override
     public void init(){
         state = IDLE;
+        
+		infoRadar = new int[25];
         finish = false;
         
-        this.datosRadar = new JsonObject();
+        this.dataRadar = new JsonObject();
        
     }
     
     public void processRadar() {
-        JsonArray arrayDatos = datosRadar.get("radar").asArray(); //obtener datos del radar en array 
+        JsonArray arrayDatos = dataRadar.get("radar").asArray(); //obtener datos del radar en array 
         //JsonObject datGps = datosGps.get("gps").asObject();
 
         //int x = datGps.getInt("x", -1);
@@ -70,7 +76,7 @@ public class AgentRadar extends Agent {
                 case IDLE:
                     mensaje = receiveMessage();
                     if (mensaje.contains("radar")) { //Recibimos radar primero
-                        datosRadar = (JsonObject) Json.parse(mensaje);    
+                        dataRadar = (JsonObject) Json.parse(mensaje);    
                         this.state=PROCESS_DATA;
                     }
                     
@@ -101,7 +107,7 @@ public class AgentRadar extends Agent {
                 case SEND_CONFIRMATION:
                     JsonObject statusWorld = Json.object();
                     statusWorld.add("confirmation", "ok");
-                    sendMessage(AgentNames.AgentCar,statusWorld.toString());//Enviamos confirmacion a car
+                    sendMessage(carName,statusWorld.toString());//Enviamos confirmacion a car
                     this.state=IDLE;
                 break;
                 
@@ -111,7 +117,7 @@ public class AgentRadar extends Agent {
                 break;
                 case SEND_DATA:
                     processRadar();
-                    sendMessage(AgentNames.AgentWorld,value);
+                    sendMessage(worldName,value);
                     this.state=IDLE;    
                 break;
                     

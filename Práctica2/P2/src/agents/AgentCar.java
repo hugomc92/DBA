@@ -119,7 +119,7 @@ public class AgentCar extends Agent {
 					
 					Agent radar;
 					try {
-						 radar = new AgentRadar(radarName);
+						 radar = new AgentRadar(radarName, gpsName, worldName);
 						 radar.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
