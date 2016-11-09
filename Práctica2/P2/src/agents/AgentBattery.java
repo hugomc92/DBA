@@ -3,18 +3,21 @@ package agents;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
+import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
  * Clase que define al agente Battery, actua como controlador de AgentWorld y AgentRadar.
  * 
- * @author Bryan Moreno Picamán & Aarón Rodríguez Bueno 
+ * @author Bryan Moreno Picamán, Aarón Rodríguez Bueno & Hugo Maldonado
  */
 public class AgentBattery extends Agent {
 	
 	private static final int IDLE = 0;
-	private static final int PROCESS_DATA= 1;
+	private static final int PROCESS_DATA = 1;
 	private static final int SEND_CONFIRMATION = 2;
-	private static final int FINISH= 3;
+	private static final int FINISH = 3;
+	
+	private static final int BATTERY_LIMIT = 5;
 	
     private JsonObject responseObject;
 	private JsonObject commandObject;
@@ -22,8 +25,7 @@ public class AgentBattery extends Agent {
 	private int state;
 	private boolean finish;
 	private boolean refuel=false;
-	private String carName = "";
-	private String batteryName = "";
+	private AgentID carName;
 
 
 	/**
@@ -32,10 +34,9 @@ public class AgentBattery extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentBattery(String batteryName, String carName) throws Exception {
+	public AgentBattery(AgentID batteryName, AgentID carName) throws Exception {
 		super(batteryName);
 		
-		this.batteryName = batteryName;
 		this.carName=carName;
 	}
 
@@ -62,25 +63,41 @@ public class AgentBattery extends Agent {
 		while(!finish) {
 			switch(state) {
 				case IDLE:
-					//Mirar finalize o izar
+					
 					String response = this.receiveMessage();
-					this.responseObject = Json.parse(response).asObject();
-					this.state=PROCESS_DATA;
-				break;
+					
+					if(response.contains("CRASHED") || response.contains("finalize"))
+						this.state = FINISH;
+					else {
+						this.responseObject = Json.parse(response).asObject();
+
+						this.state = PROCESS_DATA;
+					}
+					
+					break;
 				case PROCESS_DATA:
+					
 					Double result = responseObject.get("battery").asDouble();
-					if(result<=1)
-					   refuel=true;
-					this.state=SEND_CONFIRMATION;
-				break;
+					
+					if(result <= BATTERY_LIMIT)
+					   refuel = true;
+					
+					this.state = SEND_CONFIRMATION;
+					
+					break;
 				case SEND_CONFIRMATION:
+					
 					this.commandObject = new JsonObject();
+					
 					this.commandObject.add("refuel", refuel);
+					
 					this.sendMessage(carName, commandObject.toString());
-				break;
+					
+					break;
 				case FINISH:
-					this.finish=true;
-				break;
+					this.finish = true;
+					
+					break;
 			}
 		}
 		
@@ -92,7 +109,8 @@ public class AgentBattery extends Agent {
 	  */
 	@Override
 	public void finalize() {
-		System.out.println("AgentGPS has just finish");
+		System.out.println("AgentBattery has just finish");
+		
 		super.finalize();
 	}
 }

@@ -5,6 +5,7 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
+import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
  * Clase que define al agente Scanner, el cual se va a encargar de controlar los datos relacionados
@@ -16,9 +17,11 @@ public class AgentScanner extends Agent {
     
     //Variables de estado
     private static final int IDLE = 0;
-    private static final int WAIT_GPS = 1;
-    private static final int WAIT_MOVEMENT = 2;
-    private static final int FINISH = 3;
+	private static final int PROCESS_DATA = 1;
+	private static final int SEND_CONFIRMATION = 2;
+    private static final int WAIT_MOVEMENT = 3;
+	private static final int SEND_INFO = 4;
+    private static final int FINISH = 5;
     private static final int WIDTH = 500;
     private static int HEIGHT = 500;
     
@@ -26,12 +29,14 @@ public class AgentScanner extends Agent {
     private float [][] map_scanner = new float [WIDTH][HEIGHT];
     private float [] local_scanner = new float [25];
     private boolean finish;
-    private JsonObject responseObject;
     
-    private String movementName;
-    private String scannerName;
-    private String carName;
-    private String gpsName;
+	private JsonObject responseObject;
+	private JsonObject scannerObject;
+	private JsonObject gpsObject;
+    
+    private AgentID movementName;
+    private AgentID carName;
+    private AgentID gpsName;
     
     /**
      * Constructor 
@@ -39,10 +44,10 @@ public class AgentScanner extends Agent {
      * 
      * @throws java.lang.Exception en la creaciÃ³n del agente.
      */
-    public AgentScanner(String scannerName,String movementName,String gpsName) throws Exception {
+    public AgentScanner(AgentID scannerName,AgentID movementName,AgentID gpsName) throws Exception {
         super(scannerName);
+		
         this.movementName = movementName;
-        this.scannerName = scannerName;
         this.gpsName = gpsName;
     }
     
@@ -57,12 +62,17 @@ public class AgentScanner extends Agent {
         finish = false;
         
         this.responseObject = new JsonObject();
+		
+		this.scannerObject = new JsonObject();
+		this.gpsObject = new JsonObject();
         
         /*for (float [] i : map_scanner){
             for(float j : i){
                 j = 0;
             }
         }*/
+		
+		System.out.println("AgentScanner has just started");
     }
     
     /**
@@ -72,119 +82,113 @@ public class AgentScanner extends Agent {
     public void execute(){
         while(!finish){
             switch(state){
-                case IDLE:  //Esperamos a que nos mande los datos del scanner el server
+                case IDLE:  // Esperamos a que nos lleguen todos los mensajes necesarios
+					
+					System.out.println("AgentScanner status: IDLE");
+					
                     String message;
-                    /*
-                    message = this.receiveMessage("*");
-                    if(message.contains("CRASHED")||message.contains("logout")) 
-                        state = finish;
-                    else{
-                        ...
-                    }
+					
+					boolean finalize = false;
+					
+                    for(int i=0; i<2 && !finalize; i++) {
+						message = this.receiveMessage();
+						
+						if(message.contains("scanner"))
+							this.scannerObject = Json.parse(message).asObject();
+						else if(message.contains("gps") && !message.contains("updated"))
+							this.gpsObject = Json.parse(message).asObject();
+						else if(message.contains("CRASHED") || message.contains("finalize"))
+							finalize = true;
+					}
+					
+					if(finalize)
+						this.state = FINISH;
+					else
+						this.state = PROCESS_DATA;
+						
                     break;
-                    */
-                    message = this.receiveMessage();
-                    
-                    
-                    this.responseObject = Json.parse(message).asObject();
-                    
-                    //Guardamos el array en un int de float mientras nos dan los datos del GPS
-                    int pos = 0;
-                    for (JsonValue j : responseObject.get("scanner").asArray()){
-                        local_scanner[pos] = j.asFloat();
-                        pos++;
-                    }
-                    
-                    state = WAIT_GPS;
+                case PROCESS_DATA:
+					
+					System.out.println("AgentScanner status: PROCESS_DATA");
+					
+					// Procesamos la información del scanner
+					int pos = 0;
+					for (JsonValue j : scannerObject.get("scanner").asArray()){
+						local_scanner[pos] = j.asFloat();
+						pos++;
+					}
+					
+					scannerObject = new JsonObject();
+					
+					// Procesamos la información del gps
+					int x, y;
+
+					x = gpsObject.get("x").asInt();
+					y = gpsObject.get("y").asInt();
+
+					//Metemos los datos del scanner dados anteriormente en su posiciÃ³n en map_scanner
+					int posi = 0;
+					for(int i = x-1; i <= x+1; i++){
+						for (int j = y-1; j <= y+1; j++){
+							map_scanner[i][j] = local_scanner[posi];
+							posi++;
+						}
+					}
+					
+					gpsObject = new JsonObject();
+					
                     break;
-                
-                
-                
-                
-                
-                case WAIT_GPS:    //Esperamos a que nos mande los datos del GPS el GPS Agent
-                    String messageGPS;
-                    int x, y;
-                    /*
-                    message = this.receiveMessage("*");
-                    if(message.contains("CRASHED")||message.contains("logout")) 
-                        state = finish;
-                    else{
-                        ...
-                    }
+				case SEND_CONFIRMATION:
+					
+					System.out.println("AgentScanner status: PROCESS_DATA");
+					
+					//Avisamos al Agent Car que estamos listos
+					responseObject = new JsonObject(); //Lo limpiamos
+					responseObject.add(this.getName(), "ok");
+					message = responseObject.toString();
+					sendMessage(carName, message);
+					
                     break;
-                    */
-                    messageGPS = this.receiveMessage();
-                        
-                    this.responseObject = Json.parse(messageGPS).asObject();
-                    
-                    x = responseObject.get("x").asInt();
-                    y = responseObject.get("y").asInt();
-                    
-                    //Metemos los datos del scanner dados anteriormente en su posiciÃ³n en map_scanner
-                    int posi = 0;
-                    for (int i = x-1; i <= x+1; i++){
-                        for (int j = y-1; j <= y+1; j++){
-                            map_scanner[i][j] = local_scanner[posi];
-                            posi++;
-                        }
-                    }
-                    
-                    //Avisamos al Agent Car que estamos listos
-                    responseObject = new JsonObject(); //Lo limpiamos
-                    responseObject.add(scannerName, "ok");
-                    messageGPS = responseObject.toString();
-                    sendMessage(carName, messageGPS);
-                    
-                    state = WAIT_MOVEMENT;
-                    break;
-                    
-                    
-                    
-                    
-                    
-                case WAIT_MOVEMENT: //Esperamos a que nos avise el Movement Agent nos pida los datos del scanner
+                case WAIT_MOVEMENT:		//Esperamos a que el Movement Agent nos pida los datos del scanner
+					
+					System.out.println("AgentScanner status: WAIT_MOVEMENT");
                     
                     String messageMovement;
-                    /*
-                    message = this.receiveMessage("*");
-                    if(message.contains("CRASHED")||message.contains("logout")) 
-                        state = finish;
-                    else{
-                        ...
-                    }
-                    break;
-                    */
+
                     messageMovement = this.receiveMessage();
                         
                     this.responseObject = Json.parse(messageMovement).asObject();
                     
-                    if(messageMovement.contains("request")){
-                        responseObject = new JsonObject(); //Lo limpiamos
-                        
-                        //Empaquetamos el array entero en un JSon y se lo enviamos
-                        JsonArray vector = new JsonArray();
-                        for (float [] i : map_scanner){
-                            for (float j : i){
-                                vector.add(j);
-                            }
-                        }
-                        responseObject.add("",vector);
-                        messageMovement = responseObject.toString();
-                        this.sendMessage(movementName,messageMovement);
-                    }
-                    else{
+                    if(messageMovement.contains("request"))
+                        state = SEND_INFO;
+                    else
                         state = FINISH;
-                    }
                     
+                    break; 
+				case SEND_INFO:
+					
+					System.out.println("AgentScanner status: SEND_INFO");
+					
+					responseObject = new JsonObject(); //Lo limpiamos
+                        
+					//Empaquetamos el array entero en un JSon y se lo enviamos
+					JsonArray vector = new JsonArray();
+					for (float [] i : map_scanner){
+						for (float j : i){
+							vector.add(j);
+						}
+					}
+					responseObject.add("",vector);
+					messageMovement = responseObject.toString();
+					this.sendMessage(movementName,messageMovement);
+					
                     break;
-                    
-                    
-                
-                    
-                
                 case FINISH:    //Matamos al agente
+					
+					System.out.println("AgentScanner status: FINISH");
+					
                     this.finalize();
+					
                     break;
             }
         }
@@ -197,6 +201,9 @@ public class AgentScanner extends Agent {
     */
     @Override
     public void finalize() {
+		
+		System.out.println("AgentScanner has just finished");
+		
         super.finalize();
     }
 }

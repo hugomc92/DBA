@@ -3,6 +3,7 @@ package agents;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
+import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
  * Clase que define al agente coche, que va a actuar como controlador y va a ser el único que se conecte al servidor.
@@ -26,14 +27,14 @@ public class AgentCar extends Agent {
 	private String key;
 	private boolean refuel;
 	
-	private final String serverAgent;
+	private final AgentID serverAgent;
 	private final String map;
-	private final String movementName;
-	private final String scannerName;
-	private final String radarName;
-	private final String gpsName;
-	private final String batteryName;
-	private final String worldName;
+	private final AgentID movementName;
+	private final AgentID scannerName;
+	private final AgentID radarName;
+	private final AgentID gpsName;
+	private final AgentID batteryName;
+	private final AgentID worldName;
 	
 	private JsonObject responseObject;
 	private JsonObject commandObject;
@@ -56,7 +57,7 @@ public class AgentCar extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentCar(String carName, String serverAgent, String map, String movementName, String scannerName, String radarName, String gpsName, String worldName, String batteryName) throws Exception {
+	public AgentCar(AgentID carName, AgentID serverAgent, String map, AgentID movementName, AgentID scannerName, AgentID radarName, AgentID gpsName, AgentID worldName, AgentID batteryName) throws Exception {
 		super(carName);
 
 		this.serverAgent = serverAgent;
@@ -101,12 +102,16 @@ public class AgentCar extends Agent {
 			switch(state) {
 				case WAKE_AGENTS:
 					
+					System.out.println("AgentCar status: WAKE_AGENTS");
+					
 					Agent movement;
 					try {
-						movement = new AgentMovement(movementName, worldName, scannerName, this.getName());
+						movement = new AgentMovement(movementName, worldName, scannerName, this.getAid());
 						movement.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
+					} finally {
+						this.state = FINALIZE_MOVEMENT;
 					}
 					
 					Agent scanner;
@@ -115,6 +120,8 @@ public class AgentCar extends Agent {
 						 scanner.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
+					} finally {
+						this.state = FINALIZE_MOVEMENT;
 					}
 					
 					Agent radar;
@@ -123,36 +130,45 @@ public class AgentCar extends Agent {
 						 radar.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
+					} finally {
+						this.state = FINALIZE_MOVEMENT;
 					}
 					
 					Agent gps;
 					try {
-						gps = new AgentGPS(gpsName, radarName, this.getName(), movementName, worldName);
+						gps = new AgentGPS(gpsName, radarName, this.getAid(), movementName, worldName);
 						gps.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
+					} finally {
+						this.state = FINALIZE_MOVEMENT;
 					}
 
 					Agent battery;
 					try {
-						battery = new AgentBattery(batteryName,this.getName());
+						battery = new AgentBattery(batteryName,this.getAid());
 						battery.start();
 						this.state = LOGIN_SERVER;
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
+					} finally {
+						this.state = FINALIZE_MOVEMENT;
 					}
 
 					
 					break;
 				case LOGIN_SERVER:
+					
+					System.out.println("AgentCar status: LOGIN_SERVER");
+					
 					JsonObject loginCommand = new JsonObject();
 					
 					loginCommand.add("command", "login");
 					loginCommand.add("world", map);
-					loginCommand.add("radar", radarName);
-					loginCommand.add("scanner", scannerName);
-					loginCommand.add("battery", batteryName);
-					loginCommand.add("gps", gpsName);
+					loginCommand.add("radar", radarName.getLocalName());
+					loginCommand.add("scanner", scannerName.getLocalName());
+					loginCommand.add("battery", batteryName.getLocalName());
+					loginCommand.add("gps", gpsName.getLocalName());
 					
 					this.sendMessage(this.serverAgent, loginCommand.toString());
 					
@@ -160,13 +176,16 @@ public class AgentCar extends Agent {
 					
 					break;
 				case WAIT_SERVER:
+					
+					System.out.println("AgentCar status: WAIT_SERVER");
+					
 					String response = this.receiveMessage();
 					
 					this.responseObject = Json.parse(response).asObject();
 					
 					String result = responseObject.get("result").asString();
 					
-					if(result.contains("BAD_") || result.equals("CRASHED"))
+					if(result.contains("BAD_"))
 						this.state = FINALIZE_MOVEMENT;
 					else {
 						this.key = result;
@@ -176,6 +195,8 @@ public class AgentCar extends Agent {
 					
 					break;
 				case IDLE:
+					
+					System.out.println("AgentCar status: IDLE");
 					
 					for(int i=0; i<numAgents; i++) {
 						String message = this.receiveMessage();
@@ -196,6 +217,9 @@ public class AgentCar extends Agent {
 					
 					break;
 				case SEND_PROCEED:
+					
+					System.out.println("AgentCar status: SEND_PROCEED");
+					
 					if(this.refuel) {
 						
 						this.refuel = false;
@@ -220,6 +244,8 @@ public class AgentCar extends Agent {
 					break;
 				case WAIT_MOVEMENT:
 					
+					System.out.println("AgentCar status: WAIT_MOVEMENT");
+					
 					String movementExecution = this.receiveMessage();
 					
 					JsonObject movementObject = Json.parse(movementExecution).asObject();
@@ -235,12 +261,18 @@ public class AgentCar extends Agent {
 					
 					break;
 				case SEND_COMMAND:
+					
+					System.out.println("AgentCar status: SEND_COMMAND");
+					
 					this.sendMessage(this.serverAgent, this.commandObject.toString());
 					
 					this.state = WAIT_SERVER;
 					
 					break;
 				case FINALIZE_MOVEMENT:
+					
+					System.out.println("AgentCar status: FINALIZE_MOVEMENT");
+					
 					// Se ejecuta cuando se encentra logout o alguna petición mala. Mata a todos los agentes como controlador.
 					this.sendMessage(movementName, "finalize");
 					this.sendMessage(scannerName, "finalize");
@@ -249,8 +281,12 @@ public class AgentCar extends Agent {
 					this.sendMessage(batteryName, "finalize");
 					
 					this.finish = true;
+					
 					break;
 				case FINISH:
+					
+					System.out.println("AgentCar status: FINISH");
+					
 					// Se ejecuta cuando se encuentra CRASHED, mata sólo a AgentMovement porque al resto le llegan los CRASHED igualmente.
 					this.sendMessage(movementName, "finalize");
 					
@@ -269,7 +305,7 @@ public class AgentCar extends Agent {
 	@Override
 	public void finalize() {
 		
-		System.out.println("AgentCar has just finish");
+		System.out.println("AgentCar has just finished");
 		
 		super.finalize();
 	}

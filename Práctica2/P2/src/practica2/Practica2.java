@@ -5,6 +5,7 @@ import agents.Agent;
 import agents.AgentCar;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.AgentsConnection;
+import java.util.UUID;
 
 /**
  * Clase principal que lanzará toda la aplicación.
@@ -14,7 +15,18 @@ import es.upv.dsic.gti_ia.core.AgentsConnection;
  */
 public class Practica2 {
 	
-	private static final String serverAgent = "Izar";
+	private static final AgentID SERVER_AGENT = new AgentID("Izar");
+	
+	// Generamos los nombres de los agentes de forma aleatoria y única en cada ejecución para evitar la duplicidad de nombres con otros agentes en la plataforma
+	// Son constantes durante toda la ejecución.
+	private static final AgentID CAR_NAME = new AgentID(UUID.randomUUID().toString());
+	private static final String MAP = UUID.randomUUID().toString();
+	private static final AgentID MOVEMENT_NAME = new AgentID(UUID.randomUUID().toString());
+	private static final AgentID SCANNER_NAME = new AgentID(UUID.randomUUID().toString());
+	private static final AgentID RADAR_NAME = new AgentID(UUID.randomUUID().toString());
+	private static final AgentID GPS_NAME = new AgentID(UUID.randomUUID().toString());
+	private static final AgentID WORLD_NAME = new AgentID(UUID.randomUUID().toString());
+	private static final AgentID BATTERY_NAME = new AgentID(UUID.randomUUID().toString());
 	
 	/**
 	 * @param args Los argumentos pasados por línea de comandos.
@@ -24,9 +36,10 @@ public class Practica2 {
 	public static void main(String[] args) throws Exception {
 		
 		// Nuestra configuración privada de conexión con el servidor
-		AgentsConnection.connect("isg2.ugr.es", 6000, serverAgent, "Cadenas", "Toro", false);
+		AgentsConnection.connect("isg2.ugr.es", 6000, SERVER_AGENT.getLocalName(), "Cadenas", "Toro", false);
 		
-		Agent car = new AgentCar("Car", serverAgent, "map1", "Movement", "Scanner", "Radar", "GPS", "World", "Battery");
+		// Lanzamos el agente controlador de los demás, es además el único que se va a conectar con el servidor
+		Agent car = new AgentCar(CAR_NAME, SERVER_AGENT, MAP, MOVEMENT_NAME, SCANNER_NAME, RADAR_NAME, GPS_NAME, WORLD_NAME, BATTERY_NAME);
 		
 		car.start();
 	}

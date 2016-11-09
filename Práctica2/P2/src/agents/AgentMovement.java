@@ -4,6 +4,7 @@ package agents;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
+import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
  *
@@ -22,13 +23,14 @@ public class AgentMovement extends Agent{
     private static final int WIDTH = 500, HEIGHT = 500;
     private float [][] map_scanner = new float [WIDTH][HEIGHT];
     private int [][] map_world = new int [WIDTH][HEIGHT];
+	
+	private int gpsCont;
     
     private JsonObject responseObject;
     
-    private String worldName;
-    private String movementName;
-    private String scannerName;
-    private String carName;
+    private AgentID worldName;
+    private AgentID scannerName;
+    private AgentID carName;
     
     String message;
     
@@ -36,28 +38,31 @@ public class AgentMovement extends Agent{
      * Constructor 
      * @param aid El ID de agente para crearlo.
      * 
-     * @throws java.lang.Exception en la creaciÃ³n del agente.
+     * @throws java.lang.Exception en la creación del agente.
      * 
-     * @author AarÃ³n RodrÃ­guez Bueno
+     * @author Aarón Rodríguez Bueno
      */
-    public AgentMovement(String movementName, String worldName, String scannerName, String carName) throws Exception {
+    public AgentMovement(AgentID movementName, AgentID worldName, AgentID scannerName, AgentID carName) throws Exception {
             super(movementName);
+			
             this.scannerName= scannerName;
             this.worldName = worldName;
             this.scannerName = scannerName;
             this.carName = carName;
-
     }
     
     /**
-     * MÃ©todo de inicializaciÃ³n del Agent Movement
+     * MÃ©todo de inicialización del Agent Movement
      * 
-     * @author AarÃ³n RodrÃ­guez Bueno
+     * @author Aarón Rodríguez Bueno
      */
     @Override
     public void init(){
+		
         state = IDLE;
         finish = false;
+		
+		this.gpsCont = -1;
         
         this.responseObject = new JsonObject();
         
@@ -73,13 +78,15 @@ public class AgentMovement extends Agent{
         }
         x = y = -1;
         */
+		
+		System.out.println("AgentMovement has just started");
     }
     
     
     /**
-    * MÃ©todo de ejecuciÃ³n del agente Scanner
+    * MÃ©todo de ejecución del agente Scanner
     * 
-    * @author AarÃ³n RodrÃ­guez Bueno & Bryan Moreno Picamán
+    * @author Aarón Rodríguez Bueno & Bryan Moreno Picamán
     */  
     @Override
     public void execute() {
@@ -87,48 +94,30 @@ public class AgentMovement extends Agent{
             switch(state){
                 case IDLE:  //Esperando al proceed del Agent Car
                     
-                    /*
-                    message = this.receiveMessage("*");
-                    if(message.contains("CRASHED")||message.contains("logout")) 
-                        state = finish;
-                    else{
-                        ...
-                    }
-                    break;
-                    */
+					System.out.println("AgentMovement status: IDLE");
+                    
                     message = this.receiveMessage();
-                    if (message.contains("ok")){
+					
+					if(message.contains("finalize"))
+						this.state = FINISH;
+					else {
+						JsonObject response = Json.parse(message).asObject();
+						
+						this.gpsCont = response.get("calculate").asInt();
+					
                         //Le pedimos los datos al Agent Scanner
                         responseObject = new JsonObject(); //Lo limpiamos
-                        responseObject.add(movementName, "ok");
+                        responseObject.add(this.getName(), "ok");
                         message = responseObject.toString();
                         sendMessage(scannerName, message);
                         
                         state = WAIT_SCANNER;
-                    }
-                    else{
-                        state = FINISH;   
-                    }
-                    
-                    
+                    }               
                     break;
-               
-                
-                
-                
-                
-                
                 case WAIT_SCANNER:  //Esperando los datos del Agent Scanner
-                    
-                    /*
-                    message = this.receiveMessage("*");
-                    if(message.contains("CRASHED")||message.contains("logout")) 
-                        state = finish;
-                    else{
-                        ...
-                    }
-                    break;
-                    */
+					
+					System.out.println("AgentMovement status: WAIT_SCANNER");
+
                     message = this.receiveMessage();
                     this.responseObject = Json.parse(message).asObject();
                     
@@ -146,31 +135,17 @@ public class AgentMovement extends Agent{
                     
                     //Pedimos al Agent World los datos
                     responseObject = new JsonObject(); //Lo limpiamos
-                    responseObject.add(movementName, "ok");
+                    responseObject.add(this.getName(), "ok");
                     message = responseObject.toString();
                     sendMessage(worldName, message);
                     
                     state = WAIT_WORLD;
                     break;
-                
-                
-                
-                
-                
-                
-                
                 case WAIT_WORLD:    //Esperando los datos del Agent World
                     
-                    /*
-                    message = this.receiveMessage("*");
-                    if(message.contains("CRASHED")||message.contains("logout")) 
-                        state = finish;
-                    else{
-                        ...
-                    }
-                    break;
-                    */
-                    message = this.receiveMessage();
+                    System.out.println("AgentMovement status: WAIT_WORLD");
+					
+					message = this.receiveMessage();
                     this.responseObject = Json.parse(message).asObject();
                     
                     //Actualizamos nuestro world_scanner
@@ -189,24 +164,19 @@ public class AgentMovement extends Agent{
                     
                     state = EXECUTE;
                     break;
-                
-                
-                
-                
-                
-                
-                
-                case EXECUTE:   //Calcula la decisiÃ³n y se la manda al Agent Car
+                case EXECUTE:   //Calcula la decisión y se la manda al Agent Car
+					
+					System.out.println("AgentMovement status: EXECUTE");
                     
                     //Una vez tenemos todos los datos, calculamos el mejor movimiento
-                 /*   //PRIMERA HEURISTICA: movernos sÃ³lo en direcciÃ³n al goal en lÃ­nea recta
+                 /*   //PRIMERA HEURISTICA: movernos sólo en dirección al goal en línea recta
                     float menor = map_scanner[x-1][y-1]+1;
                     int newX = -1, newY = -1;
                                        
                     for (int i = x-1; i <= x+1; i++){
                         for (int j = y-1; j <= y+1; j++){
                             if (menor > map_scanner[i][j]){ //No miro que si x!=i o y!=j porque si no estamos ya en el goal, 
-                                                            //siempre habrÃ¡ un borde con menos valor que la posiciÃ³n en la que estamos actualmente
+                                                            //siempre habrÃ¡ un borde con menos valor que la posición en la que estamos actualmente
                                newX = i;
                                newY = j;
                             }
@@ -249,7 +219,7 @@ public class AgentMovement extends Agent{
 					
                     responseObject = new JsonObject(); //Lo limpiamos
                     /*
-					//Comprobamos quÃ© posiciÃ³n respecto a nuestra posiciÃ³n es la que hemos elegido
+					//Comprobamos quÃ© posición respecto a nuestra posición es la que hemos elegido
                     if (newX == x-1){
                         if (newY == y-1)
                             responseObject.add("command", "moveNW");
@@ -274,30 +244,35 @@ public class AgentMovement extends Agent{
                     }*/
                     
 					//SÓLO PARA EL PRIMER MAPA
-					responseObject.add("movement", "moveSW");
+					responseObject.add("mov", "moveSW");
 					
                     message = responseObject.toString();
                     sendMessage(carName, message);
                     
                     state = IDLE;
+					
                     break;
-
-                
                 case FINISH:    //Matamos al agente
+					
+					System.out.println("AgentMovement status: FINISH");
+					
                     this.finalize();
+					
                     break;
             }
         }
     }
     
-    
     /**
-    * Método de finalizaciÃ³n del Agent Movement
+    * Método de finalización del Agent Movement
      * 
      * @author Aarón Rodríguez Bueno
     */
     @Override
     public void finalize() {
+		
+		System.out.println("AgentMovement has just finished");
+		
         super.finalize();
     }
 }

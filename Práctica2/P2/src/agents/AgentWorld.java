@@ -3,6 +3,7 @@ package agents;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
+import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
  * Clase que define al agente World.
@@ -21,14 +22,13 @@ public class AgentWorld extends Agent {
     private JsonObject responseObject;
 	private JsonObject commandObject;
         
-        private int state;
-        private boolean finish;
-        private final String radarName;
-        private final String gpsName;
-        private final String movementName;
-        private final String worldName;
-        
-        private int cont;
+	private int state;
+	private boolean finish;
+	private final AgentID radarName;
+	private final AgentID gpsName;
+	private final AgentID movementName;
+
+	private int cont;
         
 	/**
 	 * @param worldName El nombre de agente para crearlo.
@@ -38,9 +38,9 @@ public class AgentWorld extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentWorld(String worldName,String radarName,String gpsName,String movementName) throws Exception {
+	public AgentWorld(AgentID worldName,AgentID radarName,AgentID gpsName,AgentID movementName) throws Exception {
 		super(worldName);
-		this.worldName = worldName;
+		
 		this.radarName=radarName;
 		this.gpsName=gpsName;
 		this.movementName=movementName;
@@ -69,50 +69,67 @@ public class AgentWorld extends Agent {
 		System.out.println("AgentWorld execution");
 		
 		while(!finish) {
-			switch(state) {
-                                
+			switch(state) {   
 				case IDLE:
+					
 					String responseGPS = this.receiveMessage();
+					
 					this.responseObject = Json.parse(responseGPS).asObject();
+					
 					String resultGPS = responseObject.get("gps").asString();
 
 					if(!resultGPS.contains("updated"))
 						this.updateWorld(resultGPS);
+					
 					this.state = WAIT_RADAR;
+					
 					break;
-
 				case WAIT_RADAR:
+					
 					String responseRadar = this.receiveMessage();
+					
 					this.responseObject = Json.parse(responseRadar).asObject();
+					
 					String resultRadar = responseObject.get("gps").asString();
+					
 					this.updateWorld(resultRadar);
+					
 					this.state = WARN_RADAR;
-					break;
-                                    
+					
+					break;                  
 				case WARN_RADAR:
+					
 					this.commandObject = new JsonObject();
 
 					this.commandObject.add("gps","updated");
 
-					this.sendMessage(worldName, commandObject.toString());
-					this.state=WAIT_MOVEMENT;
+					this.sendMessage(this.getAid(), commandObject.toString());
+					
+					this.state = WAIT_MOVEMENT;
 
-					break;
-                                        
+					break;                
 				case WAIT_MOVEMENT:
+					
 					String confirmation = this.receiveMessage();
+					
 					JsonObject confirmationObject = Json.parse(confirmation).asObject();
+					
 					String confirmationResult = confirmationObject.get("sendWorld").toString();
+					
 					if(confirmationResult.contains("request"))
-						this.state= SEND_INFO;
+						this.state = SEND_INFO;
                                         
 				case SEND_INFO:
+					
 					this.sendWorld();
+					
 					this.state=IDLE;
+					
 					break;
            
 				case FINISH:
 					this.finish = true;
+					
 					break;
 			}
 		}
@@ -130,11 +147,14 @@ public class AgentWorld extends Agent {
 	}
 
     private void updateWorld(String resultMessage) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     private void sendWorld() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // Construir el mensaje que vamos a enviar al movemen
+		JsonObject world = new JsonObject();
+		world.add("world", "");
+		
+		this.sendMessage(movementName, world.toString());
     }
-
 }
