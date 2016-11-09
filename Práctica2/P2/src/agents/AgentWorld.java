@@ -57,7 +57,7 @@ public class AgentWorld extends Agent {
 		
 		this.cont = 0;
       	
-		System.out.println("AgentWorld awake.");
+		System.out.println("AgentWorld has just started");
 	}
 	
 	/**
@@ -71,6 +71,8 @@ public class AgentWorld extends Agent {
 		while(!finish) {
 			switch(state) {   
 				case IDLE:
+					
+					System.out.println("AgentWorld status: IDLE");
 					
 					String responseGPS = this.receiveMessage();
 					
@@ -86,6 +88,8 @@ public class AgentWorld extends Agent {
 					break;
 				case WAIT_RADAR:
 					
+					System.out.println("AgentWorld status: WAIT_RADAR");
+					
 					String responseRadar = this.receiveMessage();
 					
 					this.responseObject = Json.parse(responseRadar).asObject();
@@ -99,6 +103,8 @@ public class AgentWorld extends Agent {
 					break;                  
 				case WARN_RADAR:
 					
+					System.out.println("AgentWorld status: WARN_RADAR");
+					
 					this.commandObject = new JsonObject();
 
 					this.commandObject.add("gps","updated");
@@ -109,6 +115,8 @@ public class AgentWorld extends Agent {
 
 					break;                
 				case WAIT_MOVEMENT:
+					
+					System.out.println("AgentWorld status: WAIT_MOVEMENT");
 					
 					String confirmation = this.receiveMessage();
 					
@@ -121,6 +129,8 @@ public class AgentWorld extends Agent {
                                         
 				case SEND_INFO:
 					
+					System.out.println("AgentWorld status: SEND_INFO");
+					
 					this.sendWorld();
 					
 					this.state=IDLE;
@@ -128,13 +138,14 @@ public class AgentWorld extends Agent {
 					break;
            
 				case FINISH:
+					
+					System.out.println("AgentWorld status: FINISH");
+					
 					this.finish = true;
 					
 					break;
 			}
 		}
-		
-		this.finalize();
 	}
 	
 	/**
@@ -142,12 +153,13 @@ public class AgentWorld extends Agent {
 	  */
 	@Override
 	public void finalize() {
-		System.out.println("AgentGPS has just finish");
+		System.out.println("AgentWorld has just finished");
+		
 		super.finalize();
 	}
 
     private void updateWorld(String resultMessage) {
-        
+        System.out.println("AgentWorld updating world");
     }
 
     private void sendWorld() {

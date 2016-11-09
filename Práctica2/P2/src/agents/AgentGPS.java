@@ -75,7 +75,7 @@ public class AgentGPS extends Agent {
 		this.finish = false;
 		this.responseObject = new JsonObject();
       	
-		System.out.println("AgentGPS awake.");
+		System.out.println("AgentGPS has just started");
 	}
 	
 	/**
@@ -90,6 +90,8 @@ public class AgentGPS extends Agent {
 			switch(state) {
 				case WAKE_WORLD:
 					
+					System.out.println("AgentGPS status: WAKE_WORLD");
+					
 					Agent worldMap;
 					try {
 						worldMap = new AgentWorld(worldName,radarName,gpsName,movementName);
@@ -103,6 +105,8 @@ public class AgentGPS extends Agent {
 					break;         
 				case IDLE:
 					
+					System.out.println("AgentGPS status: IDLE");
+					
 					String response = this.receiveMessage();
 					
 					if(response.contains("CRASHED") || response.contains("finalize")) 
@@ -115,6 +119,8 @@ public class AgentGPS extends Agent {
 
 					break;
 				case PROCESS_DATA:
+					
+					System.out.println("AgentGPS status: PROCESS_DATA");
 					
 					int nX = responseObject.get("x").asInt();
 					int nY = responseObject.get("y").asInt();
@@ -133,6 +139,8 @@ public class AgentGPS extends Agent {
 					break;              
 				case UPDATE_WORLD:
 					
+					System.out.println("AgentGPS status: UPDATE_WORLD");
+					
 					this.commandObject = new JsonObject();
 					
 					if(needUpdate){
@@ -150,6 +158,8 @@ public class AgentGPS extends Agent {
 					break;                   
 				case WAIT_WORLD:
 					
+					System.out.println("AgentGPS status: WAIT_WORLD");
+					
 					String confirmation = this.receiveMessage();
 					
 					JsonObject confirmationObject = Json.parse(confirmation).asObject();
@@ -163,6 +173,8 @@ public class AgentGPS extends Agent {
                                         
 				case WARN_RADAR:
 					
+					System.out.println("AgentGPS status: WARN_RADAR");
+					
 					this.commandObject = new JsonObject();
 					this.commandObject.add("gps","ok");
 					
@@ -172,6 +184,8 @@ public class AgentGPS extends Agent {
 					
 					break;                
 				case SEND_CONFIRMATION:
+					
+					System.out.println("AgentGPS status: SEND_CONFIRMATION");
 					
 					this.commandObject = new JsonObject();
 					
@@ -184,6 +198,9 @@ public class AgentGPS extends Agent {
 					
 					break;
 				case FINISH_WORLD:
+					
+					System.out.println("AgentGPS status: FINISH_WORLD");
+					
 					// Se ejecuta cuando se encentra logout o un CRASH. Mata a el agente world y pasa a estado de finalización.
 					this.sendMessage(worldName, "finalize");
 					
@@ -191,13 +208,14 @@ public class AgentGPS extends Agent {
 					
 					break;             
 				case FINISH:
+					
+					System.out.println("AgentGPS status: FINISH");
+					
 					this.finish = true;
 					
 					break;
 			}
 		}
-		
-		this.finalize();
 	}
 	
 	/**
@@ -205,7 +223,9 @@ public class AgentGPS extends Agent {
 	  */
 	@Override
 	public void finalize() {
-		System.out.println("AgentGPS has just finish");
+		
+		System.out.println("AgentGPS has just finished");
+		
 		super.finalize();
 	}
 }

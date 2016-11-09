@@ -220,18 +220,18 @@ public class AgentCar extends Agent {
 					
 					System.out.println("AgentCar status: SEND_PROCEED");
 					
-					if(this.refuel) {
-						
-						this.refuel = false;
+					/*if(this.refuel) {
 						
 						this.commandObject = new JsonObject();
 						
 						this.commandObject.add("command", "refuel");
 						this.commandObject.add("key", key);
 						
+						this.refuel = false;
+						
 						this.state = SEND_COMMAND;
 					}
-					else {
+					else {*/
 						JsonObject confirmation = new JsonObject();
 					
 						confirmation.add("calculate", gpsCont);
@@ -239,7 +239,7 @@ public class AgentCar extends Agent {
 						this.sendMessage(movementName, confirmation.toString());
 						
 						this.state = WAIT_MOVEMENT;
-					}
+					//}
 					
 					break;
 				case WAIT_MOVEMENT:
@@ -256,6 +256,19 @@ public class AgentCar extends Agent {
 					
 					this.commandObject.add("command", movementExecution);
 					this.commandObject.add("key", key);
+					
+					// PROVISIONAL MIENTRAS BUSCO OTRA SOLUCIÓN AL INTERBLOQUEO
+					if(this.refuel) {
+						
+						this.commandObject = new JsonObject();
+						
+						this.commandObject.add("command", "refuel");
+						this.commandObject.add("key", key);
+						
+						this.refuel = false;
+						
+						this.state = SEND_COMMAND;
+					}
 					
 					this.state = SEND_COMMAND;
 					
@@ -295,8 +308,6 @@ public class AgentCar extends Agent {
 					break;
 			}
 		}
-		
-		this.finalize();
 	}
 	
 	/**

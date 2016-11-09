@@ -49,7 +49,7 @@ public class AgentBattery extends Agent {
 		this.responseObject = new JsonObject();
 		this.state = IDLE;
 		
-		System.out.println("AgentBattery awake.");
+		System.out.println("AgentBattery has just started");
 	}
 	
 	/**
@@ -64,6 +64,8 @@ public class AgentBattery extends Agent {
 			switch(state) {
 				case IDLE:
 					
+					System.out.println("AgentWorld status: IDLE");
+					
 					String response = this.receiveMessage();
 					
 					if(response.contains("CRASHED") || response.contains("finalize"))
@@ -77,6 +79,8 @@ public class AgentBattery extends Agent {
 					break;
 				case PROCESS_DATA:
 					
+					System.out.println("AgentWorld status: PROCESS_DATA");
+					
 					Double result = responseObject.get("battery").asDouble();
 					
 					if(result <= BATTERY_LIMIT)
@@ -87,6 +91,8 @@ public class AgentBattery extends Agent {
 					break;
 				case SEND_CONFIRMATION:
 					
+					System.out.println("AgentWorld status: SEND_CONFIRMATION");
+					
 					this.commandObject = new JsonObject();
 					
 					this.commandObject.add("refuel", refuel);
@@ -95,6 +101,9 @@ public class AgentBattery extends Agent {
 					
 					break;
 				case FINISH:
+					
+					System.out.println("AgentWorld status: FINISH");
+					
 					this.finish = true;
 					
 					break;
@@ -109,7 +118,7 @@ public class AgentBattery extends Agent {
 	  */
 	@Override
 	public void finalize() {
-		System.out.println("AgentBattery has just finish");
+		System.out.println("AgentBattery has just finished");
 		
 		super.finalize();
 	}

@@ -80,6 +80,9 @@ public class AgentScanner extends Agent {
     */  
     @Override
     public void execute(){
+		
+		System.out.println("AgentScanner execution");
+		
         while(!finish){
             switch(state){
                 case IDLE:  // Esperamos a que nos lleguen todos los mensajes necesarios
@@ -187,7 +190,7 @@ public class AgentScanner extends Agent {
 					
 					System.out.println("AgentScanner status: FINISH");
 					
-                    this.finalize();
+                    this.finish = true;
 					
                     break;
             }

@@ -90,6 +90,9 @@ public class AgentMovement extends Agent{
     */  
     @Override
     public void execute() {
+		
+		System.out.println("AgentMovement execution");
+		
         while(!finish){
             switch(state){
                 case IDLE:  //Esperando al proceed del Agent Car
@@ -256,7 +259,7 @@ public class AgentMovement extends Agent{
 					
 					System.out.println("AgentMovement status: FINISH");
 					
-                    this.finalize();
+                    this.finish = true;
 					
                     break;
             }

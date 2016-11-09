@@ -72,6 +72,9 @@ public class AgentRadar extends Agent {
     
     @Override
     public void execute() {
+		
+		System.out.println("AgentRadar execution");
+		
         while (!finish) {    
             switch(state) {
                 case IDLE:
@@ -154,12 +157,11 @@ public class AgentRadar extends Agent {
 					
 					System.out.println("AgentRadar status: FINISH");
 					
-                    finish=true;
+                    this.finish = true;
 					
 					break;
             }
         }
-        this.finalize();
     }
     
     @Override
