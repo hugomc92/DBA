@@ -2,8 +2,11 @@
 package agents;
 
 import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.AgentID;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Clase que define al agente coche, que va a actuar como controlador y va a ser el único que se conecte al servidor.
@@ -178,17 +181,47 @@ public class AgentCar extends Agent {
 					
 					System.out.println("SERVER MESSAGE AFTER LOGIN: \n" + response);
 					
-					this.responseObject = Json.parse(response).asObject();
+					if(response.contains("result")) {
+						this.responseObject = Json.parse(response).asObject();
 					
-					String result = responseObject.get("result").asString();
-					
-					if(result.contains("BAD_"))
-						this.state = FINALIZE_MOVEMENT;
-					else {
-						this.key = result;
-						
-						this.state = IDLE;
+						String result = responseObject.get("result").asString();
+
+						if(result.contains("BAD_"))
+							this.state = FINALIZE_MOVEMENT;
+						else {
+							this.key = result;
+
+							this.state = IDLE;
+						}
 					}
+					else if(response.contains("trace")) {
+						
+						try {
+							this.responseObject = Json.parse(response).asObject();
+
+							JsonArray trace = responseObject.get("trace").asArray();
+
+							byte data[] = new byte[trace.size()];
+
+							for(int i=0; i<data.length; i++)
+								data[i] = (byte) trace.get(i).asInt();
+						
+							FileOutputStream fos = new FileOutputStream("trace.png");
+							fos.write(data);
+							fos.close();
+
+							System.out.println("Saved trace");
+							
+						} catch(IOException ex) {
+							System.err.println("Error procesing trace");
+							
+							System.err.println(ex.getMessage());
+						} finally {
+							this.state = FINALIZE_MOVEMENT;
+						}
+					}
+					else
+						this.state = FINALIZE_MOVEMENT;
 					
 					break;
 				case IDLE:
