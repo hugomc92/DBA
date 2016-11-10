@@ -122,7 +122,7 @@ public class AgentWorld extends Agent {
 
 					this.commandObject.add("gps","updated");
 
-					this.sendMessage(this.getAid(), commandObject.toString());
+					this.sendMessage(this.radarName, commandObject.toString());
 					
 					this.state = WAIT_MOVEMENT;
 
@@ -136,8 +136,9 @@ public class AgentWorld extends Agent {
 					JsonObject confirmationObject = Json.parse(confirmation).asObject();
 					
 					String confirmationResult = confirmationObject.get("sendWorld").toString();
-					
-					if(confirmationResult.contains("request"))
+					//System.out.printf(confirmationResult);
+                            
+					//if(confirmationResult.contains("request"))
 						this.state = SEND_INFO;
                                         
 				case SEND_INFO:

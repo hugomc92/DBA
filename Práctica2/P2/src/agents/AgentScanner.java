@@ -42,6 +42,7 @@ public class AgentScanner extends Agent {
      * Constructor 
      * @param scannerName El nombre de agente para crearlo.
      * 
+     * author Bryan Moreno Picamán & Hugo Maldonado.
      * @throws java.lang.Exception en la creación del agente.
      */
     public AgentScanner(AgentID scannerName,AgentID movementName,AgentID gpsName) throws Exception {
@@ -96,8 +97,10 @@ public class AgentScanner extends Agent {
                     for(int i=0; i<2 && !finalize; i++) {
 						message = this.receiveMessage();
 						
-						if(message.contains("scanner"))
+						if(message.contains("scanner")){
+                            scannerObject = new JsonObject();
 							this.scannerObject = Json.parse(message).asObject();
+                        }
 						else if(message.contains("gps") && !message.contains("updated"))
 							this.gpsObject = Json.parse(message).asObject();
 						else if(message.contains("CRASHED") || message.contains("finalize"))
@@ -120,15 +123,16 @@ public class AgentScanner extends Agent {
 						local_scanner[pos] = j.asFloat();
 						pos++;
 					}
-					
-					scannerObject = new JsonObject();
-					
+
 					// Procesamos la información del gps
 					int x, y;
+                    JsonObject gpsData = gpsObject.get("gps").asObject();
+					x = Integer.parseInt(gpsData.get("x").asString());
+					y = Integer.parseInt(gpsData.get("y").asString());
 
-					x = gpsObject.get("x").asInt();
-					y = gpsObject.get("y").asInt();
-
+                    System.out.println("------------");
+                    System.out.print(local_scanner.toString());
+                    System.out.println("------------");
 					//Metemos los datos del scanner dados anteriormente en su posición en map_scanner
 					int posi = 0;
 					for(int i = x-1; i <= x+1; i++){
@@ -147,7 +151,7 @@ public class AgentScanner extends Agent {
 					
 					//Avisamos al Agent Car que estamos listos
 					responseObject = new JsonObject(); //Lo limpiamos
-					responseObject.add(this.getName(), "ok");
+					responseObject.add("scanner", "ok");
 					message = responseObject.toString();
 					sendMessage(carName, message);
 					

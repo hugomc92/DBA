@@ -131,7 +131,7 @@ public class AgentCar extends Agent {
 					
 					Agent radar;
 					try {
-						 radar = new AgentRadar(radarName, gpsName, worldName);
+						 radar = new AgentRadar(radarName, this.getAid(), worldName);
 						 radar.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
@@ -140,7 +140,7 @@ public class AgentCar extends Agent {
 					
 					Agent gps;
 					try {
-						gps = new AgentGPS(gpsName, radarName, this.getAid(), movementName, worldName);
+						gps = new AgentGPS(gpsName, radarName, this.getAid(), movementName, worldName,scannerName);
 						gps.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
@@ -249,6 +249,15 @@ public class AgentCar extends Agent {
 							this.responseObject = Json.parse(message).asObject();
 							
 							this.gpsCont = responseObject.get("cont").asInt();
+						}
+                        else if(message.contains("radar")) {
+							this.responseObject = Json.parse(message).asObject();
+							
+						}
+                        else if(message.contains("scanner")) {
+                            System.out.println("Llega el mensaje de scanner");
+							this.responseObject = Json.parse(message).asObject();
+							
 						}
 					}
 					

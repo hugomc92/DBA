@@ -132,9 +132,13 @@ public class AgentRadar extends Agent {
 					
 					System.out.println("AgentRadar status: WAIT_WORLD");
 					
-                    String worldMessage = this.receiveMessage();
+                    String confirmation = this.receiveMessage();
 					
-					if(worldMessage.contains("ok"))
+					JsonObject confirmationObject = Json.parse(confirmation).asObject();
+					String worldMessage = confirmationObject.get("gps").asString();
+                    
+				
+					if(worldMessage.contains("updated"))
 						this.state = SEND_CONFIRMATION;
 					else
 						this.state = SEND_DATA;
@@ -146,7 +150,7 @@ public class AgentRadar extends Agent {
 					
                     JsonObject statusWorld = new JsonObject();
 					
-                    statusWorld.add(this.getName(), "ok");
+                    statusWorld.add("radar", "ok");
 					
                     sendMessage(carName, statusWorld.toString());	//Enviamos confirmacion a car
 					

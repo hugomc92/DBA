@@ -137,8 +137,9 @@ public class AgentMovement extends Agent{
                     }
                     
                     //Pedimos al Agent World los datos
+                    System.out.println("Pedimos al Agent World los datos");
                     responseObject = new JsonObject(); //Lo limpiamos
-                    responseObject.add(this.getName(), "ok");
+                    responseObject.add("sendWorld", "request");
                     message = responseObject.toString();
                     sendMessage(worldName, message);
                     

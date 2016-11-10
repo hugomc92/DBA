@@ -33,6 +33,7 @@ public class AgentGPS extends Agent {
 	private AgentID worldName;
 	private AgentID radarName;
 	private AgentID carName;
+	private AgentID scannerName;
 	private AgentID gpsName;
 	private AgentID movementName;
 
@@ -50,11 +51,12 @@ public class AgentGPS extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentGPS(AgentID gpsName,AgentID radarName,AgentID carName,AgentID movementName,AgentID worldName) throws Exception {
+	public AgentGPS(AgentID gpsName,AgentID radarName,AgentID carName,AgentID movementName,AgentID worldName,AgentID scannerName) throws Exception {
 		super(gpsName);
 		
 		this.radarName=radarName;
 		this.carName=carName;
+		this.scannerName=scannerName;
 		this.gpsName=gpsName;
 		this.movementName=movementName;
 		this.worldName=worldName;
@@ -147,8 +149,7 @@ public class AgentGPS extends Agent {
 					
 					if(needUpdate){
 						JsonObject gpsCoords = new JsonObject();
-						
-						gpsCoords.add("x", Integer.toString(coordX));
+						gpsCoords.add("x",""+coordX);
 						gpsCoords.add("y",Integer.toString(coordY));
 						
 						this.commandObject.add("gps", gpsCoords);
@@ -160,6 +161,7 @@ public class AgentGPS extends Agent {
 						this.commandObject.add("gps","updated");
 					
 					this.sendMessage(worldName, commandObject.toString());
+					this.sendMessage(scannerName, commandObject.toString());
 					
 					this.state = WAIT_WORLD;
 
