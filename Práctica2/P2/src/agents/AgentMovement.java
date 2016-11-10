@@ -174,7 +174,7 @@ public class AgentMovement extends Agent{
                     responseObject = new JsonObject(); //Lo limpiamos
 					
 					if (map_world[x][y] == 2){	//Estamos en el goal
-						responseObject.add("command", "logout");
+						responseObject.add("mov", "logout");
 					}
 					else{
 						//Una vez tenemos todos los datos, calculamos el mejor movimiento
@@ -230,29 +230,29 @@ public class AgentMovement extends Agent{
 						//Comprobamos quÃ© posición respecto a nuestra posición es la que hemos elegido
 						if (newX == x-1){
 							if (newY == y-1)
-								responseObject.add("command", "moveNW");
+								responseObject.add("mov", "moveNW");
 							else if (newY == y)
-								responseObject.add("command", "moveN");
+								responseObject.add("mov", "moveN");
 							else
-								responseObject.add("command", "moveNE");
+								responseObject.add("mov", "moveNE");
 						}
 						else if (newX == x){
 							if (newY == y-1)
-								responseObject.add("command", "moveW");
+								responseObject.add("mov", "moveW");
 							else
-								responseObject.add("command", "moveE");
+								responseObject.add("mov", "moveE");
 						}
 						else{
 							if (newY == y-1)
-								responseObject.add("command", "moveSW");
+								responseObject.add("mov", "moveSW");
 							else if (newY == y)
-								responseObject.add("command", "moveS");
+								responseObject.add("mov", "moveS");
 							else
-								responseObject.add("command", "moveSE");
+								responseObject.add("mov", "moveSE");
 						}*/
 
 						//SÓLO PARA EL PRIMER MAPA
-						responseObject.add("command", "moveSW");
+						responseObject.add("mov", "moveSW");
 					}
                     message = responseObject.toString();
                     sendMessage(carName, message);

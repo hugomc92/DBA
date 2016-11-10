@@ -2,6 +2,7 @@
 package agents;
 
 import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.AgentID;
 
@@ -76,14 +77,26 @@ public class AgentWorld extends Agent {
 					
 					String responseGPS = this.receiveMessage();
 					
-					this.responseObject = Json.parse(responseGPS).asObject();
-					
-					String resultGPS = responseObject.get("gps").asString();
+					if(responseGPS.contains("CRASHED") || responseGPS.contains("finalize"))
+						this.state = FINISH;
+					else {
+						this.responseObject = Json.parse(responseGPS).asObject();
 
-					if(!resultGPS.contains("updated"))
-						this.updateWorld(resultGPS);
-					
-					this.state = WAIT_RADAR;
+						String resultGPS = responseObject.get("gps").asObject().toString();
+
+						boolean ok = true;
+						
+						if(!resultGPS.contains("updated"))
+							ok = this.updateWorld(resultGPS);
+						
+						JsonObject sendConfirmation = new JsonObject();
+						
+						sendConfirmation.add("gps", ok);
+						
+						this.sendMessage(gpsName, sendConfirmation.toString());
+
+						this.state = WAIT_RADAR;
+					}
 					
 					break;
 				case WAIT_RADAR:
@@ -94,9 +107,9 @@ public class AgentWorld extends Agent {
 					
 					this.responseObject = Json.parse(responseRadar).asObject();
 					
-					String resultRadar = responseObject.get("gps").asString();
+					JsonArray resultRadar = responseObject.get("radar").asArray();
 					
-					this.updateWorld(resultRadar);
+					this.updateWorld(resultRadar.toString());
 					
 					this.state = WARN_RADAR;
 					
@@ -158,8 +171,10 @@ public class AgentWorld extends Agent {
 		super.finalize();
 	}
 
-    private void updateWorld(String resultMessage) {
+    private boolean updateWorld(String resultMessage) {
         System.out.println("AgentWorld updating world");
+		
+		return true;
     }
 
     private void sendWorld() {

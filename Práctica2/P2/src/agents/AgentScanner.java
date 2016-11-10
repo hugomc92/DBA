@@ -42,7 +42,7 @@ public class AgentScanner extends Agent {
      * Constructor 
      * @param scannerName El nombre de agente para crearlo.
      * 
-     * @throws java.lang.Exception en la creaciÃ³n del agente.
+     * @throws java.lang.Exception en la creación del agente.
      */
     public AgentScanner(AgentID scannerName,AgentID movementName,AgentID gpsName) throws Exception {
         super(scannerName);
@@ -129,7 +129,7 @@ public class AgentScanner extends Agent {
 					x = gpsObject.get("x").asInt();
 					y = gpsObject.get("y").asInt();
 
-					//Metemos los datos del scanner dados anteriormente en su posiciÃ³n en map_scanner
+					//Metemos los datos del scanner dados anteriormente en su posición en map_scanner
 					int posi = 0;
 					for(int i = x-1; i <= x+1; i++){
 						for (int j = y-1; j <= y+1; j++){

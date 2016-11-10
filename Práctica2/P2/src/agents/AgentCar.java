@@ -46,6 +46,8 @@ public class AgentCar extends Agent {
 	
 	private int gpsCont;
 	
+	private boolean loggedIn;
+	
 	
 	/**
 	 * @param carName El nombre del coche de agente para crearlo.
@@ -89,6 +91,8 @@ public class AgentCar extends Agent {
 		this.numAgents = 4;
 		
 		this.gpsCont = -1;
+		
+		this.loggedIn = false;
 		
 		System.out.println("AgentCar has just started");
 	}
@@ -182,6 +186,9 @@ public class AgentCar extends Agent {
 					System.out.println("SERVER MESSAGE AFTER LOGIN: \n" + response);
 					
 					if(response.contains("result")) {
+						
+						System.out.println("SERVER MESSAGE LOGIN: \n" + loggedIn);
+						
 						this.responseObject = Json.parse(response).asObject();
 					
 						String result = responseObject.get("result").asString();
@@ -190,11 +197,15 @@ public class AgentCar extends Agent {
 							this.state = FINALIZE_MOVEMENT;
 						else {
 							this.key = result;
+							
+							loggedIn = true;
 
 							this.state = IDLE;
 						}
 					}
-					else if(response.contains("trace")) {
+					else if(response.contains("trace") && loggedIn) {
+						
+						System.out.println("SERVER MESSAGE LOGIN TRACE: \n" + loggedIn);
 						
 						try {
 							this.responseObject = Json.parse(response).asObject();
@@ -220,8 +231,6 @@ public class AgentCar extends Agent {
 							this.state = FINALIZE_MOVEMENT;
 						}
 					}
-					else
-						this.state = FINALIZE_MOVEMENT;
 					
 					break;
 				case IDLE:
@@ -239,7 +248,7 @@ public class AgentCar extends Agent {
 						else if(message.contains("gps")) {
 							this.responseObject = Json.parse(message).asObject();
 							
-							this.gpsCont = responseObject.get("Cont").asInt();
+							this.gpsCont = responseObject.get("cont").asInt();
 						}
 					}
 					

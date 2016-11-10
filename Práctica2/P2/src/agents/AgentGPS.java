@@ -122,8 +122,10 @@ public class AgentGPS extends Agent {
 					
 					System.out.println("AgentGPS status: PROCESS_DATA");
 					
-					int nX = responseObject.get("x").asInt();
-					int nY = responseObject.get("y").asInt();
+					JsonObject gpsData = responseObject.get("gps").asObject();
+					
+					int nX = gpsData.get("x").asInt();
+					int nY = gpsData.get("y").asInt();
 					if(nX==coordX&&nY==coordY){
 						needUpdate=false;
 					}
@@ -144,8 +146,14 @@ public class AgentGPS extends Agent {
 					this.commandObject = new JsonObject();
 					
 					if(needUpdate){
-						this.commandObject.add(Integer.toString(coordX),Integer.toString(coordY));
-						this.commandObject.add("cont",Integer.toString(cont));
+						JsonObject gpsCoords = new JsonObject();
+						
+						gpsCoords.add("x", Integer.toString(coordX));
+						gpsCoords.add("y",Integer.toString(coordY));
+						
+						this.commandObject.add("gps", gpsCoords);
+						
+						this.commandObject.add("cont", cont);
 
 					}
 					else
@@ -163,9 +171,9 @@ public class AgentGPS extends Agent {
 					String confirmation = this.receiveMessage();
 					
 					JsonObject confirmationObject = Json.parse(confirmation).asObject();
-					String confirmationResult = confirmationObject.get("gps").toString();
+					boolean confirmationResult = confirmationObject.get("gps").asBoolean();
 					
-					if(confirmationResult.contains("not_ok"))
+					if(!confirmationResult)
 						this.state = UPDATE_WORLD;
 					else
 						this.state = WARN_RADAR;
@@ -190,7 +198,7 @@ public class AgentGPS extends Agent {
 					this.commandObject = new JsonObject();
 					
 					this.commandObject.add("gps","ok");
-					this.commandObject.add("cont",Integer.toString(cont));
+					this.commandObject.add("cont", cont);
 					
 					this.sendMessage(carName, commandObject.toString());
 					
