@@ -8,4 +8,3 @@
 - **Aaron Rodríguez**
 - **Bryan Moreno**
 - **Jose David Torres**
-- **Jose Barón**
