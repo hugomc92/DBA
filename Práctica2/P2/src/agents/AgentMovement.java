@@ -57,7 +57,7 @@ public class AgentMovement extends Agent{
      * @author Aarón Rodríguez Bueno
      */
     @Override
-    public void init(){
+    public void init() {
 		
         state = IDLE;
         finish = false;
@@ -93,8 +93,8 @@ public class AgentMovement extends Agent{
 		
 		System.out.println("AgentMovement execution");
 		
-        while(!finish){
-            switch(state){
+        while(!finish) {
+            switch(state) {
                 case IDLE:  //Esperando al proceed del Agent Car
                     
 					System.out.println("AgentMovement status: IDLE");
@@ -127,10 +127,10 @@ public class AgentMovement extends Agent{
                     //Actualizamos nuestro map_scanner
                     int posx = 0;
                     int posy = 0;
-                    for (JsonValue j : responseObject.get("scanner").asArray()){
+                    for (JsonValue j : responseObject.get("scanner").asArray()) {
                         map_scanner[posx][posy] = j.asFloat();
                         posy++;
-                        if(posy%WIDTH == 0){
+                        if(posy%WIDTH == 0) {
                             posy = 0;
                             posx++;
                         }
@@ -156,10 +156,10 @@ public class AgentMovement extends Agent{
                     this.x = responseObject.get("x").asInt();
                     this.y = responseObject.get("y").asInt();
                     int posix = 0, posiy = 0;
-                    for (JsonValue j : responseObject.get("world").asArray()){
+                    for (JsonValue j : responseObject.get("world").asArray()) {
                         map_world[posix][posiy] = j.asInt();
                         posiy++;
-                        if(posiy%WIDTH == 0){
+                        if(posiy%WIDTH == 0) {
                             posiy = 0;
                             posix++;
                         }
@@ -174,9 +174,9 @@ public class AgentMovement extends Agent{
                     
                     responseObject = new JsonObject(); //Lo limpiamos
 					
-					if (map_world[x][y] == 2){	//Estamos en el goal
+					if (map_world[x][y] == 2) {	//Estamos en el goal
 						responseObject.add("mov", "logout");
-						System.out.println("Hemos encontrado la solución"+map_world[x][y]+"En las coordenadas"+x+y);
+						System.out.println("Hemos encontrado la solución "+map_world[x][y]+" En las coordenadas"+x+y);
 					}
 					else{
 						//Una vez tenemos todos los datos, calculamos el mejor movimiento
@@ -191,32 +191,32 @@ public class AgentMovement extends Agent{
 						int newX = x-1, newY = y-1;
 						boolean goal_found = false;
 
-						for (int i = x-1; i <= x+1 && !goal_found; i++){
-							for (int j = y-1; j <= j+1 && !goal_found; j++){
-								if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT)	//Está dentro de la matriz
-									if (map_world[i][j] == 2){	//goal
+						for (int i = x-1; i <= x+1 && !goal_found; i++) {
+							for (int j = y-1; j <= j+1 && !goal_found; j++) {
+								if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT) {	//Está dentro de la matriz
+									if (map_world[i][j] == 2) {	//goal
 										goal_found = true;
 										newX = i;
 										newY = j;
 									}
-									else if (map_world[i][j] != 1){	//No es pared, luego es transitable
+									else if (map_world[i][j] != 1) {	//No es pared, luego es transitable
 										if (less < map_world[i][j] ||	//Hace menos que ha pasado por esta posición
 											(less == map_world[i][j] &&	//Dos zonas por donde no ha pasado
 											 map_scanner[newX][newY] > map_scanner[i][j]	//Este está más cerca del goal
 											)
-										   )
+										   ) {
 
 											newX = i;
 											newY = j;
 											less = map_world[i][j];
+										}
 									}
+								}
 							}
 						}
 
-
-						
-						//Comprobamos quÃ© posición respecto a nuestra posición es la que hemos elegido
-						if (newX == x-1){		//Se mueve hacia el Oeste
+						//Comprobamos qué posición respecto a nuestra posición es la que hemos elegido
+						if(newX == x-1) {		//Se mueve hacia el Oeste
 							if (newY == y-1)	//Se mueve hacia Norte
 								responseObject.add("mov", "moveNW");
 							else if (newY == y)
@@ -224,7 +224,7 @@ public class AgentMovement extends Agent{
 							else
 								responseObject.add("mov", "moveSW");
 						}
-						else if (newX == x){
+						else if(newX == x) {
 							if (newY == y-1)
 								responseObject.add("mov", "moveN");
 							else

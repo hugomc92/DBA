@@ -219,23 +219,26 @@ public class AgentCar extends Agent {
 					
 					String response = this.receiveMessage();
 					
-					System.out.println("SERVER MESSAGE AFTER LOGIN: \n" + response);
+					System.out.println("SERVER MESSAGE: " + response);
 					
 					if(response.contains("result")) {
 						
-						System.out.println("SERVER MESSAGE LOGIN: \n" + loggedIn);
+						System.out.println("LOGGED IN: " + loggedIn);
 						
 						this.responseObject = Json.parse(response).asObject();
 					
 						String result = responseObject.get("result").asString();
+						
 						if(result.contains("BAD_"))
 							this.state = FINALIZE_MOVEMENT;
-						else{
-							if(!result.contains("OK"))
+						else if(result.contains("CRASHED"))
+							this.state = FINISH;
+						else {
+							if(!loggedIn) {
 								this.key = result;
 
-
-							loggedIn = true;
+								loggedIn = true;
+							}
 
 							this.state = IDLE;
 						}
@@ -279,22 +282,21 @@ public class AgentCar extends Agent {
 						
 						if(message.contains("battery")) {
 							this.responseObject = Json.parse(message).asObject();
-							
+
 							this.refuel = responseObject.get("refuel").asBoolean();
 						}
 						else if(message.contains("gps")) {
 							this.responseObject = Json.parse(message).asObject();
-							
+
 							this.gpsCont = responseObject.get("cont").asInt();
 						}
-                        else if(message.contains("radar")) {
+						else if(message.contains("radar")) {
 							this.responseObject = Json.parse(message).asObject();
-							
+
 						}
-                        else if(message.contains("scanner")) {
-                            System.out.println("Llega el mensaje de scanner");
-							this.responseObject = Json.parse(message).asObject();
-							
+						else if(message.contains("scanner")) {
+							System.out.println("Llega el mensaje de scanner");
+							this.responseObject = Json.parse(message).asObject();	
 						}
 					}
 					
@@ -380,49 +382,52 @@ public class AgentCar extends Agent {
 					this.sendMessage(gpsName, "finalize");
 					this.sendMessage(batteryName, "finalize");
 					
-					this.state=FINISH;
+					this.state = FINISH;
+					
 					break;
 				
 				case FINISH:
 					
 					System.out.println("AgentCar status: FINISH");
 					
-					for (int j=0;j<2;j++){
+					/*for(int j=0;j<2;j++) {
 										
-					String responseF = this.receiveMessage();
-					
-					System.out.println("SERVER MESSAGE AFTER LOGIN: \n" + responseF);
-					if(responseF.contains("result")) {
-						System.out.println("Resultado");
-					}
-					else if(responseF.contains("trace") && loggedIn) {
-						
-						System.out.println("SERVER MESSAGE LOGIN TRACE: \n" + loggedIn);
-						
-						try {
-							this.responseObject = Json.parse(responseF).asObject();
+						String responseF = this.receiveMessage();
 
-							JsonArray trace = responseObject.get("trace").asArray();
-
-							byte data[] = new byte[trace.size()];
-
-							for(int i=0; i<data.length; i++)
-								data[i] = (byte) trace.get(i).asInt();
-						
-							FileOutputStream fos = new FileOutputStream("trace.png");
-							fos.write(data);
-							fos.close();
-
-							System.out.println("Saved trace");
-							
-						} catch(IOException ex) {
-							System.err.println("Error procesing trace");
-							
-							System.err.println(ex.getMessage());
+						System.out.println("SERVER MESSAGE AFTER LOGIN: \n" + responseF);
+						if(responseF.contains("result")) {
+							System.out.println("Resultado");
 						}
-					}
-					}
-					this.finish=true;
+						else if(responseF.contains("trace") && loggedIn) {
+
+							System.out.println("SERVER MESSAGE LOGIN TRACE: \n" + loggedIn);
+
+							try {
+								this.responseObject = Json.parse(responseF).asObject();
+
+								JsonArray trace = responseObject.get("trace").asArray();
+
+								byte data[] = new byte[trace.size()];
+
+								for(int i=0; i<data.length; i++)
+									data[i] = (byte) trace.get(i).asInt();
+
+								FileOutputStream fos = new FileOutputStream("trace.png");
+								fos.write(data);
+								fos.close();
+
+								System.out.println("Saved trace");
+
+							} catch(IOException ex) {
+								System.err.println("Error procesing trace");
+
+								System.err.println(ex.getMessage());
+							}
+						}
+					}*/
+					
+					this.finish = true;
+					
 					break;
 			}
 		}
