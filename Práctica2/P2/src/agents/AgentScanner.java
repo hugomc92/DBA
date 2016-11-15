@@ -22,8 +22,8 @@ public class AgentScanner extends Agent {
     private static final int WAIT_MOVEMENT = 3;
 	private static final int SEND_INFO = 4;
     private static final int FINISH = 5;
-    private static final int WIDTH = 500;
-    private static int HEIGHT = 500;
+    private static final int WIDTH = 504;
+    private static int HEIGHT = 504;
     
     private int state;
     private float [][] map_scanner = new float [WIDTH][HEIGHT];
@@ -127,6 +127,7 @@ public class AgentScanner extends Agent {
 						local_scanner[pos] = j.asFloat();
 						pos++;
 					}
+					
 
 					// Procesamos la información del gps si no fue updated
 					if (!message.contains("updated")){
@@ -134,14 +135,19 @@ public class AgentScanner extends Agent {
 						x = gpsObject.get("gps").asObject().get("x").asInt();
 						y = gpsObject.get("gps").asObject().get("y").asInt();
 
+						System.out.println("COORDENADAS:");
+						System.out.println(x);
+						System.out.println(y);
+						
 						System.out.println("------------");
 						System.out.print(local_scanner.toString());
 						System.out.println("------------");
 						//Metemos los datos del scanner dados anteriormente en su posición en map_scanner
 						int posi = 0;
-						for(int i = x-1; i <= x+1; i++){
-							for (int j = y-1; j <= y+1; j++){
-								map_scanner[i][j] = local_scanner[posi];
+						for(int i = x-2; i <= x+2; i++){
+							for (int j = y-2; j <= y+2; j++){
+								if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT)
+									map_scanner[i][j] = local_scanner[posi];
 								posi++;
 							}
 						}
@@ -162,6 +168,7 @@ public class AgentScanner extends Agent {
 					System.out.println("AQUI"+message);
 					sendMessage(carName, message);
 					
+					state = WAIT_MOVEMENT;
                     break;
                 case WAIT_MOVEMENT:		//Esperamos a que el Movement Agent nos pida los datos del scanner
 					
@@ -173,7 +180,7 @@ public class AgentScanner extends Agent {
                         
                     this.responseObject = Json.parse(messageMovement).asObject();
                     
-                    if(messageMovement.contains("request"))
+                    if(responseObject.get("sendScanner").asString().contains("request"))
                         state = SEND_INFO;
                     else
                         state = FINISH;
@@ -192,10 +199,12 @@ public class AgentScanner extends Agent {
 							vector.add(j);
 						}
 					}
-					responseObject.add("",vector);
+					responseObject.add("scanner",vector);
 					messageMovement = responseObject.toString();
 					this.sendMessage(movementName,messageMovement);
 					
+					
+					state = IDLE;
                     break;
                 case FINISH:    //Matamos al agente
 					

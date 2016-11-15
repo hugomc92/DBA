@@ -137,6 +137,9 @@ public class AgentGPS extends Agent {
 						coordY=nY;
 						cont++;
 					}
+					System.out.println("++++++++++++++++++++++++");
+					System.out.println("COORDENADAS GPS (con el +2):"+coordX+","+coordY);
+					System.out.println("++++++++++++++++++++++++");
 					
 					this.state = UPDATE_WORLD;
 

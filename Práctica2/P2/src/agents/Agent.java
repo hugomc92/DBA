@@ -58,7 +58,7 @@ public abstract class Agent extends SingleAgent {
         try {
             ACLMessage inbox = this.receiveACLMessage();
 			
-            System.out.println(getName()+" <--- " + inbox.getSender().getLocalName() + " : " + inbox.getContent());
+           // System.out.println(getName()+" <--- " + inbox.getSender().getLocalName() + " : " + inbox.getContent());
 			
             return inbox.getContent();
         } catch (InterruptedException ex) {

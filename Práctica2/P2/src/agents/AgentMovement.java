@@ -20,7 +20,7 @@ public class AgentMovement extends Agent{
     private int state;
     private boolean finish;
     private int x,y;
-    private static final int WIDTH = 500, HEIGHT = 500;
+    private static final int WIDTH = 504, HEIGHT = 504;
     private float [][] map_scanner = new float [WIDTH][HEIGHT];
     private int [][] map_world = new int [WIDTH][HEIGHT];
 	
@@ -110,7 +110,7 @@ public class AgentMovement extends Agent{
 					
                         //Le pedimos los datos al Agent Scanner
                         responseObject = new JsonObject(); //Lo limpiamos
-                        responseObject.add(this.getName(), "ok");
+                        responseObject.add("sendScanner", "request");
                         message = responseObject.toString();
                         sendMessage(scannerName, message);
                         
@@ -176,6 +176,7 @@ public class AgentMovement extends Agent{
 					
 					if (map_world[x][y] == 2){	//Estamos en el goal
 						responseObject.add("mov", "logout");
+						System.out.println("Hemos encontrado la solución"+map_world[x][y]+"En las coordenadas"+x+y);
 					}
 					else{
 						//Una vez tenemos todos los datos, calculamos el mejor movimiento

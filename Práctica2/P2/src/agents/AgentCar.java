@@ -228,12 +228,13 @@ public class AgentCar extends Agent {
 						this.responseObject = Json.parse(response).asObject();
 					
 						String result = responseObject.get("result").asString();
-
 						if(result.contains("BAD_"))
 							this.state = FINALIZE_MOVEMENT;
-						else {
-							this.key = result;
-							
+						else{
+							if(!result.contains("OK"))
+								this.key = result;
+
+
 							loggedIn = true;
 
 							this.state = IDLE;
@@ -337,10 +338,9 @@ public class AgentCar extends Agent {
 					movementExecution = movementObject.get("mov").asString();
 					
 					this.commandObject = new JsonObject();
-					
+
 					this.commandObject.add("command", movementExecution);
 					this.commandObject.add("key", key);
-					
 					// PROVISIONAL MIENTRAS BUSCO OTRA SOLUCIÓN AL INTERBLOQUEO
 					if(this.refuel) {
 						
@@ -353,17 +353,20 @@ public class AgentCar extends Agent {
 						
 						this.state = SEND_COMMAND;
 					}
-					
-					this.state = SEND_COMMAND;
-					
+						this.state = SEND_COMMAND;
+
 					break;
 				case SEND_COMMAND:
 					
 					System.out.println("AgentCar status: SEND_COMMAND");
 					
-					//this.sendMessage(this.serverAgent, this.commandObject.toString());
+					if(!commandObject.toString().contains("logout"))
+						this.state = WAIT_SERVER;
+					else
+						this.state=FINALIZE_MOVEMENT;
 					
-					this.state = WAIT_SERVER;
+					this.sendMessage(this.serverAgent, this.commandObject.toString());
+
 					
 					break;
 				case FINALIZE_MOVEMENT:
@@ -377,18 +380,49 @@ public class AgentCar extends Agent {
 					this.sendMessage(gpsName, "finalize");
 					this.sendMessage(batteryName, "finalize");
 					
-					this.finish = true;
-					
+					this.state=FINISH;
 					break;
+				
 				case FINISH:
 					
 					System.out.println("AgentCar status: FINISH");
 					
-					// Se ejecuta cuando se encuentra CRASHED, mata sólo a AgentMovement porque al resto le llegan los CRASHED igualmente.
-					this.sendMessage(movementName, "finalize");
+					for (int j=0;j<2;j++){
+										
+					String responseF = this.receiveMessage();
 					
-					this.finish = true;
-					
+					System.out.println("SERVER MESSAGE AFTER LOGIN: \n" + responseF);
+					if(responseF.contains("result")) {
+						System.out.println("Resultado");
+					}
+					else if(responseF.contains("trace") && loggedIn) {
+						
+						System.out.println("SERVER MESSAGE LOGIN TRACE: \n" + loggedIn);
+						
+						try {
+							this.responseObject = Json.parse(responseF).asObject();
+
+							JsonArray trace = responseObject.get("trace").asArray();
+
+							byte data[] = new byte[trace.size()];
+
+							for(int i=0; i<data.length; i++)
+								data[i] = (byte) trace.get(i).asInt();
+						
+							FileOutputStream fos = new FileOutputStream("trace.png");
+							fos.write(data);
+							fos.close();
+
+							System.out.println("Saved trace");
+							
+						} catch(IOException ex) {
+							System.err.println("Error procesing trace");
+							
+							System.err.println(ex.getMessage());
+						}
+					}
+					}
+					this.finish=true;
 					break;
 			}
 		}

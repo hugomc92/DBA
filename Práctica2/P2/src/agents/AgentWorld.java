@@ -4,6 +4,7 @@ package agents;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
@@ -24,11 +25,15 @@ public class AgentWorld extends Agent {
 	private JsonObject commandObject;
         
 	private int state;
+	private int coordX,coordY;
 	private boolean finish;
 	private final AgentID radarName;
 	private final AgentID gpsName;
 	private final AgentID movementName;
-
+    private static final int WIDTH = 504;
+    private static int HEIGHT = 504;
+    private float [][] map_world = new float [WIDTH][HEIGHT];
+    private float [] local_world = new float [25];	
 	private int cont;
         
 	/**
@@ -56,6 +61,7 @@ public class AgentWorld extends Agent {
 		this.finish = false;
 		this.responseObject = new JsonObject();
 		
+		coordX = coordY = -1;
 		this.cont = 0;
       	
 		System.out.println("AgentWorld has just started");
@@ -105,11 +111,7 @@ public class AgentWorld extends Agent {
 					
 					String responseRadar = this.receiveMessage();
 					
-					this.responseObject = Json.parse(responseRadar).asObject();
-					
-					JsonArray resultRadar = responseObject.get("radar").asArray();
-					
-					this.updateWorld(resultRadar.toString());
+					this.updateWorld(responseRadar);
 					
 					this.state = WARN_RADAR;
 					
@@ -138,8 +140,10 @@ public class AgentWorld extends Agent {
 					String confirmationResult = confirmationObject.get("sendWorld").toString();
 					//System.out.printf(confirmationResult);
                             
-					//if(confirmationResult.contains("request"))
+					if(confirmationResult.contains("request"))
 						this.state = SEND_INFO;
+					else
+						this.state = FINISH;
                                         
 				case SEND_INFO:
 					
@@ -174,15 +178,50 @@ public class AgentWorld extends Agent {
 
     private boolean updateWorld(String resultMessage) {
         System.out.println("AgentWorld updating world");
+		JsonObject parse = Json.parse(resultMessage).asObject();
 		
+		if(resultMessage.contains("radar")){
+			int pos = 0;
+			for (JsonValue j : parse.get("radar").asArray()){
+				local_world[pos] = j.asFloat();
+				pos++;
+			}
+			
+			//Ahora lo pasamos al mapa
+			int posi = 0;
+			for(int i = coordX-2; i <= coordX+2; i++){
+				for (int j = coordY-2; j <= coordY+2; j++){
+					if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT)
+						map_world[i][j] = local_world[posi];
+					posi++;
+				}
+			}
+		}
+		else{
+			
+			coordX = parse.get("x").asInt();
+			coordY = parse.get("y").asInt();
+		}
 		return true;
     }
 
     private void sendWorld() {
-        // Construir el mensaje que vamos a enviar al movemen
-		JsonObject world = new JsonObject();
-		world.add("world", "");
 		
-		this.sendMessage(movementName, world.toString());
+		responseObject = new JsonObject(); //Lo limpiamos
+
+		//Empaquetamos el array entero en un JSon y se lo enviamos
+		JsonArray vector = new JsonArray();
+		this.responseObject.add("x",coordX);
+		this.responseObject.add("y",coordY);
+		//this.responseObject.add("cont", cont);
+		for (float [] i : map_world){
+			for (float j : i){
+				vector.add(j);
+			}
+		}
+		responseObject.add("world",vector);
+		String messageMovement = responseObject.toString();
+		this.sendMessage(movementName,messageMovement);
+
     }
 }
