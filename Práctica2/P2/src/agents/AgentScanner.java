@@ -38,6 +38,8 @@ public class AgentScanner extends Agent {
     private AgentID carName;
     private AgentID gpsName;
     
+	private String message;
+	
     /**
      * Constructor 
      * @param scannerName El nombre de agente para crearlo.
@@ -45,11 +47,12 @@ public class AgentScanner extends Agent {
      * author Bryan Moreno Picamán & Hugo Maldonado.
      * @throws java.lang.Exception en la creación del agente.
      */
-    public AgentScanner(AgentID scannerName,AgentID movementName,AgentID gpsName) throws Exception {
+    public AgentScanner(AgentID scannerName,AgentID movementName,AgentID gpsName, AgentID carName) throws Exception {
         super(scannerName);
 		
         this.movementName = movementName;
         this.gpsName = gpsName;
+		this.carName = carName;
     }
     
     
@@ -61,6 +64,7 @@ public class AgentScanner extends Agent {
     public void init(){
         state = IDLE;
         finish = false;
+		message = "";
         
         this.responseObject = new JsonObject();
 		
@@ -90,19 +94,19 @@ public class AgentScanner extends Agent {
 					
 					System.out.println("AgentScanner status: IDLE");
 					
-                    String message;
-					
 					boolean finalize = false;
 					
                     for(int i=0; i<2 && !finalize; i++) {
-						message = this.receiveMessage();
+						this.message = this.receiveMessage();
 						
 						if(message.contains("scanner")){
                             scannerObject = new JsonObject();
 							this.scannerObject = Json.parse(message).asObject();
                         }
-						else if(message.contains("gps") && !message.contains("updated"))
+						else if(message.contains("gps") && !message.contains("updated")){
+							System.out.println("NO ES UN UPDATED");
 							this.gpsObject = Json.parse(message).asObject();
+						}
 						else if(message.contains("CRASHED") || message.contains("finalize"))
 							finalize = true;
 					}
@@ -124,25 +128,27 @@ public class AgentScanner extends Agent {
 						pos++;
 					}
 
-					// Procesamos la información del gps
-					int x, y;
-                    JsonObject gpsData = gpsObject.get("gps").asObject();
-					x = Integer.parseInt(gpsData.get("x").asString());
-					y = Integer.parseInt(gpsData.get("y").asString());
+					// Procesamos la información del gps si no fue updated
+					if (!message.contains("updated")){
+						int x, y;
+						x = gpsObject.get("gps").asObject().get("x").asInt();
+						y = gpsObject.get("gps").asObject().get("y").asInt();
 
-                    System.out.println("------------");
-                    System.out.print(local_scanner.toString());
-                    System.out.println("------------");
-					//Metemos los datos del scanner dados anteriormente en su posición en map_scanner
-					int posi = 0;
-					for(int i = x-1; i <= x+1; i++){
-						for (int j = y-1; j <= y+1; j++){
-							map_scanner[i][j] = local_scanner[posi];
-							posi++;
+						System.out.println("------------");
+						System.out.print(local_scanner.toString());
+						System.out.println("------------");
+						//Metemos los datos del scanner dados anteriormente en su posición en map_scanner
+						int posi = 0;
+						for(int i = x-1; i <= x+1; i++){
+							for (int j = y-1; j <= y+1; j++){
+								map_scanner[i][j] = local_scanner[posi];
+								posi++;
+							}
 						}
 					}
 					
 					gpsObject = new JsonObject();
+					state = SEND_CONFIRMATION;
 					
                     break;
 				case SEND_CONFIRMATION:
@@ -153,6 +159,7 @@ public class AgentScanner extends Agent {
 					responseObject = new JsonObject(); //Lo limpiamos
 					responseObject.add("scanner", "ok");
 					message = responseObject.toString();
+					System.out.println("AQUI"+message);
 					sendMessage(carName, message);
 					
                     break;

@@ -148,17 +148,20 @@ public class AgentGPS extends Agent {
 					this.commandObject = new JsonObject();
 					
 					if(needUpdate){
-						JsonObject gpsCoords = new JsonObject();
-						gpsCoords.add("x",""+coordX);
-						gpsCoords.add("y",Integer.toString(coordY));
+						/*JsonObject gpsCoords = new JsonObject();
+						gpsCoords.add("x",coordX);
+						gpsCoords.add("y",coordY);
 						
-						this.commandObject.add("gps", gpsCoords);
+						this.commandObject.add("gps", gpsCoords);*/
+						
+						this.commandObject.add("gps",new JsonObject().add("x",coordX).add("y",coordY));
 						
 						this.commandObject.add("cont", cont);
 
 					}
 					else
 						this.commandObject.add("gps","updated");
+					
 					
 					this.sendMessage(worldName, commandObject.toString());
 					this.sendMessage(scannerName, commandObject.toString());

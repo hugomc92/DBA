@@ -122,7 +122,7 @@ public class AgentCar extends Agent {
 					
 					Agent scanner;
 					try {
-						 scanner = new AgentScanner(scannerName, movementName, gpsName);
+						 scanner = new AgentScanner(scannerName, movementName, gpsName, this.getAid());
 						 scanner.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());
@@ -173,6 +173,42 @@ public class AgentCar extends Agent {
 					loginCommand.add("gps", gpsName.getLocalName());
 					
 					this.sendMessage(this.serverAgent, loginCommand.toString());
+					
+					
+					//SIMULACIÓN SERVER
+					
+					
+//					JsonObject simulacro;
+//					
+//					//Scanner
+//					simulacro = new JsonObject();
+//					JsonArray jscanner = new JsonArray();
+//					float  vscanner [] = {75.00667f,75.690155f,76.38062f, 77.07788f,77.781746f,75.74299f,76.41989f, 77.10383f,77.7946f,78.492035f,76.48529f, 77.155685f,77.83315f,78.51752f,79.20859f,77.23341f,77.89737f,78.56844f,79.24645f,79.93122f,77.987175f,78.64477f,79.30952f,79.98125f,80.65978f};
+//					for (int i = 0; i < vscanner.length; i++){
+//						jscanner.add(vscanner[i]);
+//					}
+//					simulacro.add("scanner",jscanner);
+//					this.sendMessage(scannerName, simulacro.toString());
+//					
+//					//radar
+//					simulacro = new JsonObject();
+//					JsonArray jradar = new JsonArray();
+//					int  vradar [] = {1,1,1,0,0,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//					for (int i = 0; i < vradar.length; i++){
+//						jradar.add(vscanner[i]);
+//					}
+//					simulacro.add("radar",jradar);
+//					this.sendMessage(radarName, simulacro.toString());
+//					
+//					//gps
+//					simulacro = new JsonObject();
+//					simulacro.add("gps",new JsonObject().add("x",94).add("y",94));					
+//					this.sendMessage(gpsName, simulacro.toString());
+//					
+//					//battery
+//					simulacro = new JsonObject();
+//					simulacro.add("battery",95.0f);					
+//					this.sendMessage(batteryName, simulacro.toString());
 					
 					this.state = WAIT_SERVER;
 					
@@ -325,7 +361,7 @@ public class AgentCar extends Agent {
 					
 					System.out.println("AgentCar status: SEND_COMMAND");
 					
-					this.sendMessage(this.serverAgent, this.commandObject.toString());
+					//this.sendMessage(this.serverAgent, this.commandObject.toString());
 					
 					this.state = WAIT_SERVER;
 					
