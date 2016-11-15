@@ -23,20 +23,20 @@ public class AgentScanner extends Agent {
 	private static final int SEND_INFO = 4;
     private static final int FINISH = 5;
     private static final int WIDTH = 504;
-    private static int HEIGHT = 504;
+    private static final int HEIGHT = 504;
     
     private int state;
-    private float [][] map_scanner = new float [WIDTH][HEIGHT];
-    private float [] local_scanner = new float [25];
+    private final float [][] map_scanner = new float [WIDTH][HEIGHT];
+    private final float [] local_scanner = new float [25];
     private boolean finish;
     
 	private JsonObject responseObject;
 	private JsonObject scannerObject;
 	private JsonObject gpsObject;
     
-    private AgentID movementName;
-    private AgentID carName;
-    private AgentID gpsName;
+    private final AgentID movementName;
+    private final AgentID carName;
+    private final AgentID gpsName;
     
 	private String message;
 	

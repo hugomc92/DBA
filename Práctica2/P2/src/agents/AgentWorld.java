@@ -31,9 +31,9 @@ public class AgentWorld extends Agent {
 	private final AgentID gpsName;
 	private final AgentID movementName;
     private static final int WIDTH = 504;
-    private static int HEIGHT = 504;
-    private float [][] map_world = new float [WIDTH][HEIGHT];
-    private float [] local_world = new float [25];	
+    private static final int HEIGHT = 504;
+    private final float [][] map_world = new float [WIDTH][HEIGHT];
+    private final float [] local_world = new float [25];	
 	private int cont;
         
 	/**

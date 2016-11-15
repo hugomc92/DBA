@@ -257,7 +257,8 @@ public class AgentCar extends Agent {
 							for(int i=0; i<data.length; i++)
 								data[i] = (byte) trace.get(i).asInt();
 						
-							FileOutputStream fos = new FileOutputStream("trace.png");
+							FileOutputStream fos;
+							fos = new FileOutputStream("trace.png");
 							fos.write(data);
 							fos.close();
 

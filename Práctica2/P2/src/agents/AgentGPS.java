@@ -4,8 +4,6 @@ package agents;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.AgentID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Clase que define al agente GPS, actua como controlador de AgentWorld y AgentRadar.
@@ -30,12 +28,12 @@ public class AgentGPS extends Agent {
 	private int state;
 	private boolean finish;
 	private boolean needUpdate;
-	private AgentID worldName;
-	private AgentID radarName;
-	private AgentID carName;
-	private AgentID scannerName;
-	private AgentID gpsName;
-	private AgentID movementName;
+	private final AgentID worldName;
+	private final AgentID radarName;
+	private final AgentID carName;
+	private final AgentID scannerName;
+	private final AgentID gpsName;
+	private final AgentID movementName;
 
 	private int cont;
 
@@ -44,10 +42,10 @@ public class AgentGPS extends Agent {
 
 	/**
 	 * @param aid El ID de agente para crearlo.
-         * @param radarName El nombre del agente radar (para comunicación)
-         * @param carName El nombre del agente car (para comunicación)
-         * @param gpsName El nombre del propio agente
-         * @param movementName El nombre del agente movement
+     * @param radarName El nombre del agente radar (para comunicación)
+     * @param carName El nombre del agente car (para comunicación)
+     * @param gpsName El nombre del propio agente
+     * @param movementName El nombre del agente movement
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */

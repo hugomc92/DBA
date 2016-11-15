@@ -91,10 +91,7 @@ public class AgentRadar extends Agent {
 						if(message.contains("radar"))	//Del server
 							dataRadar = (JsonObject) Json.parse(message);    
 						else if(message.contains("gps")) {
-							if(message.contains("updated"))
-								this.gpsProcced = false;
-							else
-								this.gpsProcced = true;
+							this.gpsProcced = !message.contains("updated");
 						}
 						else if(message.contains("CRASHED") || message.contains("finalize"))
 							finalize = true;
