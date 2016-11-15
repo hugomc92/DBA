@@ -59,7 +59,7 @@ public class AgentGPS extends Agent {
 		this.movementName=movementName;
 		this.worldName=worldName;
 		
-		this.cont = 0;
+		this.cont = 10;
 		
 		this.coordX = -1;
 		this.coordX = -1;
@@ -129,7 +129,7 @@ public class AgentGPS extends Agent {
 					if(nX+2==coordX&&nY+2==coordY){
 						needUpdate=false;
 					}
-					else{
+					else {
 						needUpdate=true;
 						coordX=nX+2;
 						coordY=nY+2;
@@ -152,7 +152,7 @@ public class AgentGPS extends Agent {
 						
 						this.commandObject.add("gps", gpsCoords);*/
 						
-						this.commandObject.add("gps",new JsonObject().add("x",coordX).add("y",coordY));
+						this.commandObject.add("gps", new JsonObject().add("x",coordX).add("y",coordY));
 						
 						this.commandObject.add("cont", cont);
 

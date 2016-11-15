@@ -110,7 +110,9 @@ public class AgentMovement extends Agent{
                         //Le pedimos los datos al Agent Scanner
                         responseObject = new JsonObject(); //Lo limpiamos
                         responseObject.add("sendScanner", "request");
+						
                         message = responseObject.toString();
+						
                         sendMessage(scannerName, message);
                         
                         state = WAIT_SCANNER;
@@ -121,6 +123,9 @@ public class AgentMovement extends Agent{
 					System.out.println("AgentMovement status: WAIT_SCANNER");
 
                     message = this.receiveMessage();
+					
+					System.out.println("SCANNER MOVEMENT: " + message);
+					
                     this.responseObject = Json.parse(message).asObject();
                     
                     //Actualizamos nuestro map_scanner
@@ -192,7 +197,7 @@ public class AgentMovement extends Agent{
 						//EN ESTAS TRES LINEAS HAY FALLO!! NO SE CONTEMPLA SI map_world[X-1][X-1] NO SEA 1. NO SE SI ESTÁ SOLUCIONADO AÚN
 						
 						if(map_scanner[x-1][y-1] != 1) {
-							less = map_scanner[x-1][y-1];	
+							less = map_scanner[x-1][y-1];
 							newX = x-1;
 							newY = y-1;
 						}
@@ -216,7 +221,7 @@ public class AgentMovement extends Agent{
 
 						for (int i = x-1; i <= x+1 && !goal_found; i++) {
 							for (int j = y-1; j <= j+1 && !goal_found; j++) {
-								if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT) {	//Está dentro de la matriz
+								if(i>=0 && j >= 0 && i< WIDTH && j < HEIGHT) {	//Está dentro de la matriz
 									if(map_world[i][j] == 2) {	//goal
 										goal_found = true;
 										newX = i;
@@ -239,7 +244,7 @@ public class AgentMovement extends Agent{
 						}
 
 						//Comprobamos qué posición respecto a nuestra posición es la que hemos elegido
-						if(newX == x-1) {		//Se mueve hacia el Oeste
+						/*if(newX == x-1) {		//Se mueve hacia el Oeste
 							if(newY == y-1)	//Se mueve hacia Norte
 								responseObject.add("mov", "moveNW");
 							else if(newY == y)
@@ -260,10 +265,10 @@ public class AgentMovement extends Agent{
 								responseObject.add("mov", "moveE");
 							else
 								responseObject.add("mov", "moveSE");
-						}
+						}*/
 
-						//SÓLO PARA EL PRIMER MAPA
-						//responseObject.add("mov", "moveSW");
+						// PRUEBA PARA EL PRIMER MAPA
+						responseObject.add("mov", "moveSW");
 					}
                     message = responseObject.toString();
                     sendMessage(carName, message);

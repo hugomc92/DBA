@@ -245,7 +245,7 @@ public class AgentCar extends Agent {
 					}
 					else if(response.contains("trace") && loggedIn) {
 						
-						System.out.println("SERVER MESSAGE LOGIN TRACE: \n" + loggedIn);
+						System.out.println("SERVER MESSAGE TRACE: \n" + loggedIn);
 						
 						try {
 							this.responseObject = Json.parse(response).asObject();
@@ -297,7 +297,7 @@ public class AgentCar extends Agent {
 						}
 						else if(message.contains("scanner")) {
 							System.out.println("Llega el mensaje de scanner");
-							this.responseObject = Json.parse(message).asObject();	
+							this.responseObject = Json.parse(message).asObject();
 						}
 					}
 					
@@ -366,7 +366,7 @@ public class AgentCar extends Agent {
 					if(!commandObject.toString().contains("logout"))
 						this.state = WAIT_SERVER;
 					else
-						this.state=FINALIZE_MOVEMENT;
+						this.state = FINALIZE_MOVEMENT;
 					
 					this.sendMessage(this.serverAgent, this.commandObject.toString());
 
@@ -391,7 +391,7 @@ public class AgentCar extends Agent {
 					
 					System.out.println("AgentCar status: FINISH");
 					
-					/*for(int j=0;j<2;j++) {
+					for(int j=0;j<2;j++) {
 										
 						String responseF = this.receiveMessage();
 
@@ -425,7 +425,7 @@ public class AgentCar extends Agent {
 								System.err.println(ex.getMessage());
 							}
 						}
-					}*/
+					}
 					
 					this.finish = true;
 					

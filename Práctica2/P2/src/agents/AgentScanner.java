@@ -6,6 +6,7 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.AgentID;
+import java.util.Arrays;
 
 /**
  * Clase que define al agente Scanner, el cual se va a encargar de controlar los datos relacionados
@@ -96,15 +97,19 @@ public class AgentScanner extends Agent {
 					
 					boolean finalize = false;
 					
+					// Limpiamos variables;
+					this.message = "";
+					this.scannerObject = new JsonObject();
+					this.gpsObject = new JsonObject();
+					
                     for(int i=0; i<2 && !finalize; i++) {
 						this.message = this.receiveMessage();
 						
 						if(message.contains("scanner")){
-                            scannerObject = new JsonObject();
+							System.out.println("SERVER SCANNER: " + message);
 							this.scannerObject = Json.parse(message).asObject();
                         }
-						else if(message.contains("gps") && !message.contains("updated")){
-							//System.out.println("NO ES UN UPDATED");
+						else if(message.contains("gps")){
 							this.gpsObject = Json.parse(message).asObject();
 						}
 						else if(message.contains("CRASHED") || message.contains("finalize"))
@@ -123,14 +128,19 @@ public class AgentScanner extends Agent {
 					
 					// Procesamos la información del scanner
 					int pos = 0;
-					for (JsonValue j : scannerObject.get("scanner").asArray()){
+					for(JsonValue j : scannerObject.get("scanner").asArray()){
 						local_scanner[pos] = j.asFloat();
 						pos++;
 					}
 					
+					System.out.println("LOCAL SCANNER: " + Arrays.toString(local_scanner));
+					
 
 					// Procesamos la información del gps si no fue updated
-					if (!message.contains("updated")){
+					if(!this.gpsObject.get("gps").toString().contains("updated")) {
+						
+						System.out.println("SCANNER ENTRA IF NOT CONTAINS UPDATED");
+						
 						int x, y;
 						x = gpsObject.get("gps").asObject().get("x").asInt();
 						y = gpsObject.get("gps").asObject().get("y").asInt();
@@ -140,11 +150,13 @@ public class AgentScanner extends Agent {
 						int posi = 0;
 						for(int i = x-2; i <= x+2; i++){
 							for (int j = y-2; j <= y+2; j++){
-								if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT)
+								if(i>=0 && j >= 0 && i < WIDTH && j < HEIGHT)
 									map_scanner[i][j] = local_scanner[posi];
 								posi++;
 							}
 						}
+						
+						System.out.println("SCANNER MAP SCANNER: " + map_scanner.toString());
 					}
 					
 					gpsObject = new JsonObject();
@@ -153,7 +165,7 @@ public class AgentScanner extends Agent {
                     break;
 				case SEND_CONFIRMATION:
 					
-					System.out.println("AgentScanner status: PROCESS_DATA");
+					System.out.println("AgentScanner status: SEND_CONFIRMATION");
 					
 					//Avisamos al Agent Car que estamos listos
 					responseObject = new JsonObject(); //Lo limpiamos
@@ -162,7 +174,9 @@ public class AgentScanner extends Agent {
 					sendMessage(carName, message);
 					
 					state = WAIT_MOVEMENT;
-                    break;
+					
+					break;
+					
                 case WAIT_MOVEMENT:		//Esperamos a que el Movement Agent nos pida los datos del scanner
 					
 					System.out.println("AgentScanner status: WAIT_MOVEMENT");
@@ -179,6 +193,7 @@ public class AgentScanner extends Agent {
                         state = FINISH;
                     
                     break; 
+					
 				case SEND_INFO:
 					
 					System.out.println("AgentScanner status: SEND_INFO");
@@ -187,18 +202,23 @@ public class AgentScanner extends Agent {
                         
 					//Empaquetamos el array entero en un JSon y se lo enviamos
 					JsonArray vector = new JsonArray();
-					for (float [] i : map_scanner){
-						for (float j : i){
+					
+					for(float [] i : map_scanner){
+						for(float j : i){
 							vector.add(j);
 						}
 					}
+					
 					responseObject.add("scanner",vector);
+					
 					messageMovement = responseObject.toString();
-					this.sendMessage(movementName,messageMovement);
+					
+					this.sendMessage(movementName, messageMovement);
 					
 					
 					state = IDLE;
                     break;
+					
                 case FINISH:    //Matamos al agente
 					
 					System.out.println("AgentScanner status: FINISH");

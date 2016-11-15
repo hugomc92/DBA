@@ -180,7 +180,7 @@ public class AgentWorld extends Agent {
         System.out.println("AgentWorld updating world");
 		JsonObject parse = Json.parse(resultMessage).asObject();
 		
-		if(resultMessage.contains("radar")){
+		if(resultMessage.contains("radar")) {
 			int pos = 0;
 			for (JsonValue j : parse.get("radar").asArray()){
 				local_world[pos] = j.asFloat();
@@ -197,10 +197,13 @@ public class AgentWorld extends Agent {
 				}
 			}
 		}
-		else{
-			
+		else {
 			coordX = parse.get("x").asInt();
 			coordY = parse.get("y").asInt();
+			
+			cont = parse.get("cont").asInt();
+			
+			map_world[coordX][coordY] = cont;
 		}
 		return true;
     }
