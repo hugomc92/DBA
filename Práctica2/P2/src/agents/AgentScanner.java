@@ -104,7 +104,7 @@ public class AgentScanner extends Agent {
 							this.scannerObject = Json.parse(message).asObject();
                         }
 						else if(message.contains("gps") && !message.contains("updated")){
-							System.out.println("NO ES UN UPDATED");
+							//System.out.println("NO ES UN UPDATED");
 							this.gpsObject = Json.parse(message).asObject();
 						}
 						else if(message.contains("CRASHED") || message.contains("finalize"))
@@ -135,13 +135,7 @@ public class AgentScanner extends Agent {
 						x = gpsObject.get("gps").asObject().get("x").asInt();
 						y = gpsObject.get("gps").asObject().get("y").asInt();
 
-						System.out.println("COORDENADAS:");
-						System.out.println(x);
-						System.out.println(y);
 						
-						System.out.println("------------");
-						System.out.print(local_scanner.toString());
-						System.out.println("------------");
 						//Metemos los datos del scanner dados anteriormente en su posición en map_scanner
 						int posi = 0;
 						for(int i = x-2; i <= x+2; i++){
@@ -165,7 +159,6 @@ public class AgentScanner extends Agent {
 					responseObject = new JsonObject(); //Lo limpiamos
 					responseObject.add("scanner", "ok");
 					message = responseObject.toString();
-					System.out.println("AQUI"+message);
 					sendMessage(carName, message);
 					
 					state = WAIT_MOVEMENT;

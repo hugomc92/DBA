@@ -180,81 +180,67 @@ public class AgentMovement extends Agent{
 					}
 					else{
 						//Una vez tenemos todos los datos, calculamos el mejor movimiento
-					 /*   //PRIMERA HEURISTICA: movernos sólo en dirección al goal en línea recta
-						float menor = map_scanner[x-1][y-1]+1;
-						int newX = -1, newY = -1;
-
-						for (int i = x-1; i <= x+1; i++){
-							for (int j = y-1; j <= y+1; j++){
-								if (menor > map_scanner[i][j]){ //No miro que si x!=i o y!=j porque si no estamos ya en el goal, 
-																//siempre habrÃ¡ un borde con menos valor que la posición en la que estamos actualmente
-								   newX = i;
-								   newY = j;
-								}
-							}
-						}*/
-
-
-						//SEGUNDA HEURISTICA: elegimos de la siguiente manera
+						//HEURISTICA: elegimos de la siguiente manera
 						//	-Si está el goal en una posición inmediata, vamos directamente
 						//	-Si no es pared, elegimos por la zona que llevemos más tiempo sin pasar
 						//	(si nunca se ha pasado se toma como la zona más lejana)
 						//		*Si hay varias zonas con la misma prioridad (es decir, 
 						//			hay varias zonas por la que no hemos pasado), 
 						//			priorizamos el que esté más cerca del goal
-						/*float less = map_scanner[x-1][y-1];
+						float less = map_scanner[x-1][y-1];	//EN ESTAS TRES LINEAS HAY FALLO!! NO SE CONTEMPLA SI map_world[X-1][X-1] NO SEA 1
 						int newX = x-1, newY = y-1;
 						boolean goal_found = false;
 
 						for (int i = x-1; i <= x+1 && !goal_found; i++){
 							for (int j = y-1; j <= j+1 && !goal_found; j++){
-								if (map_world[i][j] == 2){	//goal
-									goal_found = true;
-									newX = i;
-									newY = j;
-								}
-								else if (map_world[i][j] != 1){	//No es pared, luego es transitable
-									if (less < map_world[i][j] ||	//Hace menos que ha pasado por esta posición
-										(less == map_world[i][j] &&	//Dos zonas por donde no ha pasado
-										 map_scanner[newX][newY] > map_scanner[i][j]	//Este está más cerca del goal
-										)
-									   )
-
+								if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT)	//Está dentro de la matriz
+									if (map_world[i][j] == 2){	//goal
+										goal_found = true;
 										newX = i;
 										newY = j;
-										less = map_world[i][j];
-								}
+									}
+									else if (map_world[i][j] != 1){	//No es pared, luego es transitable
+										if (less < map_world[i][j] ||	//Hace menos que ha pasado por esta posición
+											(less == map_world[i][j] &&	//Dos zonas por donde no ha pasado
+											 map_scanner[newX][newY] > map_scanner[i][j]	//Este está más cerca del goal
+											)
+										   )
+
+											newX = i;
+											newY = j;
+											less = map_world[i][j];
+									}
 							}
-						}*/
+						}
 
 
-						/*
+						
 						//Comprobamos quÃ© posición respecto a nuestra posición es la que hemos elegido
-						if (newX == x-1){
-							if (newY == y-1)
+						if (newX == x-1){		//Se mueve hacia el Oeste
+							if (newY == y-1)	//Se mueve hacia Norte
 								responseObject.add("mov", "moveNW");
 							else if (newY == y)
-								responseObject.add("mov", "moveN");
+								responseObject.add("mov", "moveW");
 							else
-								responseObject.add("mov", "moveNE");
+								responseObject.add("mov", "moveSW");
 						}
 						else if (newX == x){
 							if (newY == y-1)
-								responseObject.add("mov", "moveW");
+								responseObject.add("mov", "moveN");
 							else
-								responseObject.add("mov", "moveE");
+								responseObject.add("mov", "moveS");
 						}
 						else{
 							if (newY == y-1)
-								responseObject.add("mov", "moveSW");
+								responseObject.add("mov", "moveNE");
 							else if (newY == y)
-								responseObject.add("mov", "moveS");
+								responseObject.add("mov", "moveE");
 							else
 								responseObject.add("mov", "moveSE");
-						}*/
+						}
 
 						//SÓLO PARA EL PRIMER MAPA
-						responseObject.add("mov", "moveSW");
+						//responseObject.add("mov", "moveSW");
 					}
                     message = responseObject.toString();
                     sendMessage(carName, message);

@@ -122,7 +122,7 @@ public class AgentWorld extends Agent {
 					
 					this.commandObject = new JsonObject();
 
-					this.commandObject.add("gps","updated");
+					this.commandObject.add("radar","ok");
 
 					this.sendMessage(this.radarName, commandObject.toString());
 					

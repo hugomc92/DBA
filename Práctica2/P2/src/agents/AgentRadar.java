@@ -88,7 +88,7 @@ public class AgentRadar extends Agent {
 					for(int i=0; i<2 && !finalize; i++) {
 						message = this.receiveMessage();
 
-						if(message.contains("radar"))
+						if(message.contains("radar"))	//Del server
 							dataRadar = (JsonObject) Json.parse(message);    
 						else if(message.contains("gps")) {
 							if(message.contains("updated"))
@@ -135,13 +135,13 @@ public class AgentRadar extends Agent {
                     String confirmation = this.receiveMessage();
 					
 					JsonObject confirmationObject = Json.parse(confirmation).asObject();
-					String worldMessage = confirmationObject.get("gps").asString();
+					String worldMessage = confirmationObject.get("radar").asString();
                     
 				
-					if(worldMessage.contains("updated"))
+					if(worldMessage.contains("ok"))//confirmacion del world
 						this.state = SEND_CONFIRMATION;
 					else
-						this.state = SEND_DATA;
+						this.state = FINISH;
 					
 					break;
 				case SEND_CONFIRMATION:

@@ -128,18 +128,15 @@ public class AgentGPS extends Agent {
 					
 					int nX = gpsData.get("x").asInt();
 					int nY = gpsData.get("y").asInt();
-					if(nX==coordX&&nY==coordY){
+					if(nX+2==coordX&&nY+2==coordY){
 						needUpdate=false;
 					}
 					else{
 						needUpdate=true;
-						coordX=nX;
-						coordY=nY;
+						coordX=nX+2;
+						coordY=nY+2;
 						cont++;
 					}
-					System.out.println("++++++++++++++++++++++++");
-					System.out.println("COORDENADAS GPS (con el +2):"+coordX+","+coordY);
-					System.out.println("++++++++++++++++++++++++");
 					
 					this.state = UPDATE_WORLD;
 
