@@ -139,9 +139,8 @@ public class AgentScanner extends Agent {
 					// Procesamos la información del gps si no fue updated
 					if(!this.gpsObject.get("gps").toString().contains("updated")) {
 						
-						System.out.println("SCANNER ENTRA IF NOT CONTAINS UPDATED");
-						
 						int x, y;
+						
 						x = gpsObject.get("gps").asObject().get("x").asInt();
 						y = gpsObject.get("gps").asObject().get("y").asInt();
 
@@ -155,8 +154,6 @@ public class AgentScanner extends Agent {
 								posi++;
 							}
 						}
-						
-						System.out.println("SCANNER MAP SCANNER: " + map_scanner.toString());
 					}
 					
 					gpsObject = new JsonObject();

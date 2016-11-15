@@ -195,7 +195,7 @@ public class AgentMovement extends Agent{
 						int newX, newY;
 						
 						//EN ESTAS TRES LINEAS HAY FALLO!! NO SE CONTEMPLA SI map_world[X-1][X-1] NO SEA 1. NO SE SI ESTÁ SOLUCIONADO AÚN
-						
+						/*
 						if(map_scanner[x-1][y-1] != 1) {
 							less = map_scanner[x-1][y-1];
 							newX = x-1;
@@ -241,7 +241,7 @@ public class AgentMovement extends Agent{
 									}
 								}
 							}
-						}
+						}*/
 
 						//Comprobamos qué posición respecto a nuestra posición es la que hemos elegido
 						/*if(newX == x-1) {		//Se mueve hacia el Oeste

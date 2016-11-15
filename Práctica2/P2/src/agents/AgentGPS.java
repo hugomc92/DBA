@@ -173,7 +173,12 @@ public class AgentGPS extends Agent {
 					
 					String confirmation = this.receiveMessage();
 					
+					System.out.println("AGENTGPS WAIT WORLD CONFIRMATION: " + confirmation);
+					
 					JsonObject confirmationObject = Json.parse(confirmation).asObject();
+					
+					System.out.println("CONFIRMATION OBJECT TO STRING: " + confirmationObject.toString());
+					
 					boolean confirmationResult = confirmationObject.get("gps").asBoolean();
 					
 					if(!confirmationResult)

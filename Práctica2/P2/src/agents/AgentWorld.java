@@ -22,6 +22,7 @@ public class AgentWorld extends Agent {
 	private static final int FINISH = 6;
 	
     private JsonObject responseObject;
+	private JsonObject gpsObject;
 	private JsonObject commandObject;
         
 	private int state;
@@ -60,6 +61,7 @@ public class AgentWorld extends Agent {
 		this.state = IDLE;
 		this.finish = false;
 		this.responseObject = new JsonObject();
+		this.gpsObject = new JsonObject();
 		
 		coordX = coordY = -1;
 		this.cont = 0;
@@ -87,8 +89,9 @@ public class AgentWorld extends Agent {
 						this.state = FINISH;
 					else {
 						this.responseObject = Json.parse(responseGPS).asObject();
+						this.gpsObject = Json.parse(responseGPS).asObject();
 
-						String resultGPS = responseObject.get("gps").asObject().toString();
+						String resultGPS = responseObject.get("gps").toString();
 
 						boolean ok = true;
 						
@@ -151,7 +154,7 @@ public class AgentWorld extends Agent {
 					
 					this.sendWorld();
 					
-					this.state=IDLE;
+					this.state = IDLE;
 					
 					break;
            
@@ -177,7 +180,9 @@ public class AgentWorld extends Agent {
 	}
 
     private boolean updateWorld(String resultMessage) {
+		
         System.out.println("AgentWorld updating world");
+		
 		JsonObject parse = Json.parse(resultMessage).asObject();
 		
 		if(resultMessage.contains("radar")) {
@@ -201,10 +206,15 @@ public class AgentWorld extends Agent {
 			coordX = parse.get("x").asInt();
 			coordY = parse.get("y").asInt();
 			
-			cont = parse.get("cont").asInt();
+			System.out.println("gpsObject: " + gpsObject.toString());
+			
+			cont = gpsObject.get("cont").asInt();
+			
+			System.out.println("cont: " + cont);
 			
 			map_world[coordX][coordY] = cont;
 		}
+		
 		return true;
     }
 

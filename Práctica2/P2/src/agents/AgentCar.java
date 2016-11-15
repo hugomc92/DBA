@@ -5,8 +5,13 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.AgentID;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Clase que define al agente coche, que va a actuar como controlador y va a ser el único que se conecte al servidor.
@@ -251,6 +256,16 @@ public class AgentCar extends Agent {
 							this.responseObject = Json.parse(response).asObject();
 
 							JsonArray trace = responseObject.get("trace").asArray();
+							
+							printTrace(trace);
+						} finally {
+							this.state = FINALIZE_MOVEMENT;
+						}
+						
+						/*try {
+							this.responseObject = Json.parse(response).asObject();
+
+							JsonArray trace = responseObject.get("trace").asArray();
 
 							byte data[] = new byte[trace.size()];
 
@@ -258,7 +273,12 @@ public class AgentCar extends Agent {
 								data[i] = (byte) trace.get(i).asInt();
 						
 							FileOutputStream fos;
-							fos = new FileOutputStream("trace.png");
+							DateFormat df = new SimpleDateFormat("MM/dd/yyyy-HH:mm");
+							Date today = Calendar.getInstance().getTime();        
+
+							String date = df.format(today);
+
+							fos = new FileOutputStream(new File("Trace-" + map + "-" + date +  ".png"));
 							fos.write(data);
 							fos.close();
 
@@ -270,7 +290,7 @@ public class AgentCar extends Agent {
 							System.err.println(ex.getMessage());
 						} finally {
 							this.state = FINALIZE_MOVEMENT;
-						}
+						}*/
 					}
 					
 					break;
@@ -365,11 +385,13 @@ public class AgentCar extends Agent {
 					
 					if(!commandObject.toString().contains("logout"))
 						this.state = WAIT_SERVER;
-					else
+					else {
+						this.responseObject = commandObject;
+						
 						this.state = FINALIZE_MOVEMENT;
+					}
 					
 					this.sendMessage(this.serverAgent, this.commandObject.toString());
-
 					
 					break;
 				case FINALIZE_MOVEMENT:
@@ -391,38 +413,27 @@ public class AgentCar extends Agent {
 					
 					System.out.println("AgentCar status: FINISH");
 					
-					for(int j=0;j<2;j++) {
-										
-						String responseF = this.receiveMessage();
+					System.out.println("responseObjet: " + responseObject.toString());
 
-						System.out.println("SERVER MESSAGE AFTER LOGIN: \n" + responseF);
-						if(responseF.contains("result")) {
-							System.out.println("Resultado");
-						}
-						else if(responseF.contains("trace") && loggedIn) {
+					if(!responseObject.toString().contains("BAD_") && !responseObject.toString().contains("CRASHED")) {
+						// Esperamos los mensajes del logout, es decir, la traza y el OK.
+						for(int j=0;j<2;j++) {
+							String responseF = this.receiveMessage();
 
-							System.out.println("SERVER MESSAGE LOGIN TRACE: \n" + loggedIn);
+							System.out.println("SERVER MESSAGE LOGOUT: " + responseF);
 
-							try {
+							if(responseF.contains("result")) {
+								System.out.println("Resultado: " + responseF);
+							}
+							else if(responseF.contains("trace") && loggedIn) {
+
+								System.out.println("SERVER MESSAGE TRACE: " + loggedIn);
+								
 								this.responseObject = Json.parse(responseF).asObject();
 
 								JsonArray trace = responseObject.get("trace").asArray();
 
-								byte data[] = new byte[trace.size()];
-
-								for(int i=0; i<data.length; i++)
-									data[i] = (byte) trace.get(i).asInt();
-
-								FileOutputStream fos = new FileOutputStream("trace.png");
-								fos.write(data);
-								fos.close();
-
-								System.out.println("Saved trace");
-
-							} catch(IOException ex) {
-								System.err.println("Error procesing trace");
-
-								System.err.println(ex.getMessage());
+								printTrace(trace);
 							}
 						}
 					}
@@ -443,5 +454,32 @@ public class AgentCar extends Agent {
 		System.out.println("AgentCar has just finished");
 		
 		super.finalize();
+	}
+	
+	private void printTrace(JsonArray trace) {
+			
+		try {
+			byte data[] = new byte[trace.size()];
+
+			for(int i=0; i<data.length; i++)
+				data[i] = (byte) trace.get(i).asInt();
+
+			FileOutputStream fos;
+			DateFormat df = new SimpleDateFormat("MM/dd/yyyy-HH:mm");
+			Date today = Calendar.getInstance().getTime();        
+
+			String date = df.format(today);
+
+			fos = new FileOutputStream(new File("Trace-" + map + "-" + date +  ".png"));
+			fos.write(data);
+			fos.close();
+
+			System.out.println("Saved trace");
+
+		} catch(IOException ex) {
+			System.err.println("Error procesing trace");
+
+			System.err.println(ex.getMessage());
+		}
 	}
 }
