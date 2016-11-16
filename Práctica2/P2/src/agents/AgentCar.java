@@ -487,7 +487,7 @@ public class AgentCar extends Agent {
 
 			String date = df.format(today);
 
-			fos = new FileOutputStream(new File("Trace." + map + "." + date +  ".png"));
+			fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date +  ".png"));
 			fos.write(data);
 			fos.close();
 

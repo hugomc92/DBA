@@ -206,8 +206,8 @@ public class AgentWorld extends Agent {
 			
 			//Ahora lo pasamos al mapa
 			int posi = 0;
-			for(int i = coordX-2; i <= coordX+2; i++){
-				for (int j = coordY-2; j <= coordY+2; j++){
+			for(int i = coordY-2; i <= coordY+2; i++){
+				for (int j = coordX-2; j <= coordX+2; j++){
 					if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT)
 						map_world[i][j] = local_world[posi];
 					posi++;

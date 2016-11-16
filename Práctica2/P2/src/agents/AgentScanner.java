@@ -133,7 +133,7 @@ public class AgentScanner extends Agent {
 						pos++;
 					}
 					
-					System.out.println("LOCAL SCANNER: " + Arrays.toString(local_scanner));
+					//System.out.println("LOCAL SCANNER: " + Arrays.toString(local_scanner));
 					
 
 					// Procesamos la información del gps si no fue updated
@@ -147,10 +147,12 @@ public class AgentScanner extends Agent {
 						
 						//Metemos los datos del scanner dados anteriormente en su posición en map_scanner
 						int posi = 0;
-						for(int i = x-2; i <= x+2; i++){
-							for (int j = y-2; j <= y+2; j++){
-								if(i>=0 && j >= 0 && i < WIDTH && j < HEIGHT)
+						for(int i = y-2; i <= y+2; i++) {
+							for(int j = x-2; j <= x+2; j++) {
+								if(i>=0 && j >= 0 && i < WIDTH && j < HEIGHT) {
 									map_scanner[i][j] = local_scanner[posi];
+									//System.out.println("map_scanner[" + i + "][" + j + "]: " + map_scanner[i][j]);
+								}
 								posi++;
 							}
 						}

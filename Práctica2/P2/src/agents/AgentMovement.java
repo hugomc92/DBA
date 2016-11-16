@@ -182,6 +182,13 @@ public class AgentMovement extends Agent{
 						System.out.println("Hemos encontrado la solución " + map_world[x][y] + " En las coordenadas " + x + "," + y);
 					}
 					else {
+						
+						// MEJORA!! si en el radio del mundo que vemos está el objetivo, hacer el camino hasta el objetivo.
+						/* if() {
+						
+						}
+						*/
+						
 						//Una vez tenemos todos los datos, calculamos el mejor movimiento
 						//HEURISTICA: elegimos de la siguiente manera
 						//	-Si está el goal en una posición inmediata, vamos directamente
@@ -190,7 +197,7 @@ public class AgentMovement extends Agent{
 						//		*Si hay varias zonas con la misma prioridad (es decir, 
 						//			hay varias zonas por la que no hemos pasado), 
 						//			priorizamos el que esté más cerca del goal
-						float less;
+						/*float less;
 						int newX, newY;
 						
 						//EN ESTAS TRES LINEAS HAY FALLO!! NO SE CONTEMPLA SI map_world[X-1][X-1] NO SEA 1. NO SE SI ESTÁ SOLUCIONADO AÚN
@@ -219,7 +226,7 @@ public class AgentMovement extends Agent{
 						boolean goal_found = false;
 
 						for (int i = x-1; i <= x+1 && !goal_found; i++) {
-							for (int j = y-1; j <= j+1 && !goal_found; j++) {
+							for (int j = y-1; j <= y+1 && !goal_found; j++) {
 								if(i>=0 && j >= 0 && i< WIDTH && j < HEIGHT) {	//Está dentro de la matriz
 									if(map_world[i][j] == 2) {	//goal
 										goal_found = true;
@@ -241,6 +248,58 @@ public class AgentMovement extends Agent{
 								}
 							}
 						}*/
+						
+						// Buscamos el movimiento óptimo según el scanner
+						
+						float minScanner = map_scanner[y][x];
+						int newX = x;
+						int newY = y;
+						
+						System.out.println("minScanner: " + minScanner);
+						System.out.println("map_scanner[" + y + "][" + x + "]: " + map_scanner[y][x]);
+						System.out.println("newX: " + newX);
+						System.out.println("newY: " + newY);
+						
+						for(int i=y-1; i<=y+1; i++) {
+							for(int j=x-1; j<=x+1; j++) {
+								System.out.println("map_scanner[" + i + "][" + j + "]: " + map_scanner[i][j]);
+								if(map_scanner[i][j] <= minScanner && map_world[i][j] != 1) {
+									minScanner = map_scanner[i][j];
+									newX = j;
+									newY = i;
+									System.out.println("\nminScanner: " + minScanner);
+									System.out.println("newX: " + newX);
+									System.out.println("newY: " + newY + "\n");
+								}
+							}
+						}
+						
+						String movement;
+						
+						if(newX == x-1) {		//Se mueve hacia el Oeste
+							if(newY == y-1)	//Se mueve hacia Norte
+								movement = "moveNW";
+							else if(newY == y)
+								movement = "moveW";
+							else
+								movement = "moveSW";
+						}
+						else if(newX == x) {
+							if(newY == y-1)
+								movement = "moveN";
+							else
+								movement = "moveS";
+						}
+						else {
+							if(newY == y-1)
+								movement = "moveNE";
+							else if(newY == y)
+								movement = "moveE";
+							else
+								movement = "moveSE";
+						}
+						
+						System.out.println("\nEl movimiento debería ser: " + movement + "\n");
 
 						//Comprobamos qué posición respecto a nuestra posición es la que hemos elegido
 						/*if(newX == x-1) {		//Se mueve hacia el Oeste
@@ -269,6 +328,7 @@ public class AgentMovement extends Agent{
 						// PRUEBA PARA EL PRIMER MAPA
 						responseObject.add("mov", "moveSW");
 					}
+						
                     message = responseObject.toString();
                     sendMessage(carName, message);
                     
