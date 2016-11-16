@@ -307,7 +307,9 @@ public class AgentCar extends Agent {
 						if(message.contains("battery")) {
 							this.responseObject = Json.parse(message).asObject();
 
-							this.refuel = responseObject.get("refuel").asBoolean();
+							this.refuel = responseObject.get("battery").asBoolean();
+							
+							System.out.println("AGENTCAR IDLE REFUEL: " + refuel);
 						}
 						else if(message.contains("gps")) {
 							this.responseObject = Json.parse(message).asObject();
@@ -331,26 +333,20 @@ public class AgentCar extends Agent {
 					
 					System.out.println("AgentCar status: SEND_PROCEED");
 					
-					/*if(this.refuel) {
-						
-						this.commandObject = new JsonObject();
-						
-						this.commandObject.add("command", "refuel");
-						this.commandObject.add("key", key);
-						
-						this.refuel = false;
-						
-						this.state = SEND_COMMAND;
-					}
-					else {*/
-						JsonObject confirmation = new JsonObject();
+					int gpsConfirmation = gpsCont;
 					
-						confirmation.add("calculate", gpsCont);
+					if(this.refuel)
+						gpsConfirmation = -1;
+					
+					JsonObject confirmation = new JsonObject();
+					
+					System.out.println("\n\nAGENTCAR SEND_PROCEED gpsConfirmation: " + gpsConfirmation);
 
-						this.sendMessage(movementName, confirmation.toString());
-						
-						this.state = WAIT_MOVEMENT;
-					//}
+					confirmation.add("calculate", gpsConfirmation);
+
+					this.sendMessage(movementName, confirmation.toString());
+
+					this.state = WAIT_MOVEMENT;
 					
 					break;
 				case WAIT_MOVEMENT:
@@ -363,23 +359,22 @@ public class AgentCar extends Agent {
 					
 					movementExecution = movementObject.get("mov").asString();
 					
-					this.commandObject = new JsonObject();
-
-					this.commandObject.add("command", movementExecution);
-					this.commandObject.add("key", key);
-					// PROVISIONAL MIENTRAS BUSCO OTRA SOLUCIÓN AL INTERBLOQUEO
-					if(this.refuel) {
-						
+					if(!movementExecution.contains("NO")) {
 						this.commandObject = new JsonObject();
-						
+
+						this.commandObject.add("command", movementExecution);
+						this.commandObject.add("key", key);
+					}
+					else {
+						this.commandObject = new JsonObject();
+
 						this.commandObject.add("command", "refuel");
 						this.commandObject.add("key", key);
-						
+
 						this.refuel = false;
-						
-						this.state = SEND_COMMAND;
 					}
-						this.state = SEND_COMMAND;
+					
+					this.state = SEND_COMMAND;
 
 					break;
 				case SEND_COMMAND:

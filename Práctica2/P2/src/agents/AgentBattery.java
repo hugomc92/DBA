@@ -17,7 +17,7 @@ public class AgentBattery extends Agent {
 	private static final int SEND_CONFIRMATION = 2;
 	private static final int FINISH = 3;
 	
-	private static final int BATTERY_LIMIT = 5;
+	private static final int BATTERY_LIMIT = 90;
 	
     private JsonObject responseObject;
 	private JsonObject commandObject;
@@ -27,7 +27,7 @@ public class AgentBattery extends Agent {
 	private int state;
 	private boolean finish;
 	private boolean refuel=false;
-	private AgentID carName;
+	private final AgentID carName;
 
 
 	/**
@@ -83,10 +83,9 @@ public class AgentBattery extends Agent {
 					
 					System.out.println("AgentBattery status: PROCESS_DATA");
 					
-					Double result = responseObject.get("battery").asDouble();
+					float result = responseObject.get("battery").asFloat();
 					
-					if(result <= BATTERY_LIMIT)
-					   refuel = true;
+					refuel = result <= BATTERY_LIMIT;
 					
 					this.state = SEND_CONFIRMATION;
 					
@@ -97,7 +96,7 @@ public class AgentBattery extends Agent {
 					
 					this.commandObject = new JsonObject();
 					
-					this.commandObject.add("refuel", refuel);
+					this.commandObject.add("battery", refuel);
 					
 					this.sendMessage(carName, commandObject.toString());
 					
@@ -121,8 +120,6 @@ public class AgentBattery extends Agent {
 					break;
 			}
 		}
-		
-		this.finalize();
 	}
 	
 	/**

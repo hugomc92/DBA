@@ -126,19 +126,21 @@ public class AgentMovement extends Agent{
 					
 					System.out.println("SCANNER MOVEMENT: " + message);
 					
-                    this.responseObject = Json.parse(message).asObject();
-                    
-                    //Actualizamos nuestro map_scanner
-                    int posx = 0;
-                    int posy = 0;
-                    for (JsonValue j : responseObject.get("scanner").asArray()) {
-                        map_scanner[posx][posy] = j.asFloat();
-                        posy++;
-                        if(posy%WIDTH == 0) {
-                            posy = 0;
-                            posx++;
-                        }
-                    }
+					if(this.gpsCont != -1) {
+						this.responseObject = Json.parse(message).asObject();
+
+						//Actualizamos nuestro map_scanner
+						int posx = 0;
+						int posy = 0;
+						for (JsonValue j : responseObject.get("scanner").asArray()) {
+							map_scanner[posx][posy] = j.asFloat();
+							posy++;
+							if(posy%WIDTH == 0) {
+								posy = 0;
+								posx++;
+							}
+						}
+					}
                     
                     //Pedimos al Agent World los datos
                     System.out.println("Pedimos al Agent World los datos");
@@ -154,22 +156,35 @@ public class AgentMovement extends Agent{
                     System.out.println("AgentMovement status: WAIT_WORLD");
 					
 					message = this.receiveMessage();
-                    this.responseObject = Json.parse(message).asObject();
+					
+					if(this.gpsCont != -1) {
+						this.responseObject = Json.parse(message).asObject();
+
+						//Actualizamos nuestro world_scanner
+						this.x = responseObject.get("x").asInt();
+						this.y = responseObject.get("y").asInt();
+						int posix = 0, posiy = 0;
+						for (JsonValue j : responseObject.get("world").asArray()) {
+							map_world[posix][posiy] = j.asInt();
+							posiy++;
+							if(posiy%WIDTH == 0) {
+								posiy = 0;
+								posix++;
+							}
+						}
+						
+						state = EXECUTE;
+					}
+					else {
+						responseObject = new JsonObject();
+						
+						responseObject.add("mov", "NO");
+						
+						sendMessage(carName, responseObject.toString());
+
+						state = IDLE;
+					}
                     
-                    //Actualizamos nuestro world_scanner
-                    this.x = responseObject.get("x").asInt();
-                    this.y = responseObject.get("y").asInt();
-                    int posix = 0, posiy = 0;
-                    for (JsonValue j : responseObject.get("world").asArray()) {
-                        map_world[posix][posiy] = j.asInt();
-                        posiy++;
-                        if(posiy%WIDTH == 0) {
-                            posiy = 0;
-                            posix++;
-                        }
-                    }
-                    
-                    state = EXECUTE;
                     break;
                 case EXECUTE:   //Calcula la decisión y se la manda al Agent Car
 					
@@ -177,9 +192,9 @@ public class AgentMovement extends Agent{
                     
                     responseObject = new JsonObject(); //Lo limpiamos
 					
-					if(map_world[x][y] == 2) {	//Estamos en el goal
+					if(map_world[y][x] == 2) {	//Estamos en el goal
 						responseObject.add("mov", "logout");
-						System.out.println("Hemos encontrado la solución " + map_world[x][y] + " En las coordenadas " + x + "," + y);
+						System.out.println("Hemos encontrado la solución " + map_world[y][x] + " En las coordenadas " + y + "," + x);
 					}
 					else {
 						
@@ -254,22 +269,30 @@ public class AgentMovement extends Agent{
 						float minScanner = map_scanner[y][x];
 						int newX = x;
 						int newY = y;
+						boolean goalFound = false;
 						
 						System.out.println("minScanner: " + minScanner);
 						System.out.println("map_scanner[" + y + "][" + x + "]: " + map_scanner[y][x]);
 						System.out.println("newX: " + newX);
 						System.out.println("newY: " + newY);
 						
-						for(int i=y-1; i<=y+1; i++) {
-							for(int j=x-1; j<=x+1; j++) {
+						for(int i=y-1; i<=y+1 && !goalFound; i++) {
+							for(int j=x-1; j<=x+1 && !goalFound; j++) {
 								System.out.println("map_scanner[" + i + "][" + j + "]: " + map_scanner[i][j]);
-								if(map_scanner[i][j] <= minScanner && map_world[i][j] != 1) {
-									minScanner = map_scanner[i][j];
+								if(map_world[i][j] == 2) {
+									goalFound = true;
 									newX = j;
 									newY = i;
-									System.out.println("\nminScanner: " + minScanner);
-									System.out.println("newX: " + newX);
-									System.out.println("newY: " + newY + "\n");
+								}
+								else if(map_world[i][j] != 1) {
+									if(map_scanner[i][j] < minScanner) {
+										minScanner = map_scanner[i][j];
+										newX = j;
+										newY = i;
+										System.out.println("\nminScanner: " + minScanner);
+										System.out.println("newX: " + newX);
+										System.out.println("newY: " + newY + "\n");
+									}
 								}
 							}
 						}

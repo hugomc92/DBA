@@ -133,7 +133,7 @@ public class AgentScanner extends Agent {
 						pos++;
 					}
 					
-					//System.out.println("LOCAL SCANNER: " + Arrays.toString(local_scanner));
+					System.out.println("LOCAL SCANNER: " + Arrays.toString(local_scanner));
 					
 
 					// Procesamos la información del gps si no fue updated
