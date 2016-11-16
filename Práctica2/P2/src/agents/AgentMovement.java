@@ -323,6 +323,8 @@ public class AgentMovement extends Agent{
 						}
 						
 						System.out.println("\nEl movimiento debería ser: " + movement + "\n");
+						
+						//responseObject.add("mov", movement);
 
 						//Comprobamos qué posición respecto a nuestra posición es la que hemos elegido
 						/*if(newX == x-1) {		//Se mueve hacia el Oeste
