@@ -169,7 +169,6 @@ public class AgentMovement extends Agent{
                         }
                     }
                     
-                    
                     state = EXECUTE;
                     break;
                 case EXECUTE:   //Calcula la decisión y se la manda al Agent Car

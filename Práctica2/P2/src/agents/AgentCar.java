@@ -482,12 +482,12 @@ public class AgentCar extends Agent {
 				data[i] = (byte) trace.get(i).asInt();
 
 			FileOutputStream fos;
-			DateFormat df = new SimpleDateFormat("MM.dd.yyyy.HH:mm");
+			DateFormat df = new SimpleDateFormat("MM-dd-yyyy-HH.mm");
 			Date today = Calendar.getInstance().getTime();        
 
 			String date = df.format(today);
 
-			fos = new FileOutputStream(new File("Trace-" + map + "-" + date +  ".png"));
+			fos = new FileOutputStream(new File("Trace." + map + "." + date +  ".png"));
 			fos.write(data);
 			fos.close();
 
