@@ -21,6 +21,8 @@ public class AgentBattery extends Agent {
 	
     private JsonObject responseObject;
 	private JsonObject commandObject;
+	
+	private String response;
         
 	private int state;
 	private boolean finish;
@@ -66,7 +68,7 @@ public class AgentBattery extends Agent {
 					
 					System.out.println("AgentBattery status: IDLE");
 					
-					String response = this.receiveMessage();
+					response = this.receiveMessage();
 					
 					if(response.contains("CRASHED") || response.contains("finalize"))
 						this.state = FINISH;
@@ -105,6 +107,14 @@ public class AgentBattery extends Agent {
 				case FINISH:
 					
 					System.out.println("AgentBattery status: FINISH");
+					
+					if(this.response.contains("finalize")) {
+						JsonObject confirmationMessage = new JsonObject();
+						
+						confirmationMessage.add("battery", "finish");
+
+						this.sendMessage(carName, confirmationMessage.toString());
+					}
 					
 					this.finish = true;
 					

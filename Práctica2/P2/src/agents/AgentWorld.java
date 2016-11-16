@@ -24,6 +24,8 @@ public class AgentWorld extends Agent {
     private JsonObject responseObject;
 	private JsonObject gpsObject;
 	private JsonObject commandObject;
+	
+	private String response;
         
 	private int state;
 	private int coordX,coordY;
@@ -83,13 +85,13 @@ public class AgentWorld extends Agent {
 					
 					System.out.println("AgentWorld status: IDLE");
 					
-					String responseGPS = this.receiveMessage();
+					response = this.receiveMessage();
 					
-					if(responseGPS.contains("CRASHED") || responseGPS.contains("finalize"))
+					if(response.contains("CRASHED") || response.contains("finalize"))
 						this.state = FINISH;
 					else {
-						this.responseObject = Json.parse(responseGPS).asObject();
-						this.gpsObject = Json.parse(responseGPS).asObject();
+						this.responseObject = Json.parse(response).asObject();
+						this.gpsObject = Json.parse(response).asObject();
 
 						String resultGPS = responseObject.get("gps").toString();
 
@@ -147,6 +149,8 @@ public class AgentWorld extends Agent {
 						this.state = SEND_INFO;
 					else
 						this.state = FINISH;
+					
+					break;
                                         
 				case SEND_INFO:
 					
@@ -161,6 +165,14 @@ public class AgentWorld extends Agent {
 				case FINISH:
 					
 					System.out.println("AgentWorld status: FINISH");
+					
+					if(this.response.contains("finalize")) {
+						JsonObject confirmationMessage = new JsonObject();
+						
+						confirmationMessage.add("world", "finish");
+
+						this.sendMessage(gpsName, confirmationMessage.toString());
+					}
 					
 					this.finish = true;
 					

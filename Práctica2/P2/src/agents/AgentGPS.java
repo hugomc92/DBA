@@ -24,6 +24,8 @@ public class AgentGPS extends Agent {
 	
     private JsonObject responseObject;
 	private JsonObject commandObject;
+	
+	private String response;
         
 	private int state;
 	private boolean finish;
@@ -107,7 +109,7 @@ public class AgentGPS extends Agent {
 					
 					System.out.println("AgentGPS status: IDLE");
 					
-					String response = this.receiveMessage();
+					response = this.receiveMessage();
 					
 					if(response.contains("CRASHED") || response.contains("finalize")) 
 						this.state = FINISH_WORLD;
@@ -220,12 +222,25 @@ public class AgentGPS extends Agent {
 					// Se ejecuta cuando se encentra logout o un CRASH. Mata a el agente world y pasa a estado de finalización.
 					this.sendMessage(worldName, "finalize");
 					
-					this.state=FINISH;
+					// Mensaje de confirmación de terminación del agente World
+					String message = this.receiveMessage();
+					
+					System.out.println("AGENTGPS FINISH WORLD message: " + message);
+					
+					this.state = FINISH;
 					
 					break;             
 				case FINISH:
 					
 					System.out.println("AgentGPS status: FINISH");
+					
+					if(this.response.contains("finalize")) {
+						JsonObject confirmationMessage = new JsonObject();
+						
+						confirmationMessage.add("gps", "finish");
+
+						this.sendMessage(carName, confirmationMessage.toString());
+					}
 					
 					this.finish = true;
 					

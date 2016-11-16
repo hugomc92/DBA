@@ -220,6 +220,14 @@ public class AgentScanner extends Agent {
 					
 					System.out.println("AgentScanner status: FINISH");
 					
+					if(this.message.contains("finalize")) {
+						JsonObject confirmationMessage = new JsonObject();
+						
+						confirmationMessage.add("scanner", "finish");
+
+						this.sendMessage(carName, confirmationMessage.toString());
+					}
+					
                     this.finish = true;
 					
                     break;

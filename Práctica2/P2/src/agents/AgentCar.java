@@ -52,6 +52,7 @@ public class AgentCar extends Agent {
 	private int gpsCont;
 	
 	private boolean loggedIn;
+	private boolean logout;
 	
 	
 	/**
@@ -98,6 +99,8 @@ public class AgentCar extends Agent {
 		this.gpsCont = -1;
 		
 		this.loggedIn = false;
+		
+		this.logout = false;
 		
 		System.out.println("AgentCar has just started");
 	}
@@ -383,15 +386,18 @@ public class AgentCar extends Agent {
 					
 					System.out.println("AgentCar status: SEND_COMMAND");
 					
-					if(!commandObject.toString().contains("logout"))
+					if(!commandObject.toString().contains("logout")) {
 						this.state = WAIT_SERVER;
+						
+						this.sendMessage(this.serverAgent, this.commandObject.toString());
+					}
 					else {
 						this.responseObject = commandObject;
 						
+						this.logout = true;
+						
 						this.state = FINALIZE_MOVEMENT;
 					}
-					
-					this.sendMessage(this.serverAgent, this.commandObject.toString());
 					
 					break;
 				case FINALIZE_MOVEMENT:
@@ -405,6 +411,15 @@ public class AgentCar extends Agent {
 					this.sendMessage(gpsName, "finalize");
 					this.sendMessage(batteryName, "finalize");
 					
+					for(int i=0; i<=numAgents; i++) {
+						String message = this.receiveMessage();
+						
+						System.out.println("FINALIZE MOVEMENT( " + i + "): " + message);
+					}
+					
+					if(this.logout)
+						this.sendMessage(this.serverAgent, this.commandObject.toString());
+					
 					this.state = FINISH;
 					
 					break;
@@ -413,7 +428,7 @@ public class AgentCar extends Agent {
 					
 					System.out.println("AgentCar status: FINISH");
 					
-					System.out.println("responseObjet: " + responseObject.toString());
+					System.out.println("AGENTCAR FINISH responseObjet: " + responseObject.toString());
 
 					if(!responseObject.toString().contains("BAD_") && !responseObject.toString().contains("CRASHED")) {
 						// Esperamos los mensajes del logout, es decir, la traza y el OK.
@@ -454,6 +469,8 @@ public class AgentCar extends Agent {
 		System.out.println("AgentCar has just finished");
 		
 		super.finalize();
+		
+		//System.exit(0);
 	}
 	
 	private void printTrace(JsonArray trace) {
@@ -465,7 +482,7 @@ public class AgentCar extends Agent {
 				data[i] = (byte) trace.get(i).asInt();
 
 			FileOutputStream fos;
-			DateFormat df = new SimpleDateFormat("MM/dd/yyyy-HH:mm");
+			DateFormat df = new SimpleDateFormat("MM.dd.yyyy.HH:mm");
 			Date today = Calendar.getInstance().getTime();        
 
 			String date = df.format(today);

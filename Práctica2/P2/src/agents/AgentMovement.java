@@ -180,7 +180,7 @@ public class AgentMovement extends Agent{
 					
 					if(map_world[x][y] == 2) {	//Estamos en el goal
 						responseObject.add("mov", "logout");
-						System.out.println("Hemos encontrado la solución "+map_world[x][y]+" En las coordenadas"+x+y);
+						System.out.println("Hemos encontrado la solución " + map_world[x][y] + " En las coordenadas " + x + "," + y);
 					}
 					else {
 						//Una vez tenemos todos los datos, calculamos el mejor movimiento
@@ -279,6 +279,14 @@ public class AgentMovement extends Agent{
                 case FINISH:    //Matamos al agente
 					
 					System.out.println("AgentMovement status: FINISH");
+					
+					if(this.message.contains("finalize")) {
+						JsonObject confirmationMessage = new JsonObject();
+						
+						confirmationMessage.add("movement", "finish");
+
+						this.sendMessage(carName, confirmationMessage.toString());
+					}
 					
                     this.finish = true;
 					

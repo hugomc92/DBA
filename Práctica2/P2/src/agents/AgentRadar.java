@@ -27,6 +27,8 @@ public class AgentRadar extends Agent {
     private String radarToUpdate;	//Valor a enviar
     private boolean finish;
 	
+	private String message;
+	
 	private final AgentID carName;
 	private final AgentID worldName;
     
@@ -80,9 +82,7 @@ public class AgentRadar extends Agent {
                 case IDLE:
 					
 					System.out.println("AgentRadar status: IDLE");
-					
-					String message;
-					
+										
 					boolean finalize = false;
 					
 					for(int i=0; i<2 && !finalize; i++) {
@@ -134,7 +134,6 @@ public class AgentRadar extends Agent {
 					JsonObject confirmationObject = Json.parse(confirmation).asObject();
 					String worldMessage = confirmationObject.get("radar").asString();
                     
-				
 					if(worldMessage.contains("ok"))//confirmacion del world
 						this.state = SEND_CONFIRMATION;
 					else
@@ -157,6 +156,14 @@ public class AgentRadar extends Agent {
 				case FINISH:
 					
 					System.out.println("AgentRadar status: FINISH");
+					
+					if(this.message.contains("finalize")) {
+						JsonObject confirmationMessage = new JsonObject();
+						
+						confirmationMessage.add("radar", "finish");
+
+						this.sendMessage(carName, confirmationMessage.toString());
+					}
 					
                     this.finish = true;
 					
