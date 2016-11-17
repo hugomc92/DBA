@@ -375,7 +375,7 @@ public class AgentCar extends Agent {
 					}
 					
 					// PRUEBAS PARA LOGOUT PREMATUROS
-					if(this.gpsCont > 20) {
+					if(this.gpsCont > 80) {
 						this.logout = true;
 						this.commandObject.add("command", "logout");
 						this.commandObject.add("key", key);

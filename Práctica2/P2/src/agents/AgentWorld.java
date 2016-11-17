@@ -235,7 +235,7 @@ public class AgentWorld extends Agent {
 			
 			map_world[coordY][coordX] = cont;
 			
-			System.out.println("map_world[ " + coordY + "][ " + coordX + "]: " + map_world[coordY][coordX]);
+			System.out.println("map_world[" + coordY + "][" + coordX + "]: " + map_world[coordY][coordX]);
 		}
 		
 		return true;
@@ -247,16 +247,21 @@ public class AgentWorld extends Agent {
 
 		//Empaquetamos el array entero en un JSon y se lo enviamos
 		JsonArray vector = new JsonArray();
+		
 		this.responseObject.add("x",coordX);
 		this.responseObject.add("y",coordY);
 		//this.responseObject.add("cont", cont);
-		for(int [] i : map_world){
-			for(int j : i){
-				vector.add(j);
+		
+		for(int i=0; i<HEIGHT; i++) {
+			for(int j=0; j<WIDTH; j++) {
+				vector.add(map_world[i][j]);
 			}
 		}
+		
 		responseObject.add("world",vector);
+		
 		String messageMovement = responseObject.toString();
+		
 		this.sendMessage(movementName,messageMovement);
 
     }

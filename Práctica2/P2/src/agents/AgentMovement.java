@@ -132,6 +132,7 @@ public class AgentMovement extends Agent{
 						//Actualizamos nuestro map_scanner
 						int posx = 0;
 						int posy = 0;
+						
 						for (JsonValue j : responseObject.get("scanner").asArray()) {
 							map_scanner[posy][posx] = j.asFloat();
 							posx++;
@@ -143,7 +144,6 @@ public class AgentMovement extends Agent{
 					}
                     
                     //Pedimos al Agent World los datos
-                    System.out.println("Pedimos al Agent World los datos");
                     responseObject = new JsonObject(); //Lo limpiamos
                     responseObject.add("sendWorld", "request");
                     message = responseObject.toString();
@@ -160,10 +160,12 @@ public class AgentMovement extends Agent{
 					if(this.gpsCont != -1) {
 						this.responseObject = Json.parse(message).asObject();
 
-						//Actualizamos nuestro world_scanner
+						//Actualizamos nuestro map_world
 						this.x = responseObject.get("x").asInt();
 						this.y = responseObject.get("y").asInt();
+						
 						int posix = 0, posiy = 0;
+						
 						for(JsonValue j : responseObject.get("world").asArray()) {
 							map_world[posiy][posix] = j.asInt();
 							posix++;
@@ -273,10 +275,10 @@ public class AgentMovement extends Agent{
 						boolean goalFound = false;
 						
 						System.out.println("minScanner: " + minScanner);
-						System.out.println("minWorld: " + minWorld);
 						System.out.println("map_scanner[" + y + "][" + x + "]: " + map_scanner[y][x]);
-						System.out.println("newX: " + newX);
-						System.out.println("newY: " + newY);
+						System.out.println("minWorld: " + minWorld);
+						System.out.println("map_world[" + y + "][" + x + "]: " + map_world[y][x]);
+						
 						
 						System.out.println("MAP WORLD:");
 						for(int i=y-1; i<=y+1; i++) {
