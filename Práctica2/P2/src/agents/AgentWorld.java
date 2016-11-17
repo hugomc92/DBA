@@ -213,8 +213,8 @@ public class AgentWorld extends Agent {
 			//Ahora lo pasamos al mapa
 			int posi = 0;
 			for(int i = coordY-2; i <= coordY+2; i++){
-				for (int j = coordX-2; j <= coordX+2; j++){
-					if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT)
+				for(int j = coordX-2; j <= coordX+2; j++){
+					if(map_world[i][j] < 10)
 						map_world[i][j] = (int) local_world[posi];
 					posi++;
 				}
@@ -233,7 +233,8 @@ public class AgentWorld extends Agent {
 			
 			System.out.println("cont: " + cont);
 			
-			map_world[coordY][coordX] = cont;
+			if(map_world[coordY][coordX] != 2)
+				map_world[coordY][coordX] = cont;
 			
 			System.out.println("map_world[" + coordY + "][" + coordX + "]: " + map_world[coordY][coordX]);
 		}

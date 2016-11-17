@@ -133,7 +133,7 @@ public class AgentMovement extends Agent{
 						int posx = 0;
 						int posy = 0;
 						
-						for (JsonValue j : responseObject.get("scanner").asArray()) {
+						for(JsonValue j : responseObject.get("scanner").asArray()) {
 							map_scanner[posy][posx] = j.asFloat();
 							posx++;
 							if(posx%WIDTH == 0) {
@@ -280,21 +280,23 @@ public class AgentMovement extends Agent{
 						System.out.println("map_world[" + y + "][" + x + "]: " + map_world[y][x]);
 						
 						
-						System.out.println("MAP WORLD:");
-						for(int i=y-1; i<=y+1; i++) {
-							for(int j=x-1; j<=x+1; j++) {
+						System.out.println("\nMAP WORLD:");
+						for(int i=y-2; i<=y+2; i++) {
+							for(int j=x-2; j<=x+2; j++) {
 								System.out.print(map_world[i][j] + "\t");
 							}
 							System.out.println("");
 						}
 						
-						System.out.println("MAP SCANNER:");
-						for(int i=y-1; i<=y+1; i++) {
-							for(int j=x-1; j<=x+1; j++) {
+						System.out.println("\nMAP SCANNER:");
+						for(int i=y-2; i<=y+2; i++) {
+							for(int j=x-2; j<=x+2; j++) {
 								System.out.print(map_scanner[i][j] + "\t");
 							}
 							System.out.println("");
 						}
+						
+						System.out.println("");
 						
 						
 						for(int i=y-1; i<=y+1 && !goalFound; i++) {
@@ -314,7 +316,7 @@ public class AgentMovement extends Agent{
 										System.out.println("newX: " + newX);
 										System.out.println("newY: " + newY + "\n");
 									}*/
-									if(minWorld < map_world[i][j] || (minWorld == map_world[i][j] && map_scanner[newY][newX] > map_scanner[i][j])) {
+									if(map_world[i][j] < minWorld || (minWorld == map_world[i][j] && map_scanner[newY][newX] > map_scanner[i][j])) {
 										
 										minWorld = map_world[i][j];
 										newX = j;
