@@ -35,7 +35,7 @@ public class AgentWorld extends Agent {
 	private final AgentID movementName;
     private static final int WIDTH = 504;
     private static final int HEIGHT = 504;
-    private final float [][] map_world = new float [WIDTH][HEIGHT];
+    private final int [][] map_world = new int [WIDTH][HEIGHT];
     private final float [] local_world = new float [25];	
 	private int cont;
         
@@ -67,6 +67,12 @@ public class AgentWorld extends Agent {
 		
 		coordX = coordY = -1;
 		this.cont = 0;
+		
+		for(int i=0; i<WIDTH; i++) {
+			for(int j=0; j<HEIGHT; j++) {
+				map_world[i][j] = -1;
+			}
+		}
       	
 		System.out.println("AgentWorld has just started");
 	}
@@ -209,22 +215,27 @@ public class AgentWorld extends Agent {
 			for(int i = coordY-2; i <= coordY+2; i++){
 				for (int j = coordX-2; j <= coordX+2; j++){
 					if(i>=0 && j >= 0 && i<WIDTH && j < HEIGHT)
-						map_world[i][j] = local_world[posi];
+						map_world[i][j] = (int) local_world[posi];
 					posi++;
 				}
 			}
 		}
 		else {
+			System.out.println("gpsObject: " + gpsObject.toString());
+			
 			coordX = parse.get("x").asInt();
 			coordY = parse.get("y").asInt();
 			
-			System.out.println("gpsObject: " + gpsObject.toString());
+			System.out.println("coordX: " + coordX);
+			System.out.println("coordY: " + coordY);
 			
 			cont = gpsObject.get("cont").asInt();
 			
 			System.out.println("cont: " + cont);
 			
-			map_world[coordX][coordY] = cont;
+			map_world[coordY][coordX] = cont;
+			
+			System.out.println("map_world[ " + coordY + "][ " + coordX + "]: " + map_world[coordY][coordX]);
 		}
 		
 		return true;
@@ -239,8 +250,8 @@ public class AgentWorld extends Agent {
 		this.responseObject.add("x",coordX);
 		this.responseObject.add("y",coordY);
 		//this.responseObject.add("cont", cont);
-		for (float [] i : map_world){
-			for (float j : i){
+		for(int [] i : map_world){
+			for(int j : i){
 				vector.add(j);
 			}
 		}

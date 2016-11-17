@@ -17,7 +17,7 @@ public class AgentBattery extends Agent {
 	private static final int SEND_CONFIRMATION = 2;
 	private static final int FINISH = 3;
 	
-	private static final int BATTERY_LIMIT = 90;
+	private static final int BATTERY_LIMIT = 5;
 	
     private JsonObject responseObject;
 	private JsonObject commandObject;

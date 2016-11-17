@@ -374,7 +374,15 @@ public class AgentCar extends Agent {
 						this.refuel = false;
 					}
 					
-					this.state = SEND_COMMAND;
+					// PRUEBAS PARA LOGOUT PREMATUROS
+					if(this.gpsCont > 20) {
+						this.logout = true;
+						this.commandObject.add("command", "logout");
+						this.commandObject.add("key", key);
+						this.state = FINALIZE_MOVEMENT;
+					}
+					else
+						this.state = SEND_COMMAND;
 
 					break;
 				case SEND_COMMAND:
@@ -477,7 +485,7 @@ public class AgentCar extends Agent {
 				data[i] = (byte) trace.get(i).asInt();
 
 			FileOutputStream fos;
-			DateFormat df = new SimpleDateFormat("MM-dd-yyyy-HH.mm");
+			DateFormat df = new SimpleDateFormat("dd-MM-yyyy-HH.mm");
 			Date today = Calendar.getInstance().getTime();        
 
 			String date = df.format(today);

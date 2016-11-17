@@ -72,7 +72,7 @@ public class AgentMovement extends Agent{
         }
         for (float [] i : map_world){
             for(float j : i){
-                j = 0;
+                j = -1;
             }
         }
         x = y = -1;
@@ -133,11 +133,11 @@ public class AgentMovement extends Agent{
 						int posx = 0;
 						int posy = 0;
 						for (JsonValue j : responseObject.get("scanner").asArray()) {
-							map_scanner[posx][posy] = j.asFloat();
-							posy++;
-							if(posy%WIDTH == 0) {
-								posy = 0;
-								posx++;
+							map_scanner[posy][posx] = j.asFloat();
+							posx++;
+							if(posx%WIDTH == 0) {
+								posx = 0;
+								posy++;
 							}
 						}
 					}
@@ -164,12 +164,12 @@ public class AgentMovement extends Agent{
 						this.x = responseObject.get("x").asInt();
 						this.y = responseObject.get("y").asInt();
 						int posix = 0, posiy = 0;
-						for (JsonValue j : responseObject.get("world").asArray()) {
-							map_world[posix][posiy] = j.asInt();
-							posiy++;
-							if(posiy%WIDTH == 0) {
-								posiy = 0;
-								posix++;
+						for(JsonValue j : responseObject.get("world").asArray()) {
+							map_world[posiy][posix] = j.asInt();
+							posix++;
+							if(posix%WIDTH == 0) {
+								posix = 0;
+								posiy++;
 							}
 						}
 						
@@ -267,14 +267,33 @@ public class AgentMovement extends Agent{
 						// Buscamos el movimiento óptimo según el scanner
 						
 						float minScanner = map_scanner[y][x];
+						int minWorld = map_world[y][x];
 						int newX = x;
 						int newY = y;
 						boolean goalFound = false;
 						
 						System.out.println("minScanner: " + minScanner);
+						System.out.println("minWorld: " + minWorld);
 						System.out.println("map_scanner[" + y + "][" + x + "]: " + map_scanner[y][x]);
 						System.out.println("newX: " + newX);
 						System.out.println("newY: " + newY);
+						
+						System.out.println("MAP WORLD:");
+						for(int i=y-1; i<=y+1; i++) {
+							for(int j=x-1; j<=x+1; j++) {
+								System.out.print(map_world[i][j] + "\t");
+							}
+							System.out.println("");
+						}
+						
+						System.out.println("MAP SCANNER:");
+						for(int i=y-1; i<=y+1; i++) {
+							for(int j=x-1; j<=x+1; j++) {
+								System.out.print(map_scanner[i][j] + "\t");
+							}
+							System.out.println("");
+						}
+						
 						
 						for(int i=y-1; i<=y+1 && !goalFound; i++) {
 							for(int j=x-1; j<=x+1 && !goalFound; j++) {
@@ -285,11 +304,20 @@ public class AgentMovement extends Agent{
 									newY = i;
 								}
 								else if(map_world[i][j] != 1) {
-									if(map_scanner[i][j] < minScanner) {
+									/*if(map_scanner[i][j] < minScanner) {
 										minScanner = map_scanner[i][j];
 										newX = j;
 										newY = i;
 										System.out.println("\nminScanner: " + minScanner);
+										System.out.println("newX: " + newX);
+										System.out.println("newY: " + newY + "\n");
+									}*/
+									if(minWorld < map_world[i][j] || (minWorld == map_world[i][j] && map_scanner[newY][newX] > map_scanner[i][j])) {
+										
+										minWorld = map_world[i][j];
+										newX = j;
+										newY = i;
+										System.out.println("\nless: " + minWorld);
 										System.out.println("newX: " + newX);
 										System.out.println("newY: " + newY + "\n");
 									}
@@ -322,9 +350,9 @@ public class AgentMovement extends Agent{
 								movement = "moveSE";
 						}
 						
-						System.out.println("\nEl movimiento debería ser: " + movement + "\n");
+						System.out.println("\nEl movimiento es: " + movement + "\n");
 						
-						//responseObject.add("mov", movement);
+						responseObject.add("mov", movement);
 
 						//Comprobamos qué posición respecto a nuestra posición es la que hemos elegido
 						/*if(newX == x-1) {		//Se mueve hacia el Oeste
@@ -351,7 +379,7 @@ public class AgentMovement extends Agent{
 						}*/
 
 						// PRUEBA PARA EL PRIMER MAPA
-						responseObject.add("mov", "moveSW");
+						//responseObject.add("mov", "moveSW");
 					}
 						
                     message = responseObject.toString();
