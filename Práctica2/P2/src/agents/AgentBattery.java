@@ -17,6 +17,8 @@ public class AgentBattery extends Agent {
 	private static final int SEND_CONFIRMATION = 2;
 	private static final int FINISH = 3;
 	
+	private static final boolean DEBUG = false;
+	
 	private static final int BATTERY_LIMIT = 5;
 	
     private JsonObject responseObject;
@@ -66,7 +68,8 @@ public class AgentBattery extends Agent {
 			switch(state) {
 				case IDLE:
 					
-					System.out.println("AgentBattery status: IDLE");
+					if(DEBUG)
+						System.out.println("AgentBattery status: IDLE");
 					
 					response = this.receiveMessage();
 					
@@ -81,7 +84,8 @@ public class AgentBattery extends Agent {
 					break;
 				case PROCESS_DATA:
 					
-					System.out.println("AgentBattery status: PROCESS_DATA");
+					if(DEBUG)
+						System.out.println("AgentBattery status: PROCESS_DATA");
 					
 					float result = responseObject.get("battery").asFloat();
 					
@@ -92,7 +96,8 @@ public class AgentBattery extends Agent {
 					break;
 				case SEND_CONFIRMATION:
 					
-					System.out.println("AgentBattery status: SEND_CONFIRMATION");
+					if(DEBUG)
+						System.out.println("AgentBattery status: SEND_CONFIRMATION");
 					
 					this.commandObject = new JsonObject();
 					
@@ -105,7 +110,8 @@ public class AgentBattery extends Agent {
 					break;
 				case FINISH:
 					
-					System.out.println("AgentBattery status: FINISH");
+					if(DEBUG)
+						System.out.println("AgentBattery status: FINISH");
 					
 					if(this.response.contains("finalize")) {
 						JsonObject confirmationMessage = new JsonObject();
@@ -127,6 +133,7 @@ public class AgentBattery extends Agent {
 	  */
 	@Override
 	public void finalize() {
+		
 		System.out.println("AgentBattery has just finished");
 		
 		super.finalize();

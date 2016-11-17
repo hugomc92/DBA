@@ -25,6 +25,8 @@ public class AgentScanner extends Agent {
     private static final int FINISH = 5;
     private static final int WIDTH = 504;
     private static final int HEIGHT = 504;
+	
+	private static final boolean DEBUG = false;
     
     private int state;
     private final float [][] map_scanner = new float [WIDTH][HEIGHT];
@@ -93,7 +95,8 @@ public class AgentScanner extends Agent {
             switch(state){
                 case IDLE:  // Esperamos a que nos lleguen todos los mensajes necesarios
 					
-					System.out.println("AgentScanner status: IDLE");
+					if(DEBUG)
+						System.out.println("AgentScanner status: IDLE");
 					
 					boolean finalize = false;
 					
@@ -106,7 +109,6 @@ public class AgentScanner extends Agent {
 						this.message = this.receiveMessage();
 						
 						if(message.contains("scanner")){
-							System.out.println("SERVER SCANNER: " + message);
 							this.scannerObject = Json.parse(message).asObject();
                         }
 						else if(message.contains("gps")){
@@ -124,7 +126,8 @@ public class AgentScanner extends Agent {
                     break;
                 case PROCESS_DATA:
 					
-					System.out.println("AgentScanner status: PROCESS_DATA");
+					if(DEBUG)
+						System.out.println("AgentScanner status: PROCESS_DATA");
 					
 					// Procesamos la información del scanner
 					int pos = 0;
@@ -133,7 +136,7 @@ public class AgentScanner extends Agent {
 						pos++;
 					}
 					
-					System.out.println("LOCAL SCANNER: " + Arrays.toString(local_scanner));
+					//System.out.println("LOCAL SCANNER: " + Arrays.toString(local_scanner));
 					
 
 					// Procesamos la información del gps si no fue updated
@@ -164,7 +167,8 @@ public class AgentScanner extends Agent {
                     break;
 				case SEND_CONFIRMATION:
 					
-					System.out.println("AgentScanner status: SEND_CONFIRMATION");
+					if(DEBUG)
+						System.out.println("AgentScanner status: SEND_CONFIRMATION");
 					
 					//Avisamos al Agent Car que estamos listos
 					responseObject = new JsonObject(); //Lo limpiamos
@@ -178,7 +182,8 @@ public class AgentScanner extends Agent {
 					
                 case WAIT_MOVEMENT:		//Esperamos a que el Movement Agent nos pida los datos del scanner
 					
-					System.out.println("AgentScanner status: WAIT_MOVEMENT");
+					if(DEBUG)
+						System.out.println("AgentScanner status: WAIT_MOVEMENT");
                     
                     String messageMovement;
 
@@ -195,7 +200,8 @@ public class AgentScanner extends Agent {
 					
 				case SEND_INFO:
 					
-					System.out.println("AgentScanner status: SEND_INFO");
+					if(DEBUG)
+						System.out.println("AgentScanner status: SEND_INFO");
 					
 					responseObject = new JsonObject(); //Lo limpiamos
                         
@@ -220,7 +226,8 @@ public class AgentScanner extends Agent {
 					
                 case FINISH:    //Matamos al agente
 					
-					System.out.println("AgentScanner status: FINISH");
+					if(DEBUG)
+						System.out.println("AgentScanner status: FINISH");
 					
 					if(this.message.contains("finalize")) {
 						JsonObject confirmationMessage = new JsonObject();

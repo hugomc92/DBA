@@ -21,6 +21,8 @@ public class AgentWorld extends Agent {
 	private static final int SEND_INFO = 5;
 	private static final int FINISH = 6;
 	
+	private static final boolean DEBUG = false;
+	
     private JsonObject responseObject;
 	private JsonObject gpsObject;
 	private JsonObject commandObject;
@@ -89,7 +91,8 @@ public class AgentWorld extends Agent {
 			switch(state) {   
 				case IDLE:
 					
-					System.out.println("AgentWorld status: IDLE");
+					if(DEBUG)
+						System.out.println("AgentWorld status: IDLE");
 					
 					response = this.receiveMessage();
 					
@@ -118,7 +121,8 @@ public class AgentWorld extends Agent {
 					break;
 				case WAIT_RADAR:
 					
-					System.out.println("AgentWorld status: WAIT_RADAR");
+					if(DEBUG)
+						System.out.println("AgentWorld status: WAIT_RADAR");
 					
 					String responseRadar = this.receiveMessage();
 					
@@ -129,7 +133,8 @@ public class AgentWorld extends Agent {
 					break;                  
 				case WARN_RADAR:
 					
-					System.out.println("AgentWorld status: WARN_RADAR");
+					if(DEBUG)
+						System.out.println("AgentWorld status: WARN_RADAR");
 					
 					this.commandObject = new JsonObject();
 
@@ -142,7 +147,8 @@ public class AgentWorld extends Agent {
 					break;                
 				case WAIT_MOVEMENT:
 					
-					System.out.println("AgentWorld status: WAIT_MOVEMENT");
+					if(DEBUG)
+						System.out.println("AgentWorld status: WAIT_MOVEMENT");
 					
 					String confirmation = this.receiveMessage();
 					
@@ -160,7 +166,8 @@ public class AgentWorld extends Agent {
                                         
 				case SEND_INFO:
 					
-					System.out.println("AgentWorld status: SEND_INFO");
+					if(DEBUG)
+						System.out.println("AgentWorld status: SEND_INFO");
 					
 					this.sendWorld();
 					
@@ -170,7 +177,8 @@ public class AgentWorld extends Agent {
            
 				case FINISH:
 					
-					System.out.println("AgentWorld status: FINISH");
+					if(DEBUG)
+						System.out.println("AgentWorld status: FINISH");
 					
 					if(this.response.contains("finalize")) {
 						JsonObject confirmationMessage = new JsonObject();
@@ -192,6 +200,7 @@ public class AgentWorld extends Agent {
 	  */
 	@Override
 	public void finalize() {
+		
 		System.out.println("AgentWorld has just finished");
 		
 		super.finalize();
@@ -221,22 +230,13 @@ public class AgentWorld extends Agent {
 			}
 		}
 		else {
-			System.out.println("gpsObject: " + gpsObject.toString());
-			
 			coordX = parse.get("x").asInt();
 			coordY = parse.get("y").asInt();
-			
-			System.out.println("coordX: " + coordX);
-			System.out.println("coordY: " + coordY);
-			
+
 			cont = gpsObject.get("cont").asInt();
-			
-			System.out.println("cont: " + cont);
 			
 			if(map_world[coordY][coordX] != 2)
 				map_world[coordY][coordX] = cont;
-			
-			System.out.println("map_world[" + coordY + "][" + coordX + "]: " + map_world[coordY][coordX]);
 		}
 		
 		return true;
@@ -251,7 +251,6 @@ public class AgentWorld extends Agent {
 		
 		this.responseObject.add("x",coordX);
 		this.responseObject.add("y",coordY);
-		//this.responseObject.add("cont", cont);
 		
 		for(int i=0; i<HEIGHT; i++) {
 			for(int j=0; j<WIDTH; j++) {
@@ -264,6 +263,5 @@ public class AgentWorld extends Agent {
 		String messageMovement = responseObject.toString();
 		
 		this.sendMessage(movementName,messageMovement);
-
     }
 }

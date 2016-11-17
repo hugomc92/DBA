@@ -19,6 +19,8 @@ public class AgentRadar extends Agent {
     private static final int WAIT_WORLD = 3;
     private static final int SEND_CONFIRMATION = 4;
     private static final int FINISH = 5;
+	
+	private static final boolean DEBUG = false;
         
     private int[] infoRadar;		//Array que guarda el estado de cada celda
     private int state;
@@ -81,7 +83,8 @@ public class AgentRadar extends Agent {
             switch(state) {
                 case IDLE:
 					
-					System.out.println("AgentRadar status: IDLE");
+					if(DEBUG)
+						System.out.println("AgentRadar status: IDLE");
 										
 					boolean finalize = false;
 					
@@ -105,7 +108,8 @@ public class AgentRadar extends Agent {
 					break;
                 case PROCESS_DATA:
 					
-					System.out.println("AgentRadar status: PROCESS_DATA");
+					if(DEBUG)
+						System.out.println("AgentRadar status: PROCESS_DATA");
 					
 					if(this.gpsProcced) {
 						processRadar();
@@ -118,7 +122,8 @@ public class AgentRadar extends Agent {
 					break;  
 				case SEND_DATA:
 					
-					System.out.println("AgentRadar status: SEND_DATA");
+					if(DEBUG)
+						System.out.println("AgentRadar status: SEND_DATA");
 					
                     sendMessage(worldName, radarToUpdate);
 					
@@ -127,7 +132,8 @@ public class AgentRadar extends Agent {
 					break;
                 case WAIT_WORLD:
 					
-					System.out.println("AgentRadar status: WAIT_WORLD");
+					if(DEBUG)
+						System.out.println("AgentRadar status: WAIT_WORLD");
 					
                     String confirmation = this.receiveMessage();
 					
@@ -142,7 +148,8 @@ public class AgentRadar extends Agent {
 					break;
 				case SEND_CONFIRMATION:
 					
-					System.out.println("AgentRadar status: SEND_CONFIRMATION");
+					if(DEBUG)
+						System.out.println("AgentRadar status: SEND_CONFIRMATION");
 					
                     JsonObject statusWorld = new JsonObject();
 					
@@ -155,7 +162,8 @@ public class AgentRadar extends Agent {
 					break;		
 				case FINISH:
 					
-					System.out.println("AgentRadar status: FINISH");
+					if(DEBUG)
+						System.out.println("AgentRadar status: FINISH");
 					
 					if(this.message.contains("finalize")) {
 						JsonObject confirmationMessage = new JsonObject();

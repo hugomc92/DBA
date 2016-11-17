@@ -16,6 +16,8 @@ public class AgentMovement extends Agent{
     private static final int WAIT_WORLD = 2;
     private static final int EXECUTE = 3;
     private static final int FINISH = 4;
+	
+	private static final boolean DEBUG = true;
     
     private int state;
     private boolean finish;
@@ -96,7 +98,8 @@ public class AgentMovement extends Agent{
             switch(state) {
                 case IDLE:  //Esperando al proceed del Agent Car
                     
-					System.out.println("AgentMovement status: IDLE");
+					if(DEBUG)
+						System.out.println("AgentMovement status: IDLE");
                     
                     message = this.receiveMessage();
 					
@@ -120,11 +123,12 @@ public class AgentMovement extends Agent{
                     break;
                 case WAIT_SCANNER:  //Esperando los datos del Agent Scanner
 					
-					System.out.println("AgentMovement status: WAIT_SCANNER");
+					if(DEBUG)
+						System.out.println("AgentMovement status: WAIT_SCANNER");
 
                     message = this.receiveMessage();
 					
-					System.out.println("SCANNER MOVEMENT: " + message);
+					//System.out.println("SCANNER MOVEMENT: " + message);
 					
 					if(this.gpsCont != -1) {
 						this.responseObject = Json.parse(message).asObject();
@@ -145,15 +149,19 @@ public class AgentMovement extends Agent{
                     
                     //Pedimos al Agent World los datos
                     responseObject = new JsonObject(); //Lo limpiamos
+					
                     responseObject.add("sendWorld", "request");
+					
                     message = responseObject.toString();
+					
                     sendMessage(worldName, message);
                     
                     state = WAIT_WORLD;
                     break;
                 case WAIT_WORLD:    //Esperando los datos del Agent World
                     
-                    System.out.println("AgentMovement status: WAIT_WORLD");
+					if(DEBUG)
+						System.out.println("AgentMovement status: WAIT_WORLD");
 					
 					message = this.receiveMessage();
 					
@@ -190,7 +198,8 @@ public class AgentMovement extends Agent{
                     break;
                 case EXECUTE:   //Calcula la decisión y se la manda al Agent Car
 					
-					System.out.println("AgentMovement status: EXECUTE");
+					if(DEBUG)
+						System.out.println("AgentMovement status: EXECUTE");
                     
                     responseObject = new JsonObject(); //Lo limpiamos
 					
@@ -214,60 +223,7 @@ public class AgentMovement extends Agent{
 						//		*Si hay varias zonas con la misma prioridad (es decir, 
 						//			hay varias zonas por la que no hemos pasado), 
 						//			priorizamos el que esté más cerca del goal
-						/*float less;
-						int newX, newY;
-						
-						//EN ESTAS TRES LINEAS HAY FALLO!! NO SE CONTEMPLA SI map_world[X-1][X-1] NO SEA 1. NO SE SI ESTÁ SOLUCIONADO AÚN
-						/*
-						if(map_scanner[x-1][y-1] != 1) {
-							less = map_scanner[x-1][y-1];
-							newX = x-1;
-							newY = y-1;
-						}
-						else if(map_scanner[x][y-1] != 1) {
-							less = map_scanner[x][y-1];
-							newX = x;
-							newY = y-1;
-						}
-						else if(map_scanner[x-1][y] != 1) {
-							less = map_scanner[x-1][y];
-							newX = x-1;
-							newY = y;
-						}
-						else {
-							less = map_scanner[x][y];
-							newX = x;
-							newY = y;
-						}
-						
-						boolean goal_found = false;
 
-						for (int i = x-1; i <= x+1 && !goal_found; i++) {
-							for (int j = y-1; j <= y+1 && !goal_found; j++) {
-								if(i>=0 && j >= 0 && i< WIDTH && j < HEIGHT) {	//Está dentro de la matriz
-									if(map_world[i][j] == 2) {	//goal
-										goal_found = true;
-										newX = i;
-										newY = j;
-									}
-									else if(map_world[i][j] != 1) {	//No es pared, luego es transitable
-										if(less < map_world[i][j] ||	//Hace menos que ha pasado por esta posición
-											(less == map_world[i][j] &&	//Dos zonas por donde no ha pasado
-											 map_scanner[newX][newY] > map_scanner[i][j]	//Este está más cerca del goal
-											)
-										   ) {
-
-											newX = i;
-											newY = j;
-											less = map_world[i][j];
-										}
-									}
-								}
-							}
-						}*/
-						
-						// Buscamos el movimiento óptimo según el scanner
-						
 						float minScanner = map_scanner[y][x];
 						int minWorld = map_world[y][x];
 						int newX = x;
@@ -394,7 +350,8 @@ public class AgentMovement extends Agent{
                     break;
                 case FINISH:    //Matamos al agente
 					
-					System.out.println("AgentMovement status: FINISH");
+					if(DEBUG)
+						System.out.println("AgentMovement status: FINISH");
 					
 					if(this.message.contains("finalize")) {
 						JsonObject confirmationMessage = new JsonObject();

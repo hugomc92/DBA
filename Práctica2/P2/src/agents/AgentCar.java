@@ -30,6 +30,8 @@ public class AgentCar extends Agent {
 	private static final int FINALIZE_MOVEMENT = 7;
 	private static final int FINISH = 8;
 	
+	private static final boolean DEBUG = true;
+	
 	private int state;
 	private boolean finish;
 	private String key;
@@ -117,7 +119,8 @@ public class AgentCar extends Agent {
 			switch(state) {
 				case WAKE_AGENTS:
 					
-					System.out.println("AgentCar status: WAKE_AGENTS");
+					if(DEBUG)
+						System.out.println("AgentCar status: WAKE_AGENTS");
 					
 					Agent movement;
 					try {
@@ -169,7 +172,8 @@ public class AgentCar extends Agent {
 					break;
 				case LOGIN_SERVER:
 					
-					System.out.println("AgentCar status: LOGIN_SERVER");
+					if(DEBUG)
+						System.out.println("AgentCar status: LOGIN_SERVER");
 					
 					JsonObject loginCommand = new JsonObject();
 					
@@ -223,15 +227,16 @@ public class AgentCar extends Agent {
 					break;
 				case WAIT_SERVER:
 					
-					System.out.println("AgentCar status: WAIT_SERVER");
+					if(DEBUG)
+						System.out.println("AgentCar status: WAIT_SERVER");
 					
 					String response = this.receiveMessage();
 					
-					System.out.println("SERVER MESSAGE: " + response);
+					//System.out.println("SERVER MESSAGE: " + response);
 					
 					if(response.contains("result")) {
 						
-						System.out.println("LOGGED IN: " + loggedIn);
+						//System.out.println("LOGGED IN: " + loggedIn);
 						
 						this.responseObject = Json.parse(response).asObject();
 					
@@ -253,7 +258,8 @@ public class AgentCar extends Agent {
 					}
 					else if(response.contains("trace") && loggedIn) {
 						
-						System.out.println("SERVER MESSAGE TRACE: \n" + loggedIn);
+						if(DEBUG)
+							System.out.println("SERVER MESSAGE TRACE: \n" + loggedIn);
 						
 						try {
 							this.responseObject = Json.parse(response).asObject();
@@ -299,7 +305,8 @@ public class AgentCar extends Agent {
 					break;
 				case IDLE:
 					
-					System.out.println("AgentCar status: IDLE");
+					if(DEBUG)
+						System.out.println("AgentCar status: IDLE");
 					
 					for(int i=0; i<numAgents; i++) {
 						String message = this.receiveMessage();
@@ -308,8 +315,6 @@ public class AgentCar extends Agent {
 							this.responseObject = Json.parse(message).asObject();
 
 							this.refuel = responseObject.get("battery").asBoolean();
-							
-							System.out.println("AGENTCAR IDLE REFUEL: " + refuel);
 						}
 						else if(message.contains("gps")) {
 							this.responseObject = Json.parse(message).asObject();
@@ -321,7 +326,6 @@ public class AgentCar extends Agent {
 
 						}
 						else if(message.contains("scanner")) {
-							System.out.println("Llega el mensaje de scanner");
 							this.responseObject = Json.parse(message).asObject();
 						}
 					}
@@ -331,7 +335,8 @@ public class AgentCar extends Agent {
 					break;
 				case SEND_PROCEED:
 					
-					System.out.println("AgentCar status: SEND_PROCEED");
+					if(DEBUG)
+						System.out.println("AgentCar status: SEND_PROCEED");
 					
 					int gpsConfirmation = gpsCont;
 					
@@ -340,7 +345,7 @@ public class AgentCar extends Agent {
 					
 					JsonObject confirmation = new JsonObject();
 					
-					System.out.println("\n\nAGENTCAR SEND_PROCEED gpsConfirmation: " + gpsConfirmation);
+					//System.out.println("\n\nAGENTCAR SEND_PROCEED gpsConfirmation: " + gpsConfirmation);
 
 					confirmation.add("calculate", gpsConfirmation);
 
@@ -351,7 +356,8 @@ public class AgentCar extends Agent {
 					break;
 				case WAIT_MOVEMENT:
 					
-					System.out.println("AgentCar status: WAIT_MOVEMENT");
+					if(DEBUG)
+						System.out.println("AgentCar status: WAIT_MOVEMENT");
 					
 					String movementExecution = this.receiveMessage();
 					
@@ -387,7 +393,8 @@ public class AgentCar extends Agent {
 					break;
 				case SEND_COMMAND:
 					
-					System.out.println("AgentCar status: SEND_COMMAND");
+					if(DEBUG)
+						System.out.println("AgentCar status: SEND_COMMAND");
 					
 					if(!commandObject.toString().contains("logout")) {
 						this.state = WAIT_SERVER;
@@ -405,7 +412,8 @@ public class AgentCar extends Agent {
 					break;
 				case FINALIZE_MOVEMENT:
 					
-					System.out.println("AgentCar status: FINALIZE_MOVEMENT");
+					if(DEBUG)
+						System.out.println("AgentCar status: FINALIZE_MOVEMENT");
 					
 					// Se ejecuta cuando se encentra logout o alguna petición mala. Mata a todos los agentes como controlador.
 					this.sendMessage(movementName, "finalize");
@@ -417,7 +425,8 @@ public class AgentCar extends Agent {
 					for(int i=0; i<=numAgents; i++) {
 						String message = this.receiveMessage();
 						
-						System.out.println("FINALIZE MOVEMENT( " + i + "): " + message);
+						if(DEBUG)
+							System.out.println("FINALIZE MOVEMENT( " + i + "): " + message);
 					}
 					
 					if(this.logout)
@@ -429,23 +438,28 @@ public class AgentCar extends Agent {
 				
 				case FINISH:
 					
-					System.out.println("AgentCar status: FINISH");
+					if(DEBUG)
+						System.out.println("AgentCar status: FINISH");
 					
-					System.out.println("AGENTCAR FINISH responseObjet: " + responseObject.toString());
+					if(DEBUG)
+						System.out.println("AGENTCAR FINISH responseObjet: " + responseObject.toString());
 
 					if(!responseObject.toString().contains("BAD_") && !responseObject.toString().contains("CRASHED")) {
 						// Esperamos los mensajes del logout, es decir, la traza y el OK.
 						for(int j=0;j<2;j++) {
 							String responseF = this.receiveMessage();
-
-							System.out.println("SERVER MESSAGE LOGOUT: " + responseF);
+							
+							if(DEBUG)
+								System.out.println("SERVER MESSAGE LOGOUT: " + responseF);
 
 							if(responseF.contains("result")) {
-								System.out.println("Resultado: " + responseF);
+								if(DEBUG)
+									System.out.println("Resultado: " + responseF);
 							}
 							else if(responseF.contains("trace") && loggedIn) {
-
-								System.out.println("SERVER MESSAGE TRACE: " + loggedIn);
+								
+								if(DEBUG)
+									System.out.println("SERVER MESSAGE TRACE: " + loggedIn);
 								
 								this.responseObject = Json.parse(responseF).asObject();
 
