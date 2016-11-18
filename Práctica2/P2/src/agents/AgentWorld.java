@@ -23,10 +23,10 @@ public class AgentWorld extends Agent {
 	private static final int SEND_INFO = 5;
 	private static final int FINISH = 6;
     
-    JFrame j = new JFrame();
+    JFrame jframe = new JFrame();
     myDrawPanel m = new myDrawPanel();
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
     private JsonObject responseObject;
 	private JsonObject gpsObject;
@@ -43,8 +43,10 @@ public class AgentWorld extends Agent {
     private static final int WIDTH = 504;
     private static final int HEIGHT = 504;
     private final int [][] map_world = new int [WIDTH][HEIGHT];
-    private final float [] local_world = new float [25];	
+    private final int [] local_world = new int [25];	
 	private int cont;
+	
+	private final int [][] updateWorld = new int[5][5];
         
 	/**
 	 * @param worldName El nombre de agente para crearlo.
@@ -75,16 +77,19 @@ public class AgentWorld extends Agent {
 		coordX = coordY = -1;
 		this.cont = 0;
 		
-		for(int i=0; i<WIDTH; i++) {
-			for(int j=0; j<HEIGHT; j++) {
+		for(int i=0; i<WIDTH; i++)
+			for(int j=0; j<HEIGHT; j++)
 				map_world[i][j] = -1;
-			}
-		}
+		
+		for(int i=0; i<5; i++)
+			for(int j=0; j<5; j++)
+				updateWorld[i][j] = -1;
         
-        j.add(m);
-        j.setSize(510, 510);
-        j.setVisible(true);
-        j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jframe.add(m);
+        jframe.setSize(510, 510);
+        jframe.setVisible(true);
+        
+        jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
 		System.out.println("AgentWorld has just started");
 	}
@@ -160,12 +165,17 @@ public class AgentWorld extends Agent {
 					if(DEBUG)
 						System.out.println("AgentWorld status: WAIT_MOVEMENT");
 					
+					// Actualizamos el mundo visualmente
+					m.updateRadarImg(updateWorld, coordX, coordY);
+					m.updateGPSImg(coordX, coordY);
+					
 					String confirmation = this.receiveMessage();
 					
 					JsonObject confirmationObject = Json.parse(confirmation).asObject();
 					
 					String confirmationResult = confirmationObject.get("sendWorld").toString();
-					//System.out.printf(confirmationResult);
+					
+                    System.out.printf("AGENTWORLD WAIT_MOVEMENT confirmation movement: " + confirmationResult);
                             
 					if(confirmationResult.contains("request"))
 						this.state = SEND_INFO;
@@ -218,26 +228,39 @@ public class AgentWorld extends Agent {
 
     private boolean updateWorld(String resultMessage) {
 		
-        System.out.println("AgentWorld updating world");
+        //System.out.println("AgentWorld updating world");
 		
 		JsonObject parse = Json.parse(resultMessage).asObject();
 		
 		if(resultMessage.contains("radar")) {
 			int pos = 0;
 			for (JsonValue j : parse.get("radar").asArray()){
-				local_world[pos] = j.asFloat();
+				local_world[pos] = j.asInt();
 				pos++;
 			}
 			
 			//Ahora lo pasamos al mapa
 			int posi = 0;
-			for(int i = coordY-2; i <= coordY+2; i++){
-				for(int j = coordX-2; j <= coordX+2; j++){
-					if(map_world[i][j] < 10)
-						map_world[i][j] = (int) local_world[posi];
+			int posx = 0, posy = 0;
+			
+			for(int i = coordY-2; i <= coordY+2; i++) {
+				for(int j = coordX-2; j <= coordX+2; j++) {
+					if(map_world[i][j] < 10) {
+						map_world[i][j] = local_world[posi];
+                        updateWorld[posy][posx] = local_world[posi];
+                    }
+                    else
+                        updateWorld[posy][posx] = map_world[i][j];
+                    
 					posi++;
+					posx++;
 				}
+				
+				posx = 0;
+				posy++;
 			}
+			
+            //m.updateRadarImg(updateWorld, coordX, coordY);
 		}
 		else {
 			coordX = parse.get("x").asInt();
@@ -247,10 +270,16 @@ public class AgentWorld extends Agent {
 			
 			if(map_world[coordY][coordX] != 2)
 				map_world[coordY][coordX] = cont;
+            
+            //m.updateGPSImg(coordX, coordY);
 		}
-        m.calculateImg(map_world,500,500,coordX,coordY);
-        j.setSize(WIDTH, HEIGHT);
+        
+        //m.calculateImg(map_world, 500, 500, coordX, coordY);
+        
+        jframe.setSize(510, 510);
+        
         m.repaint();
+        
 		return true;
     }
 
