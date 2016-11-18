@@ -230,7 +230,7 @@ public class AgentMovement extends Agent{
 						int newY = y;
 						boolean goalFound = false;
 						
-						System.out.println("minScanner: " + minScanner);
+						/*System.out.println("minScanner: " + minScanner);
 						System.out.println("map_scanner[" + y + "][" + x + "]: " + map_scanner[y][x]);
 						System.out.println("minWorld: " + minWorld);
 						System.out.println("map_world[" + y + "][" + x + "]: " + map_world[y][x]);
@@ -252,12 +252,12 @@ public class AgentMovement extends Agent{
 							System.out.println("");
 						}
 						
-						System.out.println("");
+						System.out.println("");*/
 						
 						
 						for(int i=y-1; i<=y+1 && !goalFound; i++) {
 							for(int j=x-1; j<=x+1 && !goalFound; j++) {
-								System.out.println("map_scanner[" + i + "][" + j + "]: " + map_scanner[i][j]);
+								//System.out.println("map_scanner[" + i + "][" + j + "]: " + map_scanner[i][j]);
 								if(map_world[i][j] == 2) {
 									goalFound = true;
 									newX = j;
@@ -277,9 +277,9 @@ public class AgentMovement extends Agent{
 										minWorld = map_world[i][j];
 										newX = j;
 										newY = i;
-										System.out.println("\nless: " + minWorld);
+										/*System.out.println("\nless: " + minWorld);
 										System.out.println("newX: " + newX);
-										System.out.println("newY: " + newY + "\n");
+										System.out.println("newY: " + newY + "\n");*/
 									}
 								}
 							}
