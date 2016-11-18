@@ -6,6 +6,8 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.AgentID;
+import java.awt.Color;
+import javax.swing.JFrame;
 
 /**
  * Clase que define al agente World.
@@ -20,7 +22,10 @@ public class AgentWorld extends Agent {
 	private static final int WAIT_MOVEMENT = 4;
 	private static final int SEND_INFO = 5;
 	private static final int FINISH = 6;
-	
+    
+    JFrame j = new JFrame();
+    myDrawPanel m = new myDrawPanel();
+
 	private static final boolean DEBUG = true;
 	
     private JsonObject responseObject;
@@ -75,7 +80,10 @@ public class AgentWorld extends Agent {
 				map_world[i][j] = -1;
 			}
 		}
-      	
+        j.add(m);
+        j.setSize(510, 510);
+        j.setVisible(true);
+        j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		System.out.println("AgentWorld has just started");
 	}
 	
@@ -238,7 +246,9 @@ public class AgentWorld extends Agent {
 			if(map_world[coordY][coordX] != 2)
 				map_world[coordY][coordX] = cont;
 		}
-		
+        m.calculateImg(map_world,500,500,coordX,coordY);
+        j.setSize(WIDTH, HEIGHT);
+        m.repaint();
 		return true;
     }
 
