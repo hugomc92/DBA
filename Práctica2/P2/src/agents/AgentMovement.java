@@ -310,7 +310,7 @@ public class AgentMovement extends Agent{
 								movement = "moveSE";
 						}
 						
-						System.out.println("\nEl movimiento es: " + movement + "\n");
+						System.out.println("\nMovimiento " + gpsCont + ": " + movement + "\n");
 						
 						responseObject.add("mov", movement);
 

@@ -6,7 +6,6 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.AgentID;
-import java.util.Arrays;
 
 /**
  * Clase que define al agente Scanner, el cual se va a encargar de controlar los datos relacionados

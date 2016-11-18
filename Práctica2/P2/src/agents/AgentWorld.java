@@ -26,7 +26,7 @@ public class AgentWorld extends Agent {
     JFrame jframe = new JFrame();
     myDrawPanel m = new myDrawPanel();
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
     private JsonObject responseObject;
 	private JsonObject gpsObject;
@@ -86,7 +86,7 @@ public class AgentWorld extends Agent {
 				updateWorld[i][j] = -1;
         
         jframe.add(m);
-        jframe.setSize(510, 510);
+        jframe.setSize(WIDTH, HEIGHT);
         jframe.setVisible(true);
         
         jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -169,13 +169,15 @@ public class AgentWorld extends Agent {
 					m.updateRadarImg(updateWorld, coordX, coordY);
 					m.updateGPSImg(coordX, coordY);
 					
+					jframe.setSize(WIDTH, HEIGHT);
+        
+					m.repaint();
+					
 					String confirmation = this.receiveMessage();
 					
 					JsonObject confirmationObject = Json.parse(confirmation).asObject();
 					
 					String confirmationResult = confirmationObject.get("sendWorld").toString();
-					
-                    System.out.printf("AGENTWORLD WAIT_MOVEMENT confirmation movement: " + confirmationResult);
                             
 					if(confirmationResult.contains("request"))
 						this.state = SEND_INFO;
@@ -276,9 +278,9 @@ public class AgentWorld extends Agent {
         
         //m.calculateImg(map_world, 500, 500, coordX, coordY);
         
-        jframe.setSize(510, 510);
+        /*jframe.setSize(510, 510);
         
-        m.repaint();
+        m.repaint();*/
         
 		return true;
     }
