@@ -1,12 +1,12 @@
 
 package agents;
 
+import gui.myDrawPanel;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.AgentID;
-import java.awt.Color;
 import javax.swing.JFrame;
 
 /**
@@ -80,10 +80,12 @@ public class AgentWorld extends Agent {
 				map_world[i][j] = -1;
 			}
 		}
+        
         j.add(m);
         j.setSize(510, 510);
         j.setVisible(true);
         j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
 		System.out.println("AgentWorld has just started");
 	}
 	
