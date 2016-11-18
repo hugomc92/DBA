@@ -21,7 +21,7 @@ public class AgentWorld extends Agent {
 	private static final int SEND_INFO = 5;
 	private static final int FINISH = 6;
 	
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
     private JsonObject responseObject;
 	private JsonObject gpsObject;

@@ -19,14 +19,14 @@ public class Practica2 {
 	
 	// Generamos los nombres de los agentes de forma aleatoria y única en cada ejecución para evitar la duplicidad de nombres con otros agentes en la plataforma
 	// Son constantes durante toda la ejecución.
-	private static final AgentID CAR_NAME = new AgentID(UUID.randomUUID().toString());
+	private static final AgentID CAR_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
 	private static final String MAP = "map10";
-	private static final AgentID MOVEMENT_NAME = new AgentID(UUID.randomUUID().toString());
-	private static final AgentID SCANNER_NAME = new AgentID(UUID.randomUUID().toString());
-	private static final AgentID RADAR_NAME = new AgentID(UUID.randomUUID().toString());
-	private static final AgentID GPS_NAME = new AgentID(UUID.randomUUID().toString());
-	private static final AgentID WORLD_NAME = new AgentID(UUID.randomUUID().toString());
-	private static final AgentID BATTERY_NAME = new AgentID(UUID.randomUUID().toString());
+	private static final AgentID MOVEMENT_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
+	private static final AgentID SCANNER_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
+	private static final AgentID RADAR_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
+	private static final AgentID GPS_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
+	private static final AgentID WORLD_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
+	private static final AgentID BATTERY_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
 	
 	/**
 	 * @param args Los argumentos pasados por línea de comandos.
