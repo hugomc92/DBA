@@ -151,7 +151,7 @@ public class AgentCar extends Agent {
 					
 					Agent gps;
 					try {
-						gps = new AgentGPS(gpsName, radarName, this.getAid(), movementName, worldName,scannerName);
+						gps = new AgentGPS(gpsName, radarName, this.getAid(), movementName, worldName,scannerName, map);
 						gps.start();
 					} catch (Exception ex) {
 						System.err.println(ex.getMessage());

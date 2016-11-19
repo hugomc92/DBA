@@ -23,7 +23,7 @@ public class AgentMovement extends Agent{
     private boolean finish;
     private int x,y;
     private static final int WIDTH = 504, HEIGHT = 504;
-    private final float [][] map_scanner = new float [WIDTH][HEIGHT];
+    private final float [][] map_scanner = new float [5][5];
     private final int [][] map_world = new int [WIDTH][HEIGHT];
 	
 	private int gpsCont;
@@ -140,7 +140,7 @@ public class AgentMovement extends Agent{
 						for(JsonValue j : responseObject.get("scanner").asArray()) {
 							map_scanner[posy][posx] = j.asFloat();
 							posx++;
-							if(posx%WIDTH == 0) {
+							if(posx%5 == 0) {
 								posx = 0;
 								posy++;
 							}
@@ -224,7 +224,6 @@ public class AgentMovement extends Agent{
 						//			hay varias zonas por la que no hemos pasado), 
 						//			priorizamos el que esté más cerca del goal
 
-						float minScanner = map_scanner[y][x];
 						int minWorld = map_world[y][x];
 						int newX = x;
 						int newY = y;
@@ -253,7 +252,7 @@ public class AgentMovement extends Agent{
 						}
 						
 						System.out.println("");*/
-						
+			
 						
 						for(int i=y-1; i<=y+1 && !goalFound; i++) {
 							for(int j=x-1; j<=x+1 && !goalFound; j++) {
@@ -272,7 +271,7 @@ public class AgentMovement extends Agent{
 										System.out.println("newX: " + newX);
 										System.out.println("newY: " + newY + "\n");
 									}*/
-									if(map_world[i][j] < minWorld || (minWorld == map_world[i][j] && map_scanner[newY][newX] > map_scanner[i][j])) {
+									if(map_world[i][j] < minWorld || (minWorld == map_world[i][j] && map_scanner[newY-y+1][newX-x+1] > map_scanner[i-y+1][j-x+1])) {
 										
 										minWorld = map_world[i][j];
 										newX = j;

@@ -38,6 +38,7 @@ public class AgentGPS extends Agent {
 	private final AgentID scannerName;
 	private final AgentID gpsName;
 	private final AgentID movementName;
+	private final String map;
 
 	private int cont;
 
@@ -53,7 +54,7 @@ public class AgentGPS extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentGPS(AgentID gpsName,AgentID radarName,AgentID carName,AgentID movementName,AgentID worldName,AgentID scannerName) throws Exception {
+	public AgentGPS(AgentID gpsName,AgentID radarName,AgentID carName,AgentID movementName,AgentID worldName,AgentID scannerName, String map) throws Exception {
 		super(gpsName);
 		
 		this.radarName=radarName;
@@ -62,6 +63,7 @@ public class AgentGPS extends Agent {
 		this.gpsName=gpsName;
 		this.movementName=movementName;
 		this.worldName=worldName;
+		this.map = map;
 		
 		this.cont = 10;
 		
@@ -99,7 +101,7 @@ public class AgentGPS extends Agent {
 					
 					Agent worldMap;
 					try {
-						worldMap = new AgentWorld(worldName,radarName,gpsName,movementName);
+						worldMap = new AgentWorld(worldName,radarName,gpsName,movementName, map);
 						worldMap.start();
 						
 						this.state = IDLE;

@@ -213,12 +213,13 @@ public class AgentScanner extends Agent {
 						}
 					}
 					
-					responseObject.add("scanner",vector);
+					//responseObject.add("scanner",vector);
+					
+					responseObject.add("scanner", scannerObject.get("scanner"));
 					
 					messageMovement = responseObject.toString();
 					
 					this.sendMessage(movementName, messageMovement);
-					
 					
 					state = IDLE;
                     break;

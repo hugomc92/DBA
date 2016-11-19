@@ -45,6 +45,7 @@ public class AgentWorld extends Agent {
     private final int [][] map_world = new int [WIDTH][HEIGHT];
     private final int [] local_world = new int [25];	
 	private int cont;
+	private final String map;
 	
 	private final int [][] updateWorld = new int[5][5];
         
@@ -56,12 +57,14 @@ public class AgentWorld extends Agent {
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
-	public AgentWorld(AgentID worldName,AgentID radarName,AgentID gpsName,AgentID movementName) throws Exception {
+	public AgentWorld(AgentID worldName,AgentID radarName,AgentID gpsName,AgentID movementName, String map) throws Exception {
 		super(worldName);
 		
 		this.radarName=radarName;
 		this.gpsName=gpsName;
 		this.movementName=movementName;
+		
+		this.map = map;
 	}
 	
 	 /**
@@ -89,7 +92,9 @@ public class AgentWorld extends Agent {
         jframe.setSize(WIDTH, HEIGHT);
         jframe.setVisible(true);
         
-        jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
+		//jframe.setUndecorated(true);
+		jframe.setTitle(map);
         
 		System.out.println("AgentWorld has just started");
 	}

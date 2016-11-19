@@ -43,11 +43,11 @@ public abstract class Agent extends SingleAgent {
         outbox.setSender(this.getAid());
         outbox.setReceiver(sendTo);
         outbox.setContent(content);
-		//System.out.println(this.getName()+ " Va a enviar mensaje ...");
+		System.out.println(this.getName()+ " Va a enviar mensaje ...");
 		
         this.send(outbox);
 		
-        //System.out.println(this.getName() + " ---> " + sendTo.getLocalName() +" : ");
+        System.out.println(this.getName() + " ---> " + sendTo.getLocalName() +" : ");
     }
     
     /**
@@ -58,10 +58,10 @@ public abstract class Agent extends SingleAgent {
 		
         try {
 			/// Luis
-			//System.out.println(this.getName()+ " Esperando mensaje ...");
+			System.out.println(this.getName()+ " Esperando mensaje ...");
 			ACLMessage inbox = this.receiveACLMessage();
 			
-			//System.out.println(getName()+" <--- " + inbox.getSender().getLocalName() + " : " );
+			System.out.println(getName()+" <--- " + inbox.getSender().getLocalName() + " : " );
 			
             return inbox.getContent();
         } catch (InterruptedException ex) {
