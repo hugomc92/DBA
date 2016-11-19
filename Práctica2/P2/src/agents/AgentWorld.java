@@ -26,7 +26,7 @@ public class AgentWorld extends Agent {
     JFrame jframe = new JFrame();
     myDrawPanel m = new myDrawPanel();
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
     private JsonObject responseObject;
 	private JsonObject gpsObject;
@@ -90,7 +90,7 @@ public class AgentWorld extends Agent {
 				updateWorld[i][j] = -1;
         
         jframe.add(m);
-        jframe.setSize(WIDTH, HEIGHT);
+        jframe.setSize(WIDTH+10, HEIGHT+50);
         jframe.setVisible(true);
         
         //jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
@@ -175,7 +175,7 @@ public class AgentWorld extends Agent {
 					m.updateRadarImg(updateWorld, coordX, coordY);
 					m.updateGPSImg(coordX, coordY);
 					
-					jframe.setSize(WIDTH, HEIGHT);
+					//jframe.setSize(WIDTH, HEIGHT);
         
 					m.repaint();
 					

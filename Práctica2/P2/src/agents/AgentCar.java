@@ -30,7 +30,7 @@ public class AgentCar extends Agent {
 	private static final int FINALIZE_MOVEMENT = 7;
 	private static final int FINISH = 8;
 	
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
 	private int state;
 	private boolean finish;
@@ -331,19 +331,25 @@ public class AgentCar extends Agent {
 					
 					movementExecution = movementObject.get("mov").asString();
 					
-					if(!movementExecution.contains("NO")) {
-						this.commandObject = new JsonObject();
-
-						this.commandObject.add("command", movementExecution);
-						this.commandObject.add("key", key);
-					}
-					else {
+					if(movementExecution.contains("NO")) {
 						this.commandObject = new JsonObject();
 
 						this.commandObject.add("command", "refuel");
 						this.commandObject.add("key", key);
 
 						this.refuel = false;
+					}
+					else if(movementExecution.contains("LO")) {
+						this.logout = true;
+						
+						this.commandObject.add("command", "logout");
+						this.commandObject.add("key", key);
+					}
+					else {
+						this.commandObject = new JsonObject();
+
+						this.commandObject.add("command", movementExecution);
+						this.commandObject.add("key", key);
 					}
 					
 					// PRUEBAS PARA LOGOUT PREMATUROS

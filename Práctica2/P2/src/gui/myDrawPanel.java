@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 /**
  * Clase para ir dibujando la traza que va haciendo el coche.
  * 
- * @author Bryan Moreno Picamán
+ * @author Bryan Moreno Picamán & Hugo Maldonado
  */
 public class myDrawPanel extends javax.swing.JPanel {
     

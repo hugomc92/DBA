@@ -17,7 +17,7 @@ public class AgentMovement extends Agent{
     private static final int EXECUTE = 3;
     private static final int FINISH = 4;
 	
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
     
     private int state;
     private boolean finish;
@@ -226,12 +226,11 @@ public class AgentMovement extends Agent{
 						//		*Si hay varias zonas con la misma prioridad (es decir, 
 						//			hay varias zonas por la que no hemos pasado), 
 						//			priorizamos el que esté más cerca del goal
-
+						
 						int minWorld = map_world[y][x];
 						int newX = x;
 						int newY = y;
 						boolean goalFound = false;
-                        float minScanner=0.0f;
 						
 						/*System.out.println("minScanner: " + minScanner);
 						System.out.println("map_scanner[" + y + "][" + x + "]: " + map_scanner[y][x]);
@@ -258,7 +257,8 @@ public class AgentMovement extends Agent{
 						System.out.println("");*/
 			
 						
-						for(int i=y-1; i<=y+1 && !goalFound; i++) {
+						// ESTA HEURÍSTICA LOS RESUELVE TODOS (a excepción de detectar la no solución del 9)
+						/*for(int i=y-1; i<=y+1 && !goalFound; i++) {
 							for(int j=x-1; j<=x+1 && !goalFound; j++) {
 								if(map_world[i][j] == 2) {
 									goalFound = true;
@@ -274,7 +274,7 @@ public class AgentMovement extends Agent{
 										System.out.println("newX: " + newX);
 										System.out.println("newY: " + newY + "\n");
 									}*/
-									if(map_world[i][j] < minWorld || (minWorld == map_world[i][j] && map_scanner[newY-y+2][newX-x+2] > map_scanner[i-y+2][j-x+2])) {
+									/*if(map_world[i][j] < minWorld || (minWorld == map_world[i][j] && map_scanner[newY-y+2][newX-x+2] > map_scanner[i-y+2][j-x+2])) {
 										
 										minWorld = map_world[i][j];
 										newX = j;
@@ -283,10 +283,10 @@ public class AgentMovement extends Agent{
 										/*System.out.println("\nless: " + minWorld);
 										System.out.println("newX: " + newX);
 										System.out.println("newY: " + newY + "\n");*/
-									}
+									/*}
 								}
 							}
-						}
+						}*/
                         
                         /*Muestra radar parcial y scanner parcial con el resultado elegido de la heuristica */
                         /*System.out.println("MATRIZ MAPSCANNER");
@@ -298,6 +298,121 @@ public class AgentMovement extends Agent{
                                 System.out.println("["+map_world[i][x-1]+"]"+"["+map_world[i][x]+"]"+"["+map_world[i][x+1]+"]");
                         }
                         */
+						
+						// HEURÍSTICA MEJORA QUE AHORRA LAGUNAS
+						// Sacamos la posición óptima según el scanner solamente
+						float minScanner = map_scanner[2][2];
+						int minPosXScanner = 2;
+						int minPosYScanner = 2;
+						
+						for(int i=1; i<4; i++) {
+							for(int j=1; j<4; j++) {
+								if(map_scanner[i][j] < minScanner) {
+									minScanner = map_scanner[i][j];
+									
+									minPosXScanner = j;
+									minPosYScanner = i;
+								}
+							}
+						}
+						
+						int movimiento = -1;
+						
+						System.out.println("[" + minPosYScanner +"][" + minPosXScanner + "]");
+						
+						if(minPosYScanner == 1 && minPosXScanner == 1) {
+							movimiento = 0;
+							
+							newX = x - 1;
+							newY = y - 1;
+						}
+						else if(minPosYScanner == 1 && minPosXScanner == 2) {
+							movimiento = 1;
+							
+							newX = x;
+							newY = y - 1;
+						}
+						else if(minPosYScanner == 1 && minPosXScanner == 3) {
+							movimiento = 2;
+							
+							newX = x + 1;
+							newY = y - 1;
+						}
+						else if(minPosYScanner == 2 && minPosXScanner == 3) {
+							movimiento = 3;
+							
+							newX = x + 1;
+							newY = y;
+						}
+						else if(minPosYScanner == 3 && minPosXScanner == 3) {
+							movimiento = 4;
+							
+							newX = x + 1;
+							newY = y + 1;
+						}
+						else if(minPosYScanner == 3 && minPosXScanner == 2) {
+							movimiento = 5;
+							
+							newX = x;
+							newY = y + 1;
+						}
+						else if(minPosYScanner == 3 && minPosXScanner == 1) {
+							movimiento = 6;
+							
+							newX = x - 1;
+							newY = y + 1;
+						}
+						else if(minPosYScanner == 2 && minPosXScanner == 1) {
+							movimiento = 7;
+							
+							newX = x - 1;
+							newY = y;
+						}
+						
+						while(map_world[newY][newX] == 1 || map_world[newY][newX] > 10) {
+							movimiento--;
+							
+							if(movimiento < 0)
+								movimiento = 7;
+							
+							switch(movimiento) {
+								case 0:
+									newX = x - 1;
+									newY = y - 1;
+								break;
+								case 1:
+									newX = x;
+									newY = y - 1;
+								break;
+								case 2:
+									newX = x + 1;
+									newY = y - 1;
+								break;
+								case 3:
+									newX = x + 1;
+									newY = y;
+								break;
+								case 4:
+									newX = x + 1;
+									newY = y + 1;
+								break;
+								case 5:
+									newX = x;
+									newY = y + 1;
+								break;
+								case 6:
+									newX = x - 1;
+									newY = y + 1;
+								break;
+								case 7:
+									newX = x - 1;
+									newY = y;
+								break;
+							}
+						}
+						
+						System.out.println("movimiento: " + movimiento);
+						
 						String movement;
 						
 						if(newX == x-1) {		//Se mueve hacia el Oeste

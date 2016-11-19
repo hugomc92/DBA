@@ -208,7 +208,7 @@ public class AgentScanner extends Agent {
 					responseObject = new JsonObject(); //Lo limpiamos
                         
 					//Empaquetamos el array entero en un JSon y se lo enviamos
-					JsonArray vector = new JsonArray();
+					/*JsonArray vector = new JsonArray();
 					
 					for(float [] i : map_scanner){
 						for(float j : i){
@@ -216,7 +216,7 @@ public class AgentScanner extends Agent {
 						}
 					}
 					
-					//responseObject.add("scanner",vector);
+					responseObject.add("scanner",vector);*/
 					
 					responseObject.add("scanner", scannerObject.get("scanner"));
 					
