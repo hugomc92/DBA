@@ -368,12 +368,21 @@ public class AgentMovement extends Agent{
 							newX = x - 1;
 							newY = y;
 						}
+										
+						boolean rotationLeft = false;
+						if(movimiento == 0 || movimiento == 1 || movimiento == 2)
+							rotationLeft = true;
 						
 						while(map_world[newY][newX] == 1 || map_world[newY][newX] > 10) {
-							movimiento--;
+							if(rotationLeft){
+								movimiento--;
+								if(movimiento < 0)
+									movimiento = 7;
+							}
+							else
+								movimiento=(movimiento+1)%8;
 							
-							if(movimiento < 0)
-								movimiento = 7;
+							
 							
 							switch(movimiento) {
 								case 0:
