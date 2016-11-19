@@ -47,6 +47,9 @@ public class AgentScanner extends Agent {
      * @param scannerName El nombre de agente para crearlo.
      * 
      * author Bryan Moreno Picamán & Hugo Maldonado.
+     * @param movementName
+     * @param gpsName
+     * @param carName
      * @throws java.lang.Exception en la creación del agente.
      */
     public AgentScanner(AgentID scannerName,AgentID movementName,AgentID gpsName, AgentID carName) throws Exception {

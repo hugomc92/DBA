@@ -54,6 +54,7 @@ public class AgentWorld extends Agent {
 	 * @param radarName
 	 * @param gpsName
 	 * @param movementName
+     * @param map
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */

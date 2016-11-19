@@ -46,11 +46,13 @@ public class AgentGPS extends Agent {
 	int coordY;
 
 	/**
-	 * @param aid El ID de agente para crearlo.
      * @param radarName El nombre del agente radar (para comunicación)
      * @param carName El nombre del agente car (para comunicación)
      * @param gpsName El nombre del propio agente
+     * @param worldName
+     * @param scannerName
      * @param movementName El nombre del agente movement
+     * @param map
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */

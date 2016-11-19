@@ -8,7 +8,7 @@ import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
  *
- * @author Jose David & Hugo Maldonado
+ * @author Jose David & Hugo Maldonado & Bryan Moreno Picamán
  */
 public class AgentRadar extends Agent {
  
@@ -34,6 +34,13 @@ public class AgentRadar extends Agent {
 	private final AgentID carName;
 	private final AgentID worldName;
     
+    /**
+     *
+     * @param radarName
+     * @param carName
+     * @param worldName
+     * @throws Exception
+     */
     public AgentRadar(AgentID radarName, AgentID carName, AgentID worldName) throws Exception {
         super(radarName);
         
@@ -41,6 +48,9 @@ public class AgentRadar extends Agent {
 		this.worldName = worldName;
     }
     
+    /**
+     *
+     */
     @Override
     public void init(){
         state = IDLE;
@@ -53,6 +63,9 @@ public class AgentRadar extends Agent {
 		System.out.println("AgentRadar has just started");
     }
     
+    /**
+     *
+     */
     public void processRadar() {
 		
 		JsonArray arrayDatos = dataRadar.get("radar").asArray(); //obtener datos del radar en array 
@@ -74,6 +87,9 @@ public class AgentRadar extends Agent {
 		radarToUpdate = obj.toString();
     }
     
+    /**
+     *
+     */
     @Override
     public void execute() {
 		
@@ -180,6 +196,9 @@ public class AgentRadar extends Agent {
         }
     }
     
+    /**
+     *
+     */
     @Override
 	public void finalize() {
 		

@@ -38,8 +38,11 @@ public class AgentMovement extends Agent{
     
     /**
      * Constructor 
-     * @param aid El ID de agente para crearlo.
      * 
+     * @param movementName
+     * @param worldName
+     * @param scannerName
+     * @param carName
      * @throws java.lang.Exception en la creación del agente.
      * 
      * @author Aarón Rodríguez Bueno
@@ -228,6 +231,7 @@ public class AgentMovement extends Agent{
 						int newX = x;
 						int newY = y;
 						boolean goalFound = false;
+                        float minScanner=0.0f;
 						
 						/*System.out.println("minScanner: " + minScanner);
 						System.out.println("map_scanner[" + y + "][" + x + "]: " + map_scanner[y][x]);
@@ -256,7 +260,6 @@ public class AgentMovement extends Agent{
 						
 						for(int i=y-1; i<=y+1 && !goalFound; i++) {
 							for(int j=x-1; j<=x+1 && !goalFound; j++) {
-								//System.out.println("map_scanner[" + i + "][" + j + "]: " + map_scanner[i][j]);
 								if(map_world[i][j] == 2) {
 									goalFound = true;
 									newX = j;
@@ -271,11 +274,12 @@ public class AgentMovement extends Agent{
 										System.out.println("newX: " + newX);
 										System.out.println("newY: " + newY + "\n");
 									}*/
-									if(map_world[i][j] < minWorld || (minWorld == map_world[i][j] && map_scanner[newY-y+1][newX-x+1] > map_scanner[i-y+1][j-x+1])) {
+									if(map_world[i][j] < minWorld || (minWorld == map_world[i][j] && map_scanner[newY-y+2][newX-x+2] > map_scanner[i-y+2][j-x+2])) {
 										
 										minWorld = map_world[i][j];
 										newX = j;
 										newY = i;
+                                        minScanner=map_scanner[i-y+2][j-x+2];
 										/*System.out.println("\nless: " + minWorld);
 										System.out.println("newX: " + newX);
 										System.out.println("newY: " + newY + "\n");*/
@@ -283,7 +287,17 @@ public class AgentMovement extends Agent{
 								}
 							}
 						}
+                        
+                        /*Muestra radar parcial y scanner parcial con el resultado elegido de la heuristica */
+                        /*System.out.println("MATRIZ MAPSCANNER");
+                        System.out.println("Se ha elegido el valor: "+minScanner);
+                        for(int i=1;i<4;i++)
+                                System.out.println("["+map_scanner[i][1]+"]"+"["+map_scanner[i][2]+"]"+"["+map_scanner[i][3]+"]");
 						
+                        for(int i=y-1; i<=y+1; i++) {
+                                System.out.println("["+map_world[i][x-1]+"]"+"["+map_world[i][x]+"]"+"["+map_world[i][x+1]+"]");
+                        }
+                        */
 						String movement;
 						
 						if(newX == x-1) {		//Se mueve hacia el Oeste
