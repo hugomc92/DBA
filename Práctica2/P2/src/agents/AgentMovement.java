@@ -38,6 +38,7 @@ public class AgentMovement extends Agent{
 	private boolean rotationChosen;
 	private boolean goalSeen;
 	private int xPosGoalSeen, yPosGoalSeen;
+	private boolean canSolve;
 	
     String message;
     
@@ -77,6 +78,7 @@ public class AgentMovement extends Agent{
 		
 		this.rotationChosen = false;
 		this.goalSeen = false;
+		this.canSolve = true;
         
         /*for (float [] i : map_scanner){
             for(float j : i){
@@ -246,7 +248,7 @@ public class AgentMovement extends Agent{
 						for(JsonValue j : responseObject.get("world").asArray()) {
 							map_world[posiy][posix] = j.asInt();
 							posix++;
-							if(posix % WIDTH == 0) {
+							if(posix%WIDTH == 0) {
 								posix = 0;
 								posiy++;
 							}
@@ -290,6 +292,16 @@ public class AgentMovement extends Agent{
 						System.out.println("Hemos encontrado la solución " + map_world[y][x] + " En las coordenadas " + y + "," + x);
 					}
 					else {
+						
+						//Para mapas sin resolución
+						if (!goalSeen){
+							if(goalInXSteps(x,y,2)){	//No se había visto hasta ahora, pero ahora sí lo vemos
+								goalSeen = true;
+								xPosGoalSeen = x;
+								yPosGoalSeen = y;
+							}
+						}
+						
 						
 						//Una vez tenemos todos los datos, calculamos el mejor movimiento
 						//HEURISTICA: elegimos de la siguiente manera
@@ -382,7 +394,7 @@ public class AgentMovement extends Agent{
 						int minPosXScannerSecond = 2;
 						int minPosYScannerSecond = 2;*/
 						
-						//Buscamos la posición del mejor scanner
+						//Buscamos la posición del primer y segundo mejor scanner
 						for(int i=1; i<4; i++) {
 							for(int j=1; j<4; j++) {
 								if(map_scanner[i][j] < minScanner) {
@@ -445,7 +457,6 @@ public class AgentMovement extends Agent{
 						
 						newX = x + minPosXScanner - 2;
 						newY = y + minPosYScanner - 2;
-						
 										
 						/*rotationLeft = false;
 						if(movimiento == 0 || movimiento == 1 || movimiento == 2)
@@ -462,15 +473,20 @@ public class AgentMovement extends Agent{
 							rotationChosen = false;
 						}*/
 						
-						while(map_world[newY][newX] == 1 || map_world[newY][newX] > 10) {
-							//if(rotationLeft){
-								/*movimiento--;
-								
+						int count = 0;
+						String movement="";
+						
+						while(map_world[newY][newX] == 1 || (map_world[newY][newX] > 10 && count <= 8)) {	//8 porque tiene 8 posibles elecciones
+							count++;
+							/*if(rotationLeft){
+								movimiento--;
 								if(movimiento < 0)
 									movimiento = 7;
-							/*}
+							}
 							else*/
-								movimiento=(movimiento+1)%8;					
+								movimiento=(movimiento+1)%8;
+							
+							
 							
 							switch(movimiento) {
 								case 0:
@@ -506,33 +522,42 @@ public class AgentMovement extends Agent{
 									newY = y;
 								break;
 							}
+							
+							System.out.println("movimiento: " + movimiento);
+							
+							if(goalSeen && xPosGoalSeen == newX && yPosGoalSeen == newY){	
+								movement = "LO";
+								canSolve = false;
+							}
 						}
 						
-						System.out.println("movimiento: " + movimiento);
-						
-						String movement;
-						
-						if(newX == x-1) {		//Se mueve hacia el Oeste
-							if(newY == y-1)	//Se mueve hacia Norte
-								movement = "moveNW";
-							else if(newY == y)
-								movement = "moveW";
-							else
-								movement = "moveSW";
-						}
-						else if(newX == x) {
-							if(newY == y-1)
-								movement = "moveN";
-							else
-								movement = "moveS";
-						}
-						else {
-							if(newY == y-1)
-								movement = "moveNE";
-							else if(newY == y)
-								movement = "moveE";
-							else
-								movement = "moveSE";
+						if(canSolve){
+							System.out.println("movimiento: " + movimiento);
+
+							
+
+							if(newX == x-1) {		//Se mueve hacia el Oeste
+								if(newY == y-1)	//Se mueve hacia Norte
+									movement = "moveNW";
+								else if(newY == y)
+									movement = "moveW";
+								else
+									movement = "moveSW";
+							}
+							else if(newX == x) {
+								if(newY == y-1)
+									movement = "moveN";
+								else
+									movement = "moveS";
+							}
+							else {
+								if(newY == y-1)
+									movement = "moveNE";
+								else if(newY == y)
+									movement = "moveE";
+								else
+									movement = "moveSE";
+							}
 						}
 						
 						System.out.println("\nMovimiento " + gpsCont + ": " + movement + "\n");
