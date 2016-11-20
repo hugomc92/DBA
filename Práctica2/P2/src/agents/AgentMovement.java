@@ -34,6 +34,11 @@ public class AgentMovement extends Agent{
     private final AgentID scannerName;
     private final AgentID carName;
     
+	private boolean rotationLeft;
+	private boolean rotationChosen;
+	private boolean goalSeen;
+	private int xPosGoalSeen, yPosGoalSeen;
+	
     String message;
     
     /**
@@ -69,6 +74,9 @@ public class AgentMovement extends Agent{
 		this.gpsCont = -1;
         
         this.responseObject = new JsonObject();
+		
+		this.rotationChosen = false;
+		this.goalSeen = false;
         
         /*for (float [] i : map_scanner){
             for(float j : i){
@@ -86,7 +94,65 @@ public class AgentMovement extends Agent{
 		System.out.println("AgentMovement has just started");
     }
     
-    
+    /**Comprueba si el segundo punto está a la izquierda del primero 
+	 * (desde el punto de vista de nuestras coordenadas GPS)
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @return 
+	 */
+	boolean isLeft(int x1, int y1, int x2, int y2){
+		//casuísticas
+		boolean isLeft = false;
+		if(x1 == x-1 && y1 == y-1	//Caso 0
+			&& x2 == x1+1 && y2 == y1	
+		  )
+			isLeft = true;
+		else if(x1 == x-1 && y1 == y	//Caso 1
+			&& x2 == x1 && y2 == y1-1	
+		  )
+			isLeft = true;
+		else if(x1 == x-1 && y1 == y+1	//Caso 2
+			&& x2 == x1 && y2 == y1-1	
+		  )
+			isLeft = true;
+		else if(x1 == x && y1 == y+1	//Caso 3
+			&& x2 == x1-1 && y2 == y1	
+		  )
+			isLeft = true;
+		else if(x1 == x+1 && y1 == y+1	//Caso 4
+			&& x2 == x1-1 && y2 == y1	
+		  )
+			isLeft = true;
+		else if(x1 == x+1 && y1 == y	//Caso 5
+			&& x2 == x1 && y2 == y1+1	
+		  )
+			isLeft = true;
+		else if(x1 == x+1 && y1 == y-1	//Caso 6
+			&& x2 == x1 && y2 == y1+1	
+		  )
+			isLeft = true;
+		else if(x1 == x && y1 == y-1	//Caso 7
+			&& x2 == x1+1 && y2 == y1	
+		  )
+			isLeft = true;
+		return isLeft;
+	}
+	
+	//Comprueba si al nº de steps podría llegar a él (en caso de no obstáculos)
+	boolean goalInXSteps(int x, int y, int steps){
+		boolean founded = false;
+		for (int i = y-steps; i <= y+steps && !founded; i++){
+			for (int j = x-steps; j <= x+steps && !founded; j++){
+				if((i == y-steps || i == y+steps)||(j == x-steps || j == x+steps)){	//Bordes del 5x5
+					if(map_world[i][j] == 2) founded = true;
+				}
+			}
+		}
+		return founded;
+	}
+	
     /**
     * MÃ©todo de ejecución del agente Scanner
     * 
@@ -212,12 +278,6 @@ public class AgentMovement extends Agent{
 					}
 					else {
 						
-						// MEJORA!! si en el radio del mundo que vemos está el objetivo, hacer el camino hasta el objetivo.
-						/* if() {
-						
-						}
-						*/
-						
 						//Una vez tenemos todos los datos, calculamos el mejor movimiento
 						//HEURISTICA: elegimos de la siguiente manera
 						//	-Si está el goal en una posición inmediata, vamos directamente
@@ -305,6 +365,7 @@ public class AgentMovement extends Agent{
 						int minPosXScanner = 2;
 						int minPosYScanner = 2;
 						
+						//Buscamos la posición del mejor scanner
 						for(int i=1; i<4; i++) {
 							for(int j=1; j<4; j++) {
 								if(map_scanner[i][j] < minScanner) {
@@ -316,11 +377,58 @@ public class AgentMovement extends Agent{
 							}
 						}
 						
+						
+						//Buscamos el segundo mejor scanner, que será seguro anexo al mejor
+						float minScannerSecond = map_scanner[2][2];
+						int minPosXScannerSecond = 2;
+						int minPosYScannerSecond = 2;
+						
+						for(int i=1; i<4; i++) {
+							for(int j=1; j<4; j++) {
+								if(map_scanner[i][j] < minScannerSecond && !(minPosXScannerSecond == minPosXScanner && minPosYScannerSecond == minPosYScanner)) {
+									minScannerSecond = map_scanner[i][j];
+									minPosXScannerSecond = j;
+									minPosYScannerSecond = i;
+								}
+							}
+						}	
+						
+						
+						
 						int movimiento = -1;
 						
-						System.out.println("[" + minPosYScanner +"][" + minPosXScanner + "]");
+						System.out.println("Mejor scanner: [" + minPosYScanner +"][" + minPosXScanner + "]");
+						System.out.println("Segundo mejor scanner: [" + minPosYScannerSecond +"][" + minPosXScannerSecond + "]");
 						
 						if(minPosYScanner == 1 && minPosXScanner == 1) {
+							movimiento = 0;
+						}
+						else if(minPosYScanner == 1 && minPosXScanner == 2) {
+							movimiento = 1;
+						}
+						else if(minPosYScanner == 1 && minPosXScanner == 3) {
+							movimiento = 2;
+						}
+						else if(minPosYScanner == 2 && minPosXScanner == 3) {
+							movimiento = 3;
+						}
+						else if(minPosYScanner == 3 && minPosXScanner == 3) {
+							movimiento = 4;
+						}
+						else if(minPosYScanner == 3 && minPosXScanner == 2) {
+							movimiento = 5;
+						}
+						else if(minPosYScanner == 3 && minPosXScanner == 1) {
+							movimiento = 6;
+						}
+						else if(minPosYScanner == 2 && minPosXScanner == 1) {
+							movimiento = 7;
+						}
+						
+						newX = x + minPosXScanner - 2;
+						newY = y + minPosYScanner - 2;
+						
+						/*if(minPosYScanner == 1 && minPosXScanner == 1) {
 							movimiento = 0;
 							
 							newX = x - 1;
@@ -367,11 +475,22 @@ public class AgentMovement extends Agent{
 							
 							newX = x - 1;
 							newY = y;
-						}
+						}*/
 										
-						boolean rotationLeft = false;
+						/*rotationLeft = false;
 						if(movimiento == 0 || movimiento == 1 || movimiento == 2)
-							rotationLeft = true;
+							rotationLeft = true;*/
+						
+						//En la misma pared, no se cambia de rotación 
+						if(map_world[newY][newX] == 1){	//Estamos contra una pared
+							if(!rotationChosen){	//Elegimos rotación
+								rotationLeft = isLeft(minPosXScanner, minPosYScanner, minPosXScannerSecond, minPosYScannerSecond);
+								rotationChosen = true;
+							}
+						}
+						else{	//Hemos salido de la pared, por lo que liberamos rotación
+							rotationChosen = false;
+						}
 						
 						while(map_world[newY][newX] == 1 || map_world[newY][newX] > 10) {
 							if(rotationLeft){
