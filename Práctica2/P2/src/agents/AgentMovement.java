@@ -241,15 +241,28 @@ public class AgentMovement extends Agent{
 						this.x = responseObject.get("x").asInt();
 						this.y = responseObject.get("y").asInt();
 						
-						int posix = 0, posiy = 0;
+						/*int posix = 0, posiy = 0;
 						
 						for(JsonValue j : responseObject.get("world").asArray()) {
 							map_world[posiy][posix] = j.asInt();
 							posix++;
-							if(posix%WIDTH == 0) {
+							if(posix % WIDTH == 0) {
 								posix = 0;
 								posiy++;
 							}
+						}*/
+						
+						int posix = x-2, posiy = y-2;
+						
+						for(JsonValue j : responseObject.get("world").asArray()) {
+							map_world[posiy][posix] = j.asInt();
+							
+							if(posix == x+2) {
+								posix = x-2;
+								posiy++;
+							}
+							else
+								posix++;
 						}
 						
 						state = EXECUTE;
@@ -365,21 +378,34 @@ public class AgentMovement extends Agent{
 						int minPosXScanner = 2;
 						int minPosYScanner = 2;
 						
+						/*float minScannerSecond = map_scanner[2][2];
+						int minPosXScannerSecond = 2;
+						int minPosYScannerSecond = 2;*/
+						
 						//Buscamos la posición del mejor scanner
 						for(int i=1; i<4; i++) {
 							for(int j=1; j<4; j++) {
 								if(map_scanner[i][j] < minScanner) {
+									/*minScannerSecond = minScanner;
+									minPosXScannerSecond = minPosXScanner;
+									minPosYScannerSecond = minPosYScanner;*/
+									
 									minScanner = map_scanner[i][j];
 									
 									minPosXScanner = j;
 									minPosYScanner = i;
 								}
+								/*else if(map_scanner[i][j] < minScannerSecond) {
+									minScannerSecond = map_scanner[i][j];
+									minPosXScannerSecond = j;
+									minPosYScannerSecond = i;
+								}*/
 							}
 						}
 						
 						
 						//Buscamos el segundo mejor scanner, que será seguro anexo al mejor
-						float minScannerSecond = map_scanner[2][2];
+						/*float minScannerSecond = map_scanner[2][2];
 						int minPosXScannerSecond = 2;
 						int minPosYScannerSecond = 2;
 						
@@ -391,98 +417,42 @@ public class AgentMovement extends Agent{
 									minPosYScannerSecond = i;
 								}
 							}
-						}	
+						}	*/
 						
 						
 						
 						int movimiento = -1;
 						
 						System.out.println("Mejor scanner: [" + minPosYScanner +"][" + minPosXScanner + "]");
-						System.out.println("Segundo mejor scanner: [" + minPosYScannerSecond +"][" + minPosXScannerSecond + "]");
+						//System.out.println("Segundo mejor scanner: [" + minPosYScannerSecond +"][" + minPosXScannerSecond + "]");
 						
-						if(minPosYScanner == 1 && minPosXScanner == 1) {
+						if(minPosYScanner == 1 && minPosXScanner == 1)
 							movimiento = 0;
-						}
-						else if(minPosYScanner == 1 && minPosXScanner == 2) {
+						else if(minPosYScanner == 1 && minPosXScanner == 2)
 							movimiento = 1;
-						}
-						else if(minPosYScanner == 1 && minPosXScanner == 3) {
+						else if(minPosYScanner == 1 && minPosXScanner == 3)
 							movimiento = 2;
-						}
-						else if(minPosYScanner == 2 && minPosXScanner == 3) {
+						else if(minPosYScanner == 2 && minPosXScanner == 3)
 							movimiento = 3;
-						}
-						else if(minPosYScanner == 3 && minPosXScanner == 3) {
+						else if(minPosYScanner == 3 && minPosXScanner == 3)
 							movimiento = 4;
-						}
-						else if(minPosYScanner == 3 && minPosXScanner == 2) {
+						else if(minPosYScanner == 3 && minPosXScanner == 2)
 							movimiento = 5;
-						}
-						else if(minPosYScanner == 3 && minPosXScanner == 1) {
+						else if(minPosYScanner == 3 && minPosXScanner == 1)
 							movimiento = 6;
-						}
-						else if(minPosYScanner == 2 && minPosXScanner == 1) {
+						else if(minPosYScanner == 2 && minPosXScanner == 1)
 							movimiento = 7;
-						}
 						
 						newX = x + minPosXScanner - 2;
 						newY = y + minPosYScanner - 2;
 						
-						/*if(minPosYScanner == 1 && minPosXScanner == 1) {
-							movimiento = 0;
-							
-							newX = x - 1;
-							newY = y - 1;
-						}
-						else if(minPosYScanner == 1 && minPosXScanner == 2) {
-							movimiento = 1;
-							
-							newX = x;
-							newY = y - 1;
-						}
-						else if(minPosYScanner == 1 && minPosXScanner == 3) {
-							movimiento = 2;
-							
-							newX = x + 1;
-							newY = y - 1;
-						}
-						else if(minPosYScanner == 2 && minPosXScanner == 3) {
-							movimiento = 3;
-							
-							newX = x + 1;
-							newY = y;
-						}
-						else if(minPosYScanner == 3 && minPosXScanner == 3) {
-							movimiento = 4;
-							
-							newX = x + 1;
-							newY = y + 1;
-						}
-						else if(minPosYScanner == 3 && minPosXScanner == 2) {
-							movimiento = 5;
-							
-							newX = x;
-							newY = y + 1;
-						}
-						else if(minPosYScanner == 3 && minPosXScanner == 1) {
-							movimiento = 6;
-							
-							newX = x - 1;
-							newY = y + 1;
-						}
-						else if(minPosYScanner == 2 && minPosXScanner == 1) {
-							movimiento = 7;
-							
-							newX = x - 1;
-							newY = y;
-						}*/
 										
 						/*rotationLeft = false;
 						if(movimiento == 0 || movimiento == 1 || movimiento == 2)
 							rotationLeft = true;*/
 						
 						//En la misma pared, no se cambia de rotación 
-						if(map_world[newY][newX] == 1){	//Estamos contra una pared
+						/*if(map_world[newY][newX] == 1){	//Estamos contra una pared
 							if(!rotationChosen){	//Elegimos rotación
 								rotationLeft = isLeft(minPosXScanner, minPosYScanner, minPosXScannerSecond, minPosYScannerSecond);
 								rotationChosen = true;
@@ -490,18 +460,17 @@ public class AgentMovement extends Agent{
 						}
 						else{	//Hemos salido de la pared, por lo que liberamos rotación
 							rotationChosen = false;
-						}
+						}*/
 						
 						while(map_world[newY][newX] == 1 || map_world[newY][newX] > 10) {
-							if(rotationLeft){
-								movimiento--;
+							//if(rotationLeft){
+								/*movimiento--;
+								
 								if(movimiento < 0)
 									movimiento = 7;
-							}
-							else
-								movimiento=(movimiento+1)%8;
-							
-							
+							/*}
+							else*/
+								movimiento=(movimiento+1)%8;					
 							
 							switch(movimiento) {
 								case 0:

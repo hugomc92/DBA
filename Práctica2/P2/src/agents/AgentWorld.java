@@ -301,8 +301,14 @@ public class AgentWorld extends Agent {
 		this.responseObject.add("x",coordX);
 		this.responseObject.add("y",coordY);
 		
-		for(int i=0; i<HEIGHT; i++) {
+		/*for(int i=0; i<HEIGHT; i++) {
 			for(int j=0; j<WIDTH; j++) {
+				vector.add(map_world[i][j]);
+			}
+		}*/
+		
+		for(int i=coordY-2; i<=coordY+2; i++) {
+			for(int j=coordX-2; j<=coordX+2; j++) {
 				vector.add(map_world[i][j]);
 			}
 		}

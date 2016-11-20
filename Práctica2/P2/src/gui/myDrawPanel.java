@@ -72,7 +72,7 @@ public class myDrawPanel extends javax.swing.JPanel {
     
     public void updateGPSImg(int coordX, int coordY) {
         
-        Color color = Color.BLUE;
+        Color color = Color.CYAN;
         
         image.setRGB(coordX, coordY, color.getRGB());
     }
