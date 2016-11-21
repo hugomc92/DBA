@@ -8,12 +8,17 @@ import java.awt.image.BufferedImage;
 /**
  * Clase para ir dibujando la traza que va haciendo el coche.
  * 
- * @author Bryan Moreno Picamán & Hugo Maldonado
+ * @author Bryan Moreno Picamán and Hugo Maldonado
  */
 public class myDrawPanel extends javax.swing.JPanel {
     
     BufferedImage image = new BufferedImage(504, 504, BufferedImage.TYPE_INT_RGB);
 
+	/**
+	 * Constructor
+	 * 
+	 * @author Bryan Moreno Picamán
+	 */
     public myDrawPanel() {
         initComponents();
         
@@ -26,6 +31,17 @@ public class myDrawPanel extends javax.swing.JPanel {
         }
     }
     
+	/**
+	 * Calcula la imagen con la actualización de la matriz del mundo.
+	 * 
+	 * @param map matriz de la representación del mapa al completo.
+	 * @param sizex número de columnas de la matriz.
+	 * @param sizey número de filas de la matriz.
+	 * @param coordX coordenada x de la posición actual.
+	 * @param coordY coordenada y de la posición actual.
+	 * 
+	 * @author Bryan Moreno Picamán
+	 */
     public void calculateImg(int[][] map, int sizex, int sizey, int coordX, int coordY) {
         
         for(int y = 0; y < sizey; ++y) {
@@ -49,6 +65,15 @@ public class myDrawPanel extends javax.swing.JPanel {
         image.setRGB(coordX, coordY, color.getRGB());
     }
     
+	/**
+	 * Actualiza parcialmente la imagen de la representación del mundo.
+	 * 
+	 * @param updateWorld Matriz parcial que se le pasa para actualizar la imagen.
+	 * @param coordX coordenada x de la posición actual.
+	 * @param coordY coordenada y de la posición actual.
+	 * 
+	 * @author Hugo Maldonado
+	 */
     public void updateRadarImg(int[][] updateWorld, int coordX, int coordY) {
         
         for(int y = 0; y < 5; y++) {
@@ -70,6 +95,14 @@ public class myDrawPanel extends javax.swing.JPanel {
         }
     }
     
+	/**
+	 * Actualiza la posición actual del agente en el mundo
+	 * 
+	 * @param coordX Coordenada x de la posición.
+	 * @param coordY Coordenada y de la posición.
+	 * 
+	 * @author Hugo Maldonado
+	 */
     public void updateGPSImg(int coordX, int coordY) {
         
         Color color = Color.BLUE;
@@ -77,6 +110,10 @@ public class myDrawPanel extends javax.swing.JPanel {
         image.setRGB(coordX, coordY, color.getRGB());
     }
     
+	/**
+	 * Pinta la imagen
+	 * @param g Objecto graphics para pintar
+	 */
     public void paint(Graphics g) {
         
         g.drawImage(image, 0, 0,image.getHeight(),image.getWidth(), null);

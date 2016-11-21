@@ -78,8 +78,7 @@ public class AgentScanner extends Agent {
 		this.scannerObject = new JsonObject();
 		this.gpsObject = new JsonObject();
 		
-		if(DEBUG)
-			System.out.println("AgentScanner has just started");
+		System.out.println("AgentScanner has just started");
     }
     
 	/**
@@ -250,8 +249,7 @@ public class AgentScanner extends Agent {
     @Override
     public void execute(){
 		
-		if(DEBUG)
-			System.out.println("AgentScanner execution");
+		System.out.println("AgentScanner execution");
 		
         while(!finish){
             switch(state){
@@ -299,8 +297,7 @@ public class AgentScanner extends Agent {
     @Override
     public void finalize() {
 		
-		if(DEBUG)
-			System.out.println("AgentScanner has just finished");
+		System.out.println("AgentScanner has just finished");
 		
         super.finalize();
     }

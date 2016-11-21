@@ -86,8 +86,7 @@ public class AgentMovement extends Agent{
 		this.goalSeen = false;
 		this.canSolve = true;
 		
-		if(DEBUG)
-			System.out.println("AgentMovement has just started");
+		System.out.println("AgentMovement has just started");
     }
     
     /**Comprueba si el segundo punto está a la izquierda del primero 
@@ -325,7 +324,7 @@ public class AgentMovement extends Agent{
 	 * @author Aarón Rodríguez and Hugo Maldonado and Bryan Moreno Picamán
 	 */
 	private void positionToMovement(){
-	movimiento = -1;
+		movimiento = -1;
 
 		if(DEBUG){
 			System.out.println("Mejor scanner: [" + minPosYScanner +"][" + minPosXScanner + "]");
@@ -501,8 +500,8 @@ public class AgentMovement extends Agent{
 	private void rotationChosenHeuristic(boolean left){
 		// Sacamos la posición óptima según el scanner solamente
 		minScanner = map_scanner[2][2];
-		int minPosXScanner = 2;
-		int minPosYScanner = 2;
+		minPosXScanner = 2;
+		minPosYScanner = 2;
 
 		//Buscamos la posición del primer mejor escaner
 		for(int i=1; i<4; i++) {
@@ -526,34 +525,35 @@ public class AgentMovement extends Agent{
 	 * al Car.
 	 * @author Aarón Rodríguez and Hugo Maldonado and Bryan Moreno Picamán
 	 */
-	private void changeCoordinatesForMovement(){
-	if(canSolve){
-		if(DEBUG)
-			System.out.println("movimiento: " + movimiento);
+	private void changeCoordinatesForMovement() {
+		
+		if(canSolve) {
+			if(DEBUG)
+				System.out.println("movimiento: " + movimiento);
 
-		if(newX == x-1) {		//Se mueve hacia el Oeste
-			if(newY == y-1)	//Se mueve hacia Norte
-				movement = "moveNW";
-			else if(newY == y)
-				movement = "moveW";
-			else
-				movement = "moveSW";
+			if(newX == x-1) {		//Se mueve hacia el Oeste
+				if(newY == y-1)	//Se mueve hacia Norte
+					movement = "moveNW";
+				else if(newY == y)
+					movement = "moveW";
+				else
+					movement = "moveSW";
+			}
+			else if(newX == x) {
+				if(newY == y-1)
+					movement = "moveN";
+				else
+					movement = "moveS";
+			}
+			else {
+				if(newY == y-1)
+					movement = "moveNE";
+				else if(newY == y)
+					movement = "moveE";
+				else
+					movement = "moveSE";
+			}
 		}
-		else if(newX == x) {
-			if(newY == y-1)
-				movement = "moveN";
-			else
-				movement = "moveS";
-		}
-		else {
-			if(newY == y-1)
-				movement = "moveNE";
-			else if(newY == y)
-				movement = "moveE";
-			else
-				movement = "moveSE";
-		}
-	}
 	}
 	
 	/**
@@ -575,7 +575,7 @@ public class AgentMovement extends Agent{
 		else {
 
 			//Para mapas sin resolución
-			if (!goalSeen){
+			if(!goalSeen){
 				if(goalInXSteps(x,y,2)){	//No se había visto hasta ahora, pero ahora sí lo vemos
 					goalSeen = true;
 					xPosGoalSeen = x;
@@ -585,11 +585,11 @@ public class AgentMovement extends Agent{
 
 			//Una vez tenemos todos los datos, calculamos el mejor movimiento
 			
-			//PRIMERA HEURISTICA
+			// PRIMERA HEURISTICA
 			// ESTA HEURÍSTICA LOS RESUELVE TODOS (a excepción de detectar la no solución del 9)
 			//firstHeuristic();
 
-			if (DEBUG){
+			if(DEBUG){
 				System.out.println("minScanner: " + minScanner);
 				System.out.println("map_scanner[" + y + "][" + x + "]: " + map_scanner[y][x]);
 				System.out.println("minWorld: " + minWorld);
@@ -613,24 +613,28 @@ public class AgentMovement extends Agent{
 				}
 
 				System.out.println("");
-			}
-
-			/*Muestra radar parcial y scanner parcial con el resultado elegido de la heuristica */
-			if(DEBUG){
+				
+				/*Muestra radar parcial y scanner parcial con el resultado elegido de la heuristica */
+				
 				System.out.println("MATRIZ MAPSCANNER");
 				System.out.println("Se ha elegido el valor: "+minScanner);
+				
 				for(int i=1;i<4;i++)
-						System.out.println("["+map_scanner[i][1]+"]"+"["+map_scanner[i][2]+"]"+"["+map_scanner[i][3]+"]");
+					System.out.println("["+map_scanner[i][1]+"]"+"["+map_scanner[i][2]+"]"+"["+map_scanner[i][3]+"]");
+				
 				System.out.println("MATRIZ MAPWORLD");
-				for(int i=y-1; i<=y+1; i++) {
-						System.out.println("["+map_world[i][x-1]+"]"+"["+map_world[i][x]+"]"+"["+map_world[i][x+1]+"]");
-				}
+				
+				for(int i=y-1; i<=y+1; i++)
+					System.out.println("["+map_world[i][x-1]+"]"+"["+map_world[i][x]+"]"+"["+map_world[i][x+1]+"]");
 			}
+
 			
 			//Heurística rotación a la izquierda
 			rotationChosenHeuristic(true);
+			
 			//Heurística rotación a la derecha
 			//rotationChosenHeuristic(false);
+			
 			//Heurística rotación variable
 			//changeRotationHeuristic();
 
@@ -678,8 +682,7 @@ public class AgentMovement extends Agent{
     @Override
     public void execute() {
 		
-		if(DEBUG)
-			System.out.println("AgentMovement execution");
+		System.out.println("AgentMovement execution");
 		
         while(!finish) {
             switch(state) {
@@ -720,8 +723,7 @@ public class AgentMovement extends Agent{
     @Override
     public void finalize() {
 		
-		if(DEBUG)
-			System.out.println("AgentMovement has just finished");
+		System.out.println("AgentMovement has just finished");
 		
         super.finalize();
     }

@@ -241,8 +241,7 @@ public class AgentWorld extends Agent {
 	@Override
 	public void execute() {
 		
-		if(DEBUG)
-			System.out.println("AgentWorld execution");
+		System.out.println("AgentWorld execution");
 		
 		while(!finish) {
 			switch(state) {   
@@ -289,8 +288,7 @@ public class AgentWorld extends Agent {
 	@Override
 	public void finalize() {
 		
-		if(DEBUG)
-			System.out.println("AgentWorld has just finished");
+		System.out.println("AgentWorld has just finished");
 		
 		super.finalize();
 	}

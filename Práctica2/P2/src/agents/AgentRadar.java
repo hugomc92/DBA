@@ -41,6 +41,8 @@ public class AgentRadar extends Agent {
      * @param carName nombre del agente Car (para comunicación)
      * @param worldName nombre del agente World (para comunicación)
      * @throws Exception Excepción en el constructor de Agent
+	 * 
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
      */
     public AgentRadar(AgentID radarName, AgentID carName, AgentID worldName) throws Exception {
         super(radarName);
@@ -62,8 +64,7 @@ public class AgentRadar extends Agent {
         
         this.dataRadar = new JsonObject();
 		
-		if(DEBUG)
-			System.out.println("AgentRadar has just started");
+		System.out.println("AgentRadar has just started");
     }
     
     /**

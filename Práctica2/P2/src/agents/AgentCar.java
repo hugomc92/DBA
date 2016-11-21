@@ -71,6 +71,8 @@ public class AgentCar extends Agent {
 	 * @param batteryName El nombre del agente de la batería.
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
+	 * 
+	 * @author Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
 	 */
 	public AgentCar(AgentID carName, AgentID serverAgent, String map, AgentID movementName, AgentID scannerName, AgentID radarName, AgentID gpsName, AgentID worldName, AgentID batteryName) throws Exception {
 		super(carName);
@@ -107,8 +109,7 @@ public class AgentCar extends Agent {
 		
 		this.logout = false;
 		
-		if(DEBUG)
-			System.out.println("AgentCar has just started");
+		System.out.println("AgentCar has just started");
 	}
 	
 	/**
@@ -435,8 +436,7 @@ public class AgentCar extends Agent {
 	@Override
 	public void execute() {
 		
-		if (DEBUG)
-			System.out.println("AgentCar execution");
+		System.out.println("AgentCar execution");
 		
 		while(!finish) {
 			switch(state) {
@@ -497,8 +497,7 @@ public class AgentCar extends Agent {
 	@Override
 	public void finalize() {
 		
-		if(DEBUG)
-			System.out.println("AgentCar has just finished");
+		System.out.println("AgentCar has just finished");
 		
 		super.finalize();
 	}

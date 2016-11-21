@@ -57,8 +57,7 @@ public class AgentBattery extends Agent {
 		this.responseObject = new JsonObject();
 		this.state = IDLE;
 		
-		if(DEBUG)
-			System.out.println("AgentBattery has just started");
+		System.out.println("AgentBattery has just started");
 	}
 	
 	/**

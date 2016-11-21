@@ -11,7 +11,7 @@ import java.util.UUID;
  * Clase principal que lanzará toda la aplicación.
  * Básicamente lanzará el agente coche, que empezará con la ejecución de toda la lógica.
  * 
- * @author Hugo Maldonado & Bryan Moreno Picamán
+ * @author Hugo Maldonado and Bryan Moreno Picamán
  */
 public class Practica2 {
 	
@@ -20,7 +20,7 @@ public class Practica2 {
 	// Generamos los nombres de los agentes de forma aleatoria y única en cada ejecución para evitar la duplicidad de nombres con otros agentes en la plataforma
 	// Son constantes durante toda la ejecución.
 	private static final AgentID CAR_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
-	private static final String MAP = "map2";
+	private static final String MAP = "map6";
 	private static final AgentID MOVEMENT_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
 	private static final AgentID SCANNER_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
 	private static final AgentID RADAR_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
@@ -32,6 +32,8 @@ public class Practica2 {
 	 * @param args Los argumentos pasados por línea de comandos.
 	 * 
 	 * @throws java.lang.Exception en la conexión con el servidor.
+	 * 
+	 * @author Hugo Maldonado and Bryan Moreno Picamán
 	 */
 	public static void main(String[] args) throws Exception {
 		
@@ -43,6 +45,7 @@ public class Practica2 {
 		
 		car.start();
 		
+		System.out.println("\nINFORMATION:");
 		System.out.println("SERVER: " + SERVER_AGENT.getLocalName());
 		System.out.println("MAP: " + MAP);
 		System.out.println("CAR: " + CAR_NAME.getLocalName());
