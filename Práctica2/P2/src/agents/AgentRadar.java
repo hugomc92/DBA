@@ -7,8 +7,8 @@ import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.AgentID;
 
 /**
- *
- * @author Jose David & Hugo Maldonado & Bryan Moreno Picamán
+ * Clase que define al agente Rada, el cual maneja los datos del radar enviados por el server.
+ * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
  */
 public class AgentRadar extends Agent {
  
@@ -35,11 +35,12 @@ public class AgentRadar extends Agent {
 	private final AgentID worldName;
     
     /**
-     *
-     * @param radarName
-     * @param carName
-     * @param worldName
-     * @throws Exception
+     * Constructor
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
+     * @param radarName nombre del agente Radar
+     * @param carName nombre del agente Car (para comunicación)
+     * @param worldName nombre del agente World (para comunicación)
+     * @throws Exception Excepción en el constructor de Agent
      */
     public AgentRadar(AgentID radarName, AgentID carName, AgentID worldName) throws Exception {
         super(radarName);
@@ -49,7 +50,8 @@ public class AgentRadar extends Agent {
     }
     
     /**
-     *
+     * Inicializa al agente
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
      */
     @Override
     public void init(){
@@ -60,35 +62,142 @@ public class AgentRadar extends Agent {
         
         this.dataRadar = new JsonObject();
 		
-		System.out.println("AgentRadar has just started");
+		if(DEBUG)
+			System.out.println("AgentRadar has just started");
     }
     
     /**
-     *
+     * Obtenemos el array dado por string
+	 * @author Jose David
      */
     public void processRadar() {
 		
 		JsonArray arrayDatos = dataRadar.get("radar").asArray(); //obtener datos del radar en array 
-		//JsonObject datGps = datosGps.get("gps").asObject();
-
-		//int x = datGps.getInt("x", -1);
-		//int y = datGps.getInt("y", -1);
-
-		//JsonArray arrayRadar = (JsonArray) Json.array();
-		//for(int i=0;i<25;i++){
-		//        arrayRadar.add(x-2+(i % 5));
-		//        arrayRadar.add(y-2+i/5);
-		//        arrayRadar.add(arrayDatos.get(i));
-		//}
-
-		//Creamos objeto json para enviarlo tras convertirlo a string(value)
-		//JsonObject obj = Json.object().add("radar", arrayRadar);
 		JsonObject obj = Json.object().add("radar",arrayDatos);
 		radarToUpdate = obj.toString();
     }
     
+	/**
+	 * Estado IDLE: recibe los datos del radar del server. Si es el array o el GPS, 
+	 * pasa al estado PROCESS_DATA. Si es otro mensaje, pasa a FINISH.
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
+	 */
+	private void stateIdle(){
+		if(DEBUG)
+			System.out.println("AgentRadar status: IDLE");
+
+		boolean finalize = false;
+
+		for(int i=0; i<2 && !finalize; i++) {
+			message = this.receiveMessage();
+
+			if(message.contains("radar"))	//Del server
+				dataRadar = (JsonObject) Json.parse(message);    
+			else if(message.contains("gps")) {
+				this.gpsProcced = !message.contains("updated");
+			}
+			else if(message.contains("CRASHED") || message.contains("finalize"))
+				finalize = true;
+		}
+
+		if(finalize)
+			this.state = FINISH;
+		else
+			this.state = PROCESS_DATA;
+	}
+	
+	/**
+	 * Estado PROCESS_DATA: si el mensaje anterior era del radar, lo procesamos
+	 * y vamos al estado SEND_DATA. Si era del server, vamos a SEND_CONFIRMATION.
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
+	 */
+	private void stateProcessData(){
+		if(DEBUG)
+			System.out.println("AgentRadar status: PROCESS_DATA");
+
+		if(this.gpsProcced) {
+			processRadar();
+
+			this.state = SEND_DATA;
+		}
+		else
+			this.state = SEND_CONFIRMATION;
+	}
+	
+	/**
+	 * Estado SEND_DATA: enviamos los datos al World y vamos al estado WAIT_WORLD.
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
+	 */
+	private void stateSendData(){
+		if(DEBUG)
+			System.out.println("AgentRadar status: SEND_DATA");
+
+		sendMessage(worldName, radarToUpdate);
+
+		this.state = WAIT_WORLD;
+	}
+	
+	/**
+	 * Estado WAIT_WORLD: esperamos al mensaje de confirmación del World. Si contiene
+	 * "ok", vamos a SEND_CONFIRMATION. En otro caso, a FINISH.
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
+	 */
+	private void stateWaitWorld(){
+		if(DEBUG)
+			System.out.println("AgentRadar status: WAIT_WORLD");
+
+		String confirmation = this.receiveMessage();
+
+		JsonObject confirmationObject = Json.parse(confirmation).asObject();
+		String worldMessage = confirmationObject.get("radar").asString();
+
+		if(worldMessage.contains("ok"))//confirmacion del world
+			this.state = SEND_CONFIRMATION;
+		else
+			this.state = FINISH;
+	}
+	
+	/**
+	 * Estado SEND_CONFIRMATION: enviamos al coche que ya nos hemos comunicado con
+	 * los demás agentes. Pasamos al estado IDLE.
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
+	 */
+	private void stateSendConfirmation(){
+		if(DEBUG)
+			System.out.println("AgentRadar status: SEND_CONFIRMATION");
+
+		JsonObject statusWorld = new JsonObject();
+
+		statusWorld.add("radar", "ok");
+
+		sendMessage(carName, statusWorld.toString());	//Enviamos confirmacion a car
+
+		this.state = IDLE;
+	}
+	
+	/**
+	 * Estado FINISH: enviamos confirmación al Car de que vamos a morir y nos disponemos
+	 * a ello.
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
+	 */
+	private void stateFinish(){
+		if(DEBUG)
+			System.out.println("AgentRadar status: FINISH");
+
+		if(this.message.contains("finalize")) {
+			JsonObject confirmationMessage = new JsonObject();
+
+			confirmationMessage.add("radar", "finish");
+
+			this.sendMessage(carName, confirmationMessage.toString());
+		}
+
+		this.finish = true;
+	}
+	
     /**
-     *
+     * Método de ejecución del agente Radar.
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
      */
     @Override
     public void execute() {
@@ -99,97 +208,32 @@ public class AgentRadar extends Agent {
             switch(state) {
                 case IDLE:
 					
-					if(DEBUG)
-						System.out.println("AgentRadar status: IDLE");
-										
-					boolean finalize = false;
-					
-					for(int i=0; i<2 && !finalize; i++) {
-						message = this.receiveMessage();
-
-						if(message.contains("radar"))	//Del server
-							dataRadar = (JsonObject) Json.parse(message);    
-						else if(message.contains("gps")) {
-							this.gpsProcced = !message.contains("updated");
-						}
-						else if(message.contains("CRASHED") || message.contains("finalize"))
-							finalize = true;
-					}
-					
-					if(finalize)
-						this.state = FINISH;
-					else
-						this.state = PROCESS_DATA;
+					stateIdle();
 					
 					break;
                 case PROCESS_DATA:
 					
-					if(DEBUG)
-						System.out.println("AgentRadar status: PROCESS_DATA");
-					
-					if(this.gpsProcced) {
-						processRadar();
-
-						this.state = SEND_DATA;
-					}
-					else
-						this.state = SEND_CONFIRMATION;
+					stateProcessData();
 					
 					break;  
 				case SEND_DATA:
 					
-					if(DEBUG)
-						System.out.println("AgentRadar status: SEND_DATA");
-					
-                    sendMessage(worldName, radarToUpdate);
-					
-					this.state = WAIT_WORLD;
+					stateSendData();
 
 					break;
                 case WAIT_WORLD:
 					
-					if(DEBUG)
-						System.out.println("AgentRadar status: WAIT_WORLD");
-					
-                    String confirmation = this.receiveMessage();
-					
-					JsonObject confirmationObject = Json.parse(confirmation).asObject();
-					String worldMessage = confirmationObject.get("radar").asString();
-                    
-					if(worldMessage.contains("ok"))//confirmacion del world
-						this.state = SEND_CONFIRMATION;
-					else
-						this.state = FINISH;
+					stateWaitWorld();
 					
 					break;
 				case SEND_CONFIRMATION:
 					
-					if(DEBUG)
-						System.out.println("AgentRadar status: SEND_CONFIRMATION");
-					
-                    JsonObject statusWorld = new JsonObject();
-					
-                    statusWorld.add("radar", "ok");
-					
-                    sendMessage(carName, statusWorld.toString());	//Enviamos confirmacion a car
-					
-                    this.state = IDLE;
+					stateSendConfirmation();
 					
 					break;		
 				case FINISH:
 					
-					if(DEBUG)
-						System.out.println("AgentRadar status: FINISH");
-					
-					if(this.message.contains("finalize")) {
-						JsonObject confirmationMessage = new JsonObject();
-						
-						confirmationMessage.add("radar", "finish");
-
-						this.sendMessage(carName, confirmationMessage.toString());
-					}
-					
-                    this.finish = true;
+					stateFinish();
 					
 					break;
             }
@@ -197,7 +241,8 @@ public class AgentRadar extends Agent {
     }
     
     /**
-     *
+     * Método de finalización del agente Radar.
+	 * @author Jose David and Hugo Maldonado and Bryan Moreno Picamán and Aarón Rodríguez Bueno
      */
     @Override
 	public void finalize() {

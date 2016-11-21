@@ -9,13 +9,30 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+/**
+ * Clase para dibujar en una ventana el mundo que percibimos a tiempo real.
+ * @author Bryan Moreno Picamán 
+ */
 public class myDrawPanel extends javax.swing.JPanel {
     BufferedImage image =   new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB);
 
+	/**
+	 * Constructor
+	 * @author Bryan Moreno Picamán 
+	 */
     public myDrawPanel() {
         initComponents();
 
     }
+	/**
+	 * Calcula el valor de cada píxel y lo guarda en un BufferedImage
+	 * @author Bryan Moreno Picamán
+	 * @param map Array del mapa
+	 * @param sizex Ancho del mapa
+	 * @param sizey Alto del mapa
+	 * @param coordX Posición x del coche
+	 * @param coordY Posición y del coche
+	 */
     public void calculateImg(int[][] map,int sizex,int sizey,int coordX,int coordY){
         for (int y = 0; y < sizey; ++y) {
             for (int x = 0; x < sizex; ++x) {
@@ -36,6 +53,11 @@ public class myDrawPanel extends javax.swing.JPanel {
 
     }
     
+	/**
+	 * Pinta en el JPanel de la ventana la imagen con Graphics
+	 * @author Bryan Moreno Picamán
+	 * @param g el Graphics (para los gráficos de la SWING de Java)
+	 */
     public void paint(Graphics g){
         g.drawImage(image, 0, 0,image.getHeight(),image.getWidth(), null);
     }

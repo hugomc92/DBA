@@ -12,6 +12,7 @@ public abstract class Agent extends SingleAgent {
     
      /**
      * Constructor
+	 * @author Jose David
      * @param name Nombre del agente
      * @throws Exception 
      */
@@ -22,6 +23,7 @@ public abstract class Agent extends SingleAgent {
     
     /**
      * Obtiene el nombre de un agente
+	 * @author Jose David
      * @return Nombre del agente
      */
     
@@ -33,6 +35,7 @@ public abstract class Agent extends SingleAgent {
 
     /**
      * Envia un mensaje a otro agente
+	 * @author Jose David
      * @param sendTo Nombre agente que recibira el mensaje
      * @param content Contenido del mensaje
      */
@@ -43,25 +46,19 @@ public abstract class Agent extends SingleAgent {
         outbox.setSender(this.getAid());
         outbox.setReceiver(sendTo);
         outbox.setContent(content);
-		//System.out.println(this.getName()+ " Va a enviar mensaje ...");
 		
         this.send(outbox);
-		
-        //System.out.println(this.getName() + " ---> " + sendTo.getLocalName() +" : ");
     }
     
     /**
      * Recibir mensaje de otro agente
+	 * @author Jose David
      * @return Contenido del mensaje
      */
     public String receiveMessage() {
 		
         try {
-			/// Luis
-			//System.out.println(this.getName()+ " Esperando mensaje ...");
 			ACLMessage inbox = this.receiveACLMessage();
-			
-			//System.out.println(getName()+" <--- " + inbox.getSender().getLocalName() + " : " );
 			
             return inbox.getContent();
         } catch (InterruptedException ex) {

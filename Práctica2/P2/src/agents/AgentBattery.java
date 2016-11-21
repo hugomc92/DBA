@@ -8,7 +8,7 @@ import es.upv.dsic.gti_ia.core.AgentID;
 /**
  * Clase que define al agente Battery, actua como controlador de AgentWorld y AgentRadar.
  * 
- * @author Bryan Moreno Picamán, Aarón Rodríguez Bueno & Hugo Maldonado
+ * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
  */
 public class AgentBattery extends Agent {
 	
@@ -16,7 +16,6 @@ public class AgentBattery extends Agent {
 	private static final int PROCESS_DATA = 1;
 	private static final int SEND_CONFIRMATION = 2;
 	private static final int FINISH = 3;
-	
 	private static final boolean DEBUG = false;
 	
 	private static final int BATTERY_LIMIT = 5;
@@ -28,11 +27,15 @@ public class AgentBattery extends Agent {
         
 	private int state;
 	private boolean finish;
+	
 	private boolean refuel=false;
+	
 	private final AgentID carName;
 
 
 	/**
+	 * Constructor
+	 * @author Bryan Moreno Picamán
 	 * @param batteryName El nombre de agente para crearlo.
      * @param carName El nombre del agente car (para comunicación)
 	 * 
@@ -46,6 +49,7 @@ public class AgentBattery extends Agent {
 
 	 /**
 	  * Método de inicialización del agente Battery.
+	  * @author Bryan Moreno Picamán
 	  */
 	@Override
 	public void init() {
@@ -53,11 +57,86 @@ public class AgentBattery extends Agent {
 		this.responseObject = new JsonObject();
 		this.state = IDLE;
 		
-		System.out.println("AgentBattery has just started");
+		if(DEBUG)
+			System.out.println("AgentBattery has just started");
+	}
+	
+	/**
+	 * Estado IDLE: espera a la confirmación del server. Si todo va correcto,
+	 * va a PROCESS_DATA, y si no, a FINISH
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateIdle(){
+		if(DEBUG)
+			System.out.println("AgentBattery status: IDLE");
+
+		response = this.receiveMessage();
+
+		if(response.contains("CRASHED") || response.contains("finalize"))
+			this.state = FINISH;
+		else {
+			this.responseObject = Json.parse(response).asObject();
+
+			this.state = PROCESS_DATA;
+		}
+	}
+	
+	/**
+	 * Estado PROCESS_DATA: parsea el mensaje recibido en IDLE y guarda el fuel actual.
+	 * Luego cambia a SEND_CONFIRMATION
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateProcessData(){
+		if(DEBUG)
+			System.out.println("AgentBattery status: PROCESS_DATA");
+
+		float result = responseObject.get("battery").asFloat();
+
+		refuel = result <= BATTERY_LIMIT;
+
+		this.state = SEND_CONFIRMATION;
+	}
+	
+	/**
+	 * Estado SEND_CONFIRMATION: le da la información sobre el fuel al car y 
+	 * vuelve al estado IDLE
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateSendConfirmation(){
+		if(DEBUG)
+			System.out.println("AgentBattery status: SEND_CONFIRMATION");
+
+		this.commandObject = new JsonObject();
+
+		this.commandObject.add("battery", refuel);
+
+		this.sendMessage(carName, commandObject.toString());
+
+		this.state = IDLE;
+	}
+	
+	/**
+	 * Estado FINISH: avisa al car que se va a finalizar este agente
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateFinish(){
+		if(DEBUG)
+			System.out.println("AgentBattery status: FINISH");
+
+		if(this.response.contains("finalize")) {
+			JsonObject confirmationMessage = new JsonObject();
+
+			confirmationMessage.add("battery", "finish");
+
+			this.sendMessage(carName, confirmationMessage.toString());
+		}
+
+		this.finish = true;
 	}
 	
 	/**
 	  * Método de ejecución del agente Battery.
+	  *  @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
 	  */
 	@Override
 	public void execute() {
@@ -68,60 +147,22 @@ public class AgentBattery extends Agent {
 			switch(state) {
 				case IDLE:
 					
-					if(DEBUG)
-						System.out.println("AgentBattery status: IDLE");
-					
-					response = this.receiveMessage();
-					
-					if(response.contains("CRASHED") || response.contains("finalize"))
-						this.state = FINISH;
-					else {
-						this.responseObject = Json.parse(response).asObject();
-
-						this.state = PROCESS_DATA;
-					}
+					stateIdle();
 					
 					break;
 				case PROCESS_DATA:
 					
-					if(DEBUG)
-						System.out.println("AgentBattery status: PROCESS_DATA");
-					
-					float result = responseObject.get("battery").asFloat();
-					
-					refuel = result <= BATTERY_LIMIT;
-					
-					this.state = SEND_CONFIRMATION;
+					stateProcessData();
 					
 					break;
 				case SEND_CONFIRMATION:
 					
-					if(DEBUG)
-						System.out.println("AgentBattery status: SEND_CONFIRMATION");
-					
-					this.commandObject = new JsonObject();
-					
-					this.commandObject.add("battery", refuel);
-					
-					this.sendMessage(carName, commandObject.toString());
-					
-					this.state = IDLE;
+					stateSendConfirmation();
 					
 					break;
 				case FINISH:
 					
-					if(DEBUG)
-						System.out.println("AgentBattery status: FINISH");
-					
-					if(this.response.contains("finalize")) {
-						JsonObject confirmationMessage = new JsonObject();
-						
-						confirmationMessage.add("battery", "finish");
-
-						this.sendMessage(carName, confirmationMessage.toString());
-					}
-					
-					this.finish = true;
+					stateFinish();
 					
 					break;
 			}
@@ -130,6 +171,7 @@ public class AgentBattery extends Agent {
 	
 	/**
 	  * Método de finalización del agente Battery.
+	  *  @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
 	  */
 	@Override
 	public void finalize() {

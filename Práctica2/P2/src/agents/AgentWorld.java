@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 
 /**
  * Clase que define al agente World.
- * @author Bryan Moreno Picamán, Aarón Rodríguez Bueno & Hugo Maldonado.
+ * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
  */
 public class AgentWorld extends Agent {
 	
@@ -50,11 +50,13 @@ public class AgentWorld extends Agent {
 	private final int [][] updateWorld = new int[5][5];
         
 	/**
-	 * @param worldName El nombre de agente para crearlo.
-	 * @param radarName
-	 * @param gpsName
-	 * @param movementName
-     * @param map
+	 * Constructor
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 * @param worldName El nombre de agente.
+	 * @param radarName nombre del agente Radar (para comunicación)
+	 * @param gpsName nombre del agente Gps (para comunicación)
+	 * @param movementName nombre del agente Movement (para comunicación)
+     * @param map nombre del mapa que vamos a intentar resolver.
 	 * 
 	 * @throws java.lang.Exception en la creación del agente.
 	 */
@@ -70,6 +72,7 @@ public class AgentWorld extends Agent {
 	
 	 /**
 	  * Método de inicialización del agente World.
+	  * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
 	  */
 	@Override
 	public void init() {
@@ -101,122 +104,178 @@ public class AgentWorld extends Agent {
 	}
 	
 	/**
+	 * Estado IDLE: esperamos un mensaje. Si es del Gps, le mandamos una confirmación
+	 * de que nos han llegado sus coordenadas y vamos al WAIT_RADAR. En caso contrario,
+	 * vamos a FINISH.
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateIdle(){
+		if(DEBUG)
+			System.out.println("AgentWorld status: IDLE");
+
+		response = this.receiveMessage();
+
+		if(response.contains("CRASHED") || response.contains("finalize"))
+			this.state = FINISH;
+		else {
+			this.responseObject = Json.parse(response).asObject();
+			this.gpsObject = Json.parse(response).asObject();
+
+			String resultGPS = responseObject.get("gps").toString();
+
+			boolean ok = true;
+
+			if(!resultGPS.contains("updated"))
+				ok = this.updateWorld(resultGPS);
+
+			JsonObject sendConfirmation = new JsonObject();
+
+			sendConfirmation.add("gps", ok);
+
+			this.sendMessage(gpsName, sendConfirmation.toString());
+
+			this.state = WAIT_RADAR;
+		}
+	}
+	
+	/**
+	 * Estado WAIT_RADAR: esperamos a que nos lleguen los datos del radar y vamos a
+	 * WARN_RADAR.
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateWaitRadar(){
+		if(DEBUG)
+			System.out.println("AgentWorld status: WAIT_RADAR");
+
+		String responseRadar = this.receiveMessage();
+
+		this.updateWorld(responseRadar);
+
+		this.state = WARN_RADAR;
+	}
+	
+	/**
+	 * Estado WARN_RADAR: le enviamos un mensaje al radar de que nos ha llegado,
+	 * y pasamos al estado WAIT_MOVEMENT.
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateWarnRadar(){
+		if(DEBUG)
+			System.out.println("AgentWorld status: WARN_RADAR");
+
+		this.commandObject = new JsonObject();
+
+		this.commandObject.add("radar","ok");
+
+		this.sendMessage(this.radarName, commandObject.toString());
+
+		this.state = WAIT_MOVEMENT;
+	}
+	
+	/**
+	 * Estado WAIT_MOVEMENT: actualizamos el mundo con el radar y el gps dados
+	 * anteriormente, y pintamos en un JFrame el mundo. Luego esperamos al Movement,
+	 * y avanzamos a SEND_INFO. En caso contrario, vamos a FINISH.
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateWaitMovement(){
+		if(DEBUG)
+			System.out.println("AgentWorld status: WAIT_MOVEMENT");
+
+		// Actualizamos el mundo visualmente
+		m.updateRadarImg(updateWorld, coordX, coordY);
+		m.updateGPSImg(coordX, coordY);
+
+		//jframe.setSize(WIDTH, HEIGHT);
+
+		m.repaint();
+
+		String confirmation = this.receiveMessage();
+
+		JsonObject confirmationObject = Json.parse(confirmation).asObject();
+
+		String confirmationResult = confirmationObject.get("sendWorld").toString();
+
+		if(confirmationResult.contains("request"))
+			this.state = SEND_INFO;
+		else
+			this.state = FINISH;
+	}
+	
+	/**
+	 * Estado SEND_INFO: le mandamos nuestros datos al Movement y volvemos al IDLE.
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateSendInfo(){
+		if(DEBUG)
+			System.out.println("AgentWorld status: SEND_INFO");
+
+		this.sendWorld();
+
+		this.state = IDLE;
+	}
+	
+	/**
+	 * Estado FINISH: avisamos al gps que vamos a morir, y nos preparamos para ello.
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
+	private void stateFinish(){
+		if(DEBUG)
+			System.out.println("AgentWorld status: FINISH");
+
+		if(this.response.contains("finalize")) {
+			JsonObject confirmationMessage = new JsonObject();
+
+			confirmationMessage.add("world", "finish");
+
+			this.sendMessage(gpsName, confirmationMessage.toString());
+		}
+
+		this.finish = true;
+	}
+	
+	/**
 	  * Método de ejecución del agente World.
+	  * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
 	  */
 	@Override
 	public void execute() {
 		
-		System.out.println("AgentWorld execution");
+		if(DEBUG)
+			System.out.println("AgentWorld execution");
 		
 		while(!finish) {
 			switch(state) {   
 				case IDLE:
 					
-					if(DEBUG)
-						System.out.println("AgentWorld status: IDLE");
-					
-					response = this.receiveMessage();
-					
-					if(response.contains("CRASHED") || response.contains("finalize"))
-						this.state = FINISH;
-					else {
-						this.responseObject = Json.parse(response).asObject();
-						this.gpsObject = Json.parse(response).asObject();
-
-						String resultGPS = responseObject.get("gps").toString();
-
-						boolean ok = true;
-						
-						if(!resultGPS.contains("updated"))
-							ok = this.updateWorld(resultGPS);
-						
-						JsonObject sendConfirmation = new JsonObject();
-						
-						sendConfirmation.add("gps", ok);
-						
-						this.sendMessage(gpsName, sendConfirmation.toString());
-
-						this.state = WAIT_RADAR;
-					}
+					stateIdle();
 					
 					break;
 				case WAIT_RADAR:
 					
-					if(DEBUG)
-						System.out.println("AgentWorld status: WAIT_RADAR");
-					
-					String responseRadar = this.receiveMessage();
-					
-					this.updateWorld(responseRadar);
-					
-					this.state = WARN_RADAR;
+					stateWaitRadar();
 					
 					break;                  
 				case WARN_RADAR:
 					
-					if(DEBUG)
-						System.out.println("AgentWorld status: WARN_RADAR");
-					
-					this.commandObject = new JsonObject();
-
-					this.commandObject.add("radar","ok");
-
-					this.sendMessage(this.radarName, commandObject.toString());
-					
-					this.state = WAIT_MOVEMENT;
+					stateWarnRadar();
 
 					break;                
 				case WAIT_MOVEMENT:
 					
-					if(DEBUG)
-						System.out.println("AgentWorld status: WAIT_MOVEMENT");
-					
-					// Actualizamos el mundo visualmente
-					m.updateRadarImg(updateWorld, coordX, coordY);
-					m.updateGPSImg(coordX, coordY);
-					
-					//jframe.setSize(WIDTH, HEIGHT);
-        
-					m.repaint();
-					
-					String confirmation = this.receiveMessage();
-					
-					JsonObject confirmationObject = Json.parse(confirmation).asObject();
-					
-					String confirmationResult = confirmationObject.get("sendWorld").toString();
-                            
-					if(confirmationResult.contains("request"))
-						this.state = SEND_INFO;
-					else
-						this.state = FINISH;
+					stateWaitMovement();
 					
 					break;
                                         
 				case SEND_INFO:
 					
-					if(DEBUG)
-						System.out.println("AgentWorld status: SEND_INFO");
-					
-					this.sendWorld();
-					
-					this.state = IDLE;
+					stateSendInfo();
 					
 					break;
            
 				case FINISH:
 					
-					if(DEBUG)
-						System.out.println("AgentWorld status: FINISH");
-					
-					if(this.response.contains("finalize")) {
-						JsonObject confirmationMessage = new JsonObject();
-						
-						confirmationMessage.add("world", "finish");
-
-						this.sendMessage(gpsName, confirmationMessage.toString());
-					}
-					
-					this.finish = true;
+					stateFinish();
 					
 					break;
 			}
@@ -225,18 +284,26 @@ public class AgentWorld extends Agent {
 	
 	/**
 	  * Método de finalización del agente Coche.
+	  * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
 	  */
 	@Override
 	public void finalize() {
 		
-		System.out.println("AgentWorld has just finished");
+		if(DEBUG)
+			System.out.println("AgentWorld has just finished");
 		
 		super.finalize();
 	}
 
+	/**
+	 * Actualiza el mundo de con los datos obtenidos del radar.
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 * @param resultMessage mensaje del radar
+	 * @return true si se ha actualizado.
+	 */
     private boolean updateWorld(String resultMessage) {
-		
-        //System.out.println("AgentWorld updating world");
+		if(DEBUG)
+			System.out.println("AgentWorld updating world");
 		
 		JsonObject parse = Json.parse(resultMessage).asObject();
 		
@@ -268,7 +335,6 @@ public class AgentWorld extends Agent {
 				posy++;
 			}
 			
-            //m.updateRadarImg(updateWorld, coordX, coordY);
 		}
 		else {
 			coordX = parse.get("x").asInt();
@@ -279,18 +345,15 @@ public class AgentWorld extends Agent {
 			if(map_world[coordY][coordX] != 2)
 				map_world[coordY][coordX] = cont;
             
-            //m.updateGPSImg(coordX, coordY);
 		}
-        
-        //m.calculateImg(map_world, 500, 500, coordX, coordY);
-        
-        /*jframe.setSize(510, 510);
-        
-        m.repaint();*/
         
 		return true;
     }
 
+	/**
+	 * Empaqueta el array del mundo y las coordenadas del gps, y se lo manda a Movement.
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno and Hugo Maldonado
+	 */
     private void sendWorld() {
 		
 		responseObject = new JsonObject(); //Lo limpiamos
@@ -301,12 +364,14 @@ public class AgentWorld extends Agent {
 		this.responseObject.add("x",coordX);
 		this.responseObject.add("y",coordY);
 		
+		//Para el world entero
 		/*for(int i=0; i<HEIGHT; i++) {
 			for(int j=0; j<WIDTH; j++) {
 				vector.add(map_world[i][j]);
 			}
 		}*/
 		
+		//Para el 5x5
 		for(int i=coordY-2; i<=coordY+2; i++) {
 			for(int j=coordX-2; j<=coordX+2; j++) {
 				vector.add(map_world[i][j]);
