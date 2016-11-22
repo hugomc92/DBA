@@ -16,12 +16,11 @@ import javax.swing.JFrame;
 public class AgentWorld extends Agent {
 	
 	private static final int IDLE = 0;
-	private static final int WAIT_GPS= 1;
-	private static final int WAIT_RADAR = 2;
-	private static final int WARN_RADAR = 3;
-	private static final int WAIT_MOVEMENT = 4;
-	private static final int SEND_INFO = 5;
-	private static final int FINISH = 6;
+	private static final int WAIT_RADAR = 1;
+	private static final int WARN_RADAR = 2;
+	private static final int WAIT_MOVEMENT = 3;
+	private static final int SEND_INFO = 4;
+	private static final int FINISH = 5;
     
     JFrame jframe = new JFrame();
     myDrawPanel m = new myDrawPanel();
