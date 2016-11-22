@@ -87,8 +87,7 @@ public class AgentGPS extends Agent {
 		this.finish = false;
 		this.responseObject = new JsonObject();
       	
-		if(DEBUG)
-			System.out.println("AgentGPS has just started");
+		System.out.println("AgentGPS has just started");
 	}
 	
 	/**
@@ -255,7 +254,7 @@ public class AgentGPS extends Agent {
 		this.sendMessage(worldName, "finalize");
 
 		// Mensaje de confirmación de terminación del agente World
-		String message = this.receiveMessage();
+		this.receiveMessage();
 
 		this.state = FINISH;
 	}
@@ -287,8 +286,7 @@ public class AgentGPS extends Agent {
 	@Override
 	public void execute() {
 		
-		if (DEBUG)
-			System.out.println("AgentGPS execution");
+		System.out.println("AgentGPS execution");
 		
 		while(!finish) {
 			switch(state) {
@@ -348,8 +346,7 @@ public class AgentGPS extends Agent {
 	@Override
 	public void finalize() {
 		
-		if(DEBUG)
-			System.out.println("AgentGPS has just finished");
+		System.out.println("AgentGPS has just finished");
 		
 		super.finalize();
 	}
