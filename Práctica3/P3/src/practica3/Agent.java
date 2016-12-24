@@ -48,10 +48,11 @@ public class Agent extends SingleAgent {
 	 * @author Jose David
      * @param messageSend Datos del mensaje
      */
-    public void sendMessage(toSend messageSend) {
+    public void sendMessage(ACLMessage messageSend) {
         ACLMessage outbox = new ACLMessage();
         outbox.setSender(this.getAid());
-        outbox.setReceiver(new AgentID(messageSend.getReceiver()));
+        //outbox.setReceiver(new AgentID(messageSend.getReceiver()));
+        outbox.setReceiver(messageSend.getReceiver());
         outbox.setPerformative(messageSend.getPerformative());
         String content = messageSend.getContent().toString();
         outbox.setContent(content);
@@ -66,21 +67,23 @@ public class Agent extends SingleAgent {
      * @return Contenido del mensaje
      */
     
-    public toReceive receiveMessage() {
+    public ACLMessage receiveMessage() {
         try {
             ACLMessage inbox = this.receiveACLMessage();
             JsonObject content = Json.parse(inbox.getContent()).asObject();
                     
-            toReceive messageReceived = 
+            /*toReceive messageReceived = 
                     new toReceive(
                             inbox.getSender().getLocalName(),
                             inbox.getPerformativeInt(),
                             content);
+            */
             
             System.out.println(
                     getName()+" <----- "+inbox.getSender().getLocalName()+
                     " (" + inbox.getPerformative() + "): "+inbox.getContent());
-            return messageReceived;
+            
+            return inbox;
         } catch (InterruptedException ex) {
             return null;
         }
@@ -92,10 +95,14 @@ public class Agent extends SingleAgent {
      * @param agentName Name of receiver agent 
      * @param result param to send
     */
-    public void sendInform(String agentName, String result) {
+    public void sendInform(AgentID agentName, String result) {
         JsonObject obj = Json.object().add("result", result); 
-        toSend messageToSend = new toSend(agentName, ACLMessage.INFORM, obj);
-        sendMessage(messageToSend);      
+        ACLMessage inbox = new ACLMessage();
+        inbox.setPerformative(ACLMessage.INFORM);
+        inbox.addReceiver(agentName);
+        inbox.setContent(obj.asString());
+        //toSend messageToSend = new toSend(agentName, ACLMessage.INFORM, obj);
+        sendMessage(inbox);      
     }
     
     

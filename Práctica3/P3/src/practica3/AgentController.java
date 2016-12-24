@@ -9,6 +9,7 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,7 +22,7 @@ public class AgentController extends Agent{
     private int state; 
     private boolean mapExplored;
     private String response;
-    
+    private String conversationIDServer;
     
     private final AgentID nameServer;
     private final AgentID car1_name;
@@ -60,6 +61,24 @@ public class AgentController extends Agent{
         
     }
     
+    
+    /**
+     * @author Jose David
+     * Check if exists the file map 
+    */
+    private void stateCheckMap(){
+        
+        String sFichero = "C:/Users/JoseDavid/Desktop/mapa.txt";
+        File fichero=new File(sFichero);
+        
+        if(fichero.exists()){
+            this.state=LOAD_MAP;
+        }else{
+            this.state=SUBS_MAP_EXPLORE;
+        }
+        
+    }
+    
     /**
      * @author Jose David
      * Sends Subscribe message 
@@ -67,8 +86,11 @@ public class AgentController extends Agent{
     */
     private void sendSubscribe(String worldName) {
         JsonObject obj = Json.object().add("world", worldName); 
-        toSend messageToSend = new toSend(nameServer.toString(), ACLMessage.SUBSCRIBE, obj);
-        sendMessage(messageToSend);  
+        ACLMessage inbox = new ACLMessage(ACLMessage.SUBSCRIBE);
+        inbox.setContent(obj.asString());
+        inbox.addReceiver(nameServer);
+        sendMessage(inbox);
+         
     }
     
     
@@ -79,9 +101,12 @@ public class AgentController extends Agent{
      * @throws An exception if we get an error from the Controller
      */
     private String subscribeResult() throws Exception{
-        toReceive messageReceived = receiveMessage();
-        if(messageReceived.getPerformative() == ACLMessage.INFORM) {
-            String result =messageReceived.getContent().get("result").asString();
+        //toReceive messageReceived = receiveMessage();
+        ACLMessage receive=new ACLMessage();
+        if(receive.getPerformativeInt() == ACLMessage.INFORM) {//¿Seguro? 
+            
+            String result =receive.getContent();
+            System.out.println("SUSCRITO. ConvID:"+result);
             return result;
         }       
         
@@ -95,10 +120,10 @@ public class AgentController extends Agent{
      */
     private void sendConversationID(String converID){
         
-        sendInform(car1_name.toString(), converID);
-        sendInform(car2_name.toString(), converID);
-        sendInform(car2_name.toString(), converID);
-        sendInform(car2_name.toString(), converID);
+        sendInform(car1_name, converID);
+        sendInform(car2_name, converID);
+        sendInform(car2_name, converID);
+        sendInform(car2_name, converID);
     }
     
     /**
@@ -108,8 +133,12 @@ public class AgentController extends Agent{
     */
     private void sendCancel() {
         JsonObject obj = Json.object().add("conversationID",this.convIDAgents); 
-        toSend messageToSend = new toSend(nameServer.toString(), ACLMessage.CANCEL, obj);
-        sendMessage(messageToSend); 
+        ACLMessage inbox = new ACLMessage();
+        inbox.setPerformative(ACLMessage.CANCEL);
+        inbox.addReceiver(nameServer);
+        inbox.setContent(obj.asString());
+        //toSend messageToSend = new toSend(nameServer.toString(), ACLMessage.CANCEL, obj);
+        sendMessage(inbox); 
     }
     
     /**
@@ -120,8 +149,12 @@ public class AgentController extends Agent{
     private void sendRequestToDie(AgentID carName) {
         JsonObject obj;
         obj = new JsonObject().add("die","now");
-        toSend messageToSend = new toSend(carName.toString(), ACLMessage.REQUEST, obj);
-        sendMessage(messageToSend);    
+        ACLMessage inbox = new ACLMessage();
+        inbox.setPerformative(ACLMessage.REQUEST);
+        inbox.addReceiver(carName);
+        inbox.setContent(obj.asString());
+        //toSend messageToSend = new toSend(carName.toString(), ACLMessage.REQUEST, obj);
+        sendMessage(inbox);    
     }
     
     
@@ -130,14 +163,59 @@ public class AgentController extends Agent{
      * Receive the message that confirm carX_agent die   
     */
     private boolean dieAccept(){
-        toReceive messageReceived;
-        messageReceived = this.receiveMessage();
+        ACLMessage receive;
+        receive = this.receiveMessage();
         String response;
-        response=messageReceived.getContent().asString();
+        response=receive.getContent();
         if(response.contains("ok")){
             return true;
         }else
             return false;
+    }
+    
+    /**
+     * @author Jose David
+     * Wake up and start the agents car  
+    */
+    private void stateWakeAgentsExplore() throws Exception{
+
+        Agent car1;
+        Agent car2;
+        Agent car3; 
+        Agent car4;
+        
+        car1=new AgentCar(car1_name);
+        car1.start();
+        car2=new AgentCar(car2_name);
+        car2.start();
+        car3=new AgentCar(car3_name);
+        car3.start();
+        car4=new AgentCar(car4_name);
+        car4.start();
+    }
+    
+    
+    /**
+     * @author Jose David
+     * Send a request to all the agents
+     * to die waiting their confirmations
+     * and cancel the subscription
+    */
+    private void stateFinalize(){
+    
+        sendRequestToDie(car1_name);
+        sendRequestToDie(car2_name);
+        sendRequestToDie(car3_name);
+        sendRequestToDie(car4_name);
+        
+        for(int i=0; i<4; i++) {
+            if(dieAccept()){
+                System.out.println("Agent Car :"+i+"die");
+            }
+        }   
+        sendCancel();
+        
+        //FALTA GUARDAR LA TRAZA
     }
     
     
@@ -164,55 +242,27 @@ public class AgentController extends Agent{
 					
 					break;
 				case WAKE_AGENTS_EXPLORE:
-					
-				    Agent car1;
+				
                                     {
                                         try {
-                                            car1=new AgentCar(car1_name);
-                                            car1.start();
+                                            stateWakeAgentsExplore();
                                         } catch (Exception ex) {
                                             Logger.getLogger(AgentController.class.getName()).log(Level.SEVERE, null, ex);
                                         }
                                     }
-                                    Agent car2;
-                                    {
-                                        try {
-                                            car2=new AgentCar(car2_name);
-                                            car2.start();
-                                        } catch (Exception ex) {
-                                            Logger.getLogger(AgentController.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }Agent car3;
-                                    {
-                                        try {
-                                            car3=new AgentCar(car3_name);
-                                            car3.start();
-                                        } catch (Exception ex) {
-                                            Logger.getLogger(AgentController.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }Agent car4;
-                                    {
-                                        try {
-                                            car4=new AgentCar(car4_name);
-                                            car4.start();
-                                        } catch (Exception ex) {
-                                            Logger.getLogger(AgentController.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }
-                                    
                                     this.state=CHECK_AGENTS_EXPLORE;
-					
+                                    
 					break;
 				case CHECK_AGENTS_EXPLORE:
 		
                                     {
                                         try {
-                                            response=subscribeResult();
+                                              conversationIDServer=subscribeResult();
                                         } catch (Exception ex) {
                                             Logger.getLogger(AgentController.class.getName()).log(Level.SEVERE, null, ex);
                                         }
                                     }
-                                    sendConversationID(response);
+                                    sendConversationID(conversationIDServer);
                                     
                                     //Esperamos roles de agentes
                                     
@@ -220,7 +270,8 @@ public class AgentController extends Agent{
                                     
 					break;
 				case RE_RUN:
-					
+					stateFinalize();
+                                        this.state=CHECK_MAP;
 					
 					
 					break;
@@ -236,13 +287,23 @@ public class AgentController extends Agent{
 					break;
 				case CHECK_MAP:
 					
-					
+                                    stateCheckMap();
 					
 					break;
 				case SUBSCRIBE_MAP:
 					
-					
-					
+				    sendSubscribe(mapa);
+                                    {
+                                        try {
+                                            subscribeResult();
+                                            
+                                        } catch (Exception ex) {
+                                            Logger.getLogger(AgentController.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }	
+				     
+                                    this.state=WAKE_AGENTS;
+                                    
 					break;
 				
 				case EXPLORE_MAP:
@@ -252,24 +313,25 @@ public class AgentController extends Agent{
 					break;
                                 case WAKE_AGENTS:
 					
-					
+                                    
+                                    {
+                                        try {
+                                            stateWakeAgentsExplore();
+                                        } catch (Exception ex) {
+                                            Logger.getLogger(AgentController.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                    this.state=CHECK_AGENTS;
+                                   
 					
 					break;
                                 case FINALIZE:
 					
-				    sendRequestToDie(car1_name);
-                                    sendRequestToDie(car2_name);
-                                    sendRequestToDie(car3_name);
-                                    sendRequestToDie(car4_name);
-				
-                                    for(int i=0; i<4; i++) {
-                                        if(dieAccept()){
-                                            System.out.println("Agent Car :"+i+"die");
-                                        }
-                                        
-                                    sendCancel();
+				    
+                                    stateFinalize();
+                                    
                                     //TENEMOS QUE GUARDAR LA TRAZA QUE NOS ENVIA EL SERVER    
-                                    }
+                                    
                                     
 					break;
                                 case FUEL_INFORMATION:
@@ -293,7 +355,16 @@ public class AgentController extends Agent{
 					break;
                                 case CHECK_AGENTS:
 					
-					
+                                    {
+                                        try {
+                                            conversationIDServer=subscribeResult();
+                                        } catch (Exception ex) {
+                                            Logger.getLogger(AgentController.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                    sendConversationID(conversationIDServer);
+                                    
+                                    this.state=SEND_MAP;
 					
 					break;
 			}
