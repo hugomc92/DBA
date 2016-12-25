@@ -201,6 +201,8 @@ public class AgentController extends Agent {
 	
 	/**
 	 * Explorar el mapa
+	 * 
+	 * @author
 	 */
 	private void stateExploreMap() {
 		
@@ -211,6 +213,8 @@ public class AgentController extends Agent {
 	
 	/**
 	 * Guardar el estado del mapa
+	 * 
+	 * @author
 	 */
 	private void stateSaveMap() {
 		
@@ -221,6 +225,8 @@ public class AgentController extends Agent {
 	
 	/**
 	 * Terminar la iteración y volver a empezar otra
+	 * 
+	 * @author
 	 */
 	private void stateReRun() {
 		
@@ -231,6 +237,8 @@ public class AgentController extends Agent {
 	
 	/**
 	 * Cargar el mapa
+	 * 
+	 * @author
 	 */
 	private void stateLoadMap() {
 		
@@ -265,6 +273,8 @@ public class AgentController extends Agent {
 	
 	/**
 	 * Obtener la información de la batería de los agentes
+	 * 
+	 * @author
 	 */
 	private void stateFuelInformation() {
 		
@@ -275,6 +285,8 @@ public class AgentController extends Agent {
 	
 	/**
 	 * Elegir qué agentes van al objetivo y cuáles no
+	 * 
+	 * @author
 	 */
 	private void stateChooseAgents() {
 		
@@ -285,6 +297,8 @@ public class AgentController extends Agent {
 	
 	/**
 	 * Obtener información de los agentes durante su movimiento para evitar colisiones entre ellos
+	 * 
+	 * @author
 	 */
 	private void stateControlAgents() {
 		
