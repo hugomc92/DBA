@@ -4,16 +4,19 @@ package practica3;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -39,11 +42,19 @@ public class AgentController extends Agent {
     private static final int SEND_MAP = 13;
     private static final int CHECK_AGENTS= 14;
 	
+	private static final int WIDTH = 511, HEIGHT = 511;
+	
 	private static final boolean DEBUG = true;
 	
 	private final AgentID serverName;
 	private final AgentID carNames[] = new AgentID[4];
     private final String map;
+	
+	private int [][] mapWorld;
+	private int mapWorldSize;
+	private int mapWorldPosX;
+	private int mapWorldPosY;
+	private boolean mapWorldCompleted;
     
     private int state;
     private String conversationID;
@@ -92,9 +103,16 @@ public class AgentController extends Agent {
 		this.state = CHECK_MAP;
 		
 		this.conversationID = "";
-		wakedAgents = false;
+		this.wakedAgents = false;
 		
-		savedMap = new JsonObject();
+		this.savedMap = new JsonObject();
+		
+		this.mapWorldSize = -1;
+		
+		this.mapWorldPosX = -1;
+		this.mapWorldPosY = -1;
+		
+		this.mapWorldCompleted = false;
 		
 		System.out.println("AgetnController has just started");
 	}
@@ -121,14 +139,29 @@ public class AgentController extends Agent {
 
 			boolean completed = savedMap.get("completed").asBoolean();
 			
-			if(completed)
+			this.mapWorldSize = savedMap.get("tam").asInt();
+			
+			mapWorld = new int[this.mapWorldSize][this.mapWorldSize];
+			
+			if(completed) {
+				this.mapWorldCompleted = true;
+				
 				this.state = SUBSCRIBE_MAP;
-			else
+			}
+			else {
 				this.state = SUBS_MAP_EXPLORE;
+				
+				this.mapWorldPosX = savedMap.get("pos").asObject().get("x").asInt();
+				this.mapWorldPosY = savedMap.get("pos").asObject().get("y").asInt();
+			}
 		} catch(IOException ex) {
 			
 			if(DEBUG)
 				System.out.println("MAP " + map + " NOT FOUND");
+			
+			mapWorld = new int[WIDTH][HEIGHT];
+			
+			this.mapWorldSize = WIDTH;
 			
 			this.state = SUBS_MAP_EXPLORE;
 		}
@@ -243,9 +276,16 @@ public class AgentController extends Agent {
 			}
 			
 			if(flyingFound) {
+				
+				JsonObject messageAccept = new JsonObject(message);
+				
+				messageAccept.add("startX", this.mapWorldPosX);
+				messageAccept.add("startY", this.mapWorldPosY);
+				messageAccept.add("size", this.mapWorldSize);
+				
 				for(AgentID carName : carNames) {
 					if (carName == flyingAgent) {
-						sendMessage(flyingAgent, ACLMessage.ACCEPT_PROPOSAL, "", conversationID, message.asString());
+						sendMessage(flyingAgent, ACLMessage.ACCEPT_PROPOSAL, "", conversationID, messageAccept.asString());
 					} else {
 						sendMessage(flyingAgent, ACLMessage.REJECT_PROPOSAL, "", conversationID, message.asString());	
 					}
@@ -261,27 +301,94 @@ public class AgentController extends Agent {
 	}
 	
 	/**
-	 * Explorar el mapa
+	 * Esperar por la exploración del mapa y guardar en memoria la información
 	 * 
-	 * @author
+	 * @author Hugo Maldonado
 	 */
 	private void stateExploreMap() {
 		
 		if(DEBUG)
 			System.out.println("AgentController state: EXPLORE_MAP");
 		
+		ACLMessage receive = this.receiveMessage();
+		
+		if(receive.getPerformativeInt() == ACLMessage.INFORM) {
+			JsonObject responseObject = Json.parse(receive.getContent()).asObject();
+
+			this.mapWorldSize = responseObject.get("size").asInt();
+
+			this.mapWorldPosX = responseObject.get("finalX").asInt();
+			this.mapWorldPosY = responseObject.get("finalY").asInt();
+
+			this.mapWorldCompleted = responseObject.get("completed").asBoolean();
+
+			int posix = 0, posiy = 0;
+
+			for(JsonValue j : responseObject.get("map").asArray()) {
+				mapWorld[posiy][posix] = j.asInt();
+				posix++;
+
+				if(posix % this.mapWorldSize == 0) {
+					posix = 0;
+					posiy++;
+				}
+			}
+		}
+		else 
+			this.state = FINALIZE;
+		
 	}
 	
 	/**
-	 * Guardar el estado del mapa
+	 * Guardar el estado del mapa en el fichero así como su información relativa
 	 * 
-	 * @author
+	 * @author Hugo Maldonado
 	 */
 	private void stateSaveMap() {
 		
 		if(DEBUG)
 			System.out.println("AgentController state: SAVE_MAP");
 		
+		JsonObject mapToSave = new JsonObject();
+		
+		mapToSave.add("completed", this.mapWorldCompleted);
+		mapToSave.add("tam", this.mapWorldSize);
+		
+		JsonObject pos = new JsonObject();
+		
+		pos.add("x", this.mapWorldPosX);
+		pos.add("y", this.mapWorldPosY);
+		
+		mapToSave.add("pos", pos);
+		
+		// mapToSave.add("direction", "right");
+		
+		JsonArray sendMap = new JsonArray();
+
+		for(int [] i : this.mapWorld){
+			for(int j : i){
+				sendMap.add(j);
+			}
+		}
+
+		mapToSave.add("map", sendMap);
+		
+		File file = new File("maps/" + this.map + ".json");
+		
+		try {
+			FileWriter fileWriter;
+			
+			fileWriter = new FileWriter(file);
+			
+			fileWriter.write(mapToSave.asString());
+			
+			fileWriter.flush();
+			fileWriter.close();
+		} catch(IOException ex) {
+			System.err.println("Error procesing map");
+
+			System.err.println(ex.getMessage());
+		}
 	}
 	
 	/**
@@ -521,6 +628,7 @@ public class AgentController extends Agent {
 	
 	/**
 	 * Guarda la traza en un archivo png. 
+	 * 
 	 * @param trace Array con los datos de la matriz del world
 	 * @param error booleano para ponerle un nombre u otro en función de si la traza
 	 * devuelta ha sido por un error o no.
@@ -557,5 +665,10 @@ public class AgentController extends Agent {
 
 			System.err.println(ex.getMessage());
 		}
+	}
+	
+	private String generateReplyId() {
+		
+		return UUID.randomUUID().toString().substring(0, 5);
 	}
 }
