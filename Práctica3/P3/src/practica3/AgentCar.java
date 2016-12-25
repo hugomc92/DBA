@@ -22,5 +22,38 @@ public class AgentCar extends Agent {
     public AgentCar(AgentID name) throws Exception {
         super(name);
     }
-    
+	
+	/**
+	  * Método de inicialización del agente Coche.
+	  * @author 
+	  */
+	@Override
+	public void init() {
+		
+		System.out.println("AgentCar " + this.getName() + " has just started");
+	}
+	
+	/**
+	 * Ejecución del controlador
+	 * 
+	 * @author 
+	 */
+    @Override
+    public void execute() {
+		
+		System.out.println("AgentCar " + this.getName() + " execution");
+	}
+	
+	/**
+	  * Método de finalización del agente Controlador.
+	  * 
+	  * @author Hugo Maldonado
+	  */
+	@Override
+	public void finalize() {
+		
+		System.out.println("AgentCar " + this.getName() + " has just finished");
+		
+		super.finalize();
+	}
 }

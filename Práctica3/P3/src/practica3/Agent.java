@@ -8,14 +8,11 @@ import es.upv.dsic.gti_ia.core.SingleAgent;
 /**
  * Clase que define una clase abstracta para un agente.
  * 
- * @author JoseDavid, Hugo Maldonado
+ * @author JoseDavid and Hugo Maldonado
  */
 public class Agent extends SingleAgent {
 	
 	private static final boolean DEBUG = true;
-    
-    protected String convIDServer;
-    protected String convIDAgents;
     
     /**
      * Constructor
@@ -60,8 +57,10 @@ public class Agent extends SingleAgent {
     
     /**
      * Recibir mensaje de otro agente
-     * @author Jose David, Hugo Maldonado
-     * @return Contenido del mensaje
+     * 
+     * @return El mensaje entero (ACLMessage)
+	 * 
+	 * @author Jose David, Hugo Maldonado
      */
     
     public ACLMessage receiveMessage() {

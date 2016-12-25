@@ -13,8 +13,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Clase que define al agente controlador
@@ -49,8 +47,7 @@ public class AgentController extends Agent {
     private final AgentID car4Name;
     private final String map;
     
-    private int state; 
-    private boolean mapExplored;
+    private int state;
     private String conversationID;
 	private boolean wakedAgents;
 	private boolean finish = false;
@@ -81,10 +78,23 @@ public class AgentController extends Agent {
         this.car4Name = car4Name;
 		
         this.map = map;
-		this.conversationID = "";
-		wakedAgents = false;
     }
 	
+	/**
+	  * Método de inicialización del agente Coche.
+	  * 
+	  * @author Hugo Maldonado
+	  */
+	@Override
+	public void init() {
+		
+		this.state = CHECK_MAP;
+		
+		this.conversationID = "";
+		wakedAgents = false;
+		
+		System.out.println("AgetnController has just started");
+	}
 	
 	/**
 	 * Comprobar si el mapa está explorado o no
@@ -92,8 +102,11 @@ public class AgentController extends Agent {
      * @author Hugo Maldonado
     */
     private void stateCheckMap() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: CHECK_MAP");
         
-        String path = "/maps/" + this.map;
+        String path = "maps/" + this.map;
 		
         File file = new File(path);
         
@@ -114,7 +127,6 @@ public class AgentController extends Agent {
             this.state = SUBS_MAP_EXPLORE;
         } 
     }
-    
 	
 	/**
 	 * Subscribirse al mapa.
@@ -142,21 +154,6 @@ public class AgentController extends Agent {
 		else
 			return false;
 	}
-	
-	
-	/**
-	 * Funcionalidad del estado de subscribirse al mapa para la exploración del mismo
-	 * 
-	 * @author Hugo Maldonado
-	 */
-	private void stateSubMapExplore() {
-		
-		if(this.subscribe())
-			this.state = WAKE_AGENTS_EXPLORE;
-		else
-			this.state = FINALIZE;
-	}
-	
 	
 	/**
      * Despertar y lanzar el resto de agentes.
@@ -190,24 +187,111 @@ public class AgentController extends Agent {
 		}
     }
 	
-	
 	/**
-	 * Mandarle el conversationId a todos los agentes y empezar la negociación
+	 * Mandarle el conversationId a todos los agentes y empezar la negociación para ver quién va a explorar el mapa
+	 * 
+	 * @author
 	 */
 	private void stateCheckAgentsExplore() {
 		
+		if(DEBUG)
+			System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
 		
 	}
 	
+	/**
+	 * Explorar el mapa
+	 */
+	private void stateExploreMap() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: EXPLORE_MAP");
+		
+	}
+	
+	/**
+	 * Guardar el estado del mapa
+	 */
+	private void stateSaveMap() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: SAVE_MAP");
+		
+	}
+	
+	/**
+	 * Terminar la iteración y volver a empezar otra
+	 */
+	private void stateReRun() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: RE_RUN");
+		
+	}
+	
+	/**
+	 * Cargar el mapa
+	 */
+	private void stateLoadMap() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: LOAD_MAP");
+		
+	}
 	
 	/**
 	 * Mandarle el conversationId a todos los agentes y esperar sus capacidades
+	 * 
+	 * @author
 	 */
 	private void stateCheckAgents() {
 		
+		if(DEBUG)
+			System.out.println("AgentController state: CHECK_AGENTS");
 		
 	}
 	
+	/**
+	 * Enviar el mapa al resto de agentes
+	 * 
+	 * @author
+	 */
+	private void stateSendMap() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: SEND_MAP");
+		
+	}
+	
+	/**
+	 * Obtener la información de la batería de los agentes
+	 */
+	private void stateFuelInformation() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: FUEL_INFORMATION");
+		
+	}
+	
+	/**
+	 * Elegir qué agentes van al objetivo y cuáles no
+	 */
+	private void stateChooseAgents() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: FUEL_INFORMATION");
+		
+	}
+	
+	/**
+	 * Obtener información de los agentes durante su movimiento para evitar colisiones entre ellos
+	 */
+	private void stateControlAgents() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: FUEL_INFORMATION");
+		
+	}
 	
 	/**
      * Si se han levantado los agentes, matarlos y hacer el CANCEL de la subscripción
@@ -215,6 +299,9 @@ public class AgentController extends Agent {
 	 * @author Jose David and Hugo Maldonado
     */
     private void stateFinalize() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: FINALIZE");
 		
 		// Matar los agentes si es necesario
 		if(this.wakedAgents) {
@@ -228,7 +315,7 @@ public class AgentController extends Agent {
 			for(int i=0; i<4; i++) {
 				ACLMessage receive = this.receiveMessage();
 				
-				if(receive.getPerformativeInt() == ACLMessage.AGREE && DEBUG)
+				if(receive.getPerformativeInt() == ACLMessage.AGREE)
 					System.out.println("Agent Car :" + i + "die");
 			}
 		}
@@ -240,8 +327,7 @@ public class AgentController extends Agent {
 		
 		// Terminar la ejecución
 		this.finish = true;
-    }
-    
+    } 
     
 	/**
 	 * Ejecución del controlador
@@ -250,7 +336,8 @@ public class AgentController extends Agent {
 	 */
     @Override
     public void execute() {
-        System.out.println("AgentCar execution");
+        
+		System.out.println("AgentController execution");
 		
 		while(!finish) {
 			switch(state) {
@@ -261,10 +348,19 @@ public class AgentController extends Agent {
 					break;
 				case SUBS_MAP_EXPLORE:
 					
-					this.stateSubMapExplore();
+					if(DEBUG)
+						System.out.println("AgentController state: SUBS_MAP_EXPLORE");
+					
+					if(this.subscribe())
+						this.state = WAKE_AGENTS_EXPLORE;
+					else
+						this.state = FINALIZE;
 					
 					break;
 				case WAKE_AGENTS_EXPLORE:
+					
+					if(DEBUG)
+						System.out.println("AgentController state: WAKE_AGENTS_EXPLORE");
 					
 					if(this.wakeAgents())
 						this.state = CHECK_AGENTS_EXPLORE;
@@ -278,21 +374,40 @@ public class AgentController extends Agent {
           
 					break;
 				case EXPLORE_MAP:
+					
+					this.stateExploreMap();
 
 					break;
 				case SAVE_MAP:
 					
+					this.stateSaveMap();
+					
 					break;
 				case RE_RUN:
+					
+					this.stateReRun();
 					
 					break;
 				case LOAD_MAP:
 					
+					this.stateLoadMap();
+					
 					break;
 				case SUBSCRIBE_MAP:
 					
+					if(DEBUG)
+						System.out.println("AgentController state: SUBSCRIBE_MAP");
+					
+					if(this.subscribe())
+						this.state = WAKE_AGENTS_EXPLORE;
+					else
+						this.state = FINALIZE;
+					
 					break;
 				case WAKE_AGENTS:
+					
+					if(DEBUG)
+						System.out.println("AgentController state: WAKE_AGENTS");
 					
 					if(this.wakeAgents())
 						this.state = CHECK_AGENTS;
@@ -307,28 +422,52 @@ public class AgentController extends Agent {
 					break;
 				case SEND_MAP:
 					
+					this.stateSendMap();
+					
 					break;
 				case FUEL_INFORMATION:
+					
+					this.stateFuelInformation();
 					
 					break;
 				case CHOOSE_AGENTS:
 					
+					this.stateChooseAgents();
+					
 					break;
                 case CONTROL_AGENTS:
 					
+					this.stateControlAgents();
+					
 					break;
                 case FINALIZE:
-						stateFinalize();  
+					
+					this.stateFinalize();  
+					
 					break;
 			}
 		}
     }
 	
 	/**
+	  * Método de finalización del agente Controlador.
+	  * 
+	  * @author Hugo Maldonado
+	  */
+	@Override
+	public void finalize() {
+		
+		System.out.println("AgentController has just finished");
+		
+		super.finalize();
+	}
+	
+	/**
 	 * Guarda la traza en un archivo png. 
 	 * @param trace Array con los datos de la matriz del world
 	 * @param error booleano para ponerle un nombre u otro en función de si la traza
 	 * devuelta ha sido por un error o no.
+	 * 
 	 * @author Hugo Maldonado
 	 */
 	private void printTrace(JsonArray trace, boolean error) {
