@@ -129,20 +129,16 @@ public class AgentController extends Agent {
 			
 			System.out.println("Map completed: " + completed);
 			
-			this.state = FINALIZE;
-
-			/*if(completed)s
+			if(completed)
 				this.state = SUBSCRIBE_MAP;
 			else
-				this.state = SUBS_MAP_EXPLORE;*/
+				this.state = SUBS_MAP_EXPLORE;
 		} catch(IOException ex) {
 			
 			if(DEBUG)
 				System.out.println("MAP " + map + " NOT FOUND");
 			
-			//this.state = SUBS_MAP_EXPLORE;
-			
-			this.state = FINALIZE;
+			this.state = SUBS_MAP_EXPLORE;
 		}
     }
 	
@@ -341,7 +337,7 @@ public class AgentController extends Agent {
 		}
 		
 		// Mandar el CANCEL
-		//sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
+		sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
         
         // Guardar la traza si es necesario
 		
