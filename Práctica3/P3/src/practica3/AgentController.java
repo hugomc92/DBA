@@ -42,10 +42,7 @@ public class AgentController extends Agent {
 	private static final boolean DEBUG = true;
 	
 	private final AgentID serverName;
-    private final AgentID car1Name;
-    private final AgentID car2Name;
-    private final AgentID car3Name;
-    private final AgentID car4Name;
+	private final AgentID carNames[] = new AgentID[4];
     private final String map;
     
     private int state;
@@ -75,10 +72,11 @@ public class AgentController extends Agent {
         super(name);
 		
         this.serverName = serverName;
-        this.car1Name = car1Name;
-        this.car2Name = car2Name;
-        this.car3Name = car3Name;
-        this.car4Name = car4Name;
+		
+		this.carNames[0] = car1Name;
+        this.carNames[1] = car2Name;
+		this.carNames[2] = car3Name;
+		this.carNames[3] = car4Name;
 		
         this.map = map;
     }
@@ -119,15 +117,9 @@ public class AgentController extends Agent {
 
 			String fileString = IOUtils.toString(fisTargetFile, "UTF-8");
 			
-			System.out.println("fileString: " + fileString);
-			
 			this.savedMap = Json.parse(fileString).asObject();
-			
-			System.out.println("SavedMap" + savedMap.toString());
 
 			boolean completed = savedMap.get("completed").asBoolean();
-			
-			System.out.println("Map completed: " + completed);
 			
 			if(completed)
 				this.state = SUBSCRIBE_MAP;
@@ -177,16 +169,16 @@ public class AgentController extends Agent {
     private boolean wakeAgents() {
         
 		try {
-			Agent car1=new AgentCar(car1Name);
+			Agent car1=new AgentCar(carNames[0]);
 			car1.start();
 			
-			Agent car2=new AgentCar(car2Name);
+			Agent car2=new AgentCar(carNames[1]);
 			car2.start();
 			
-			Agent car3=new AgentCar(car3Name);
+			Agent car3=new AgentCar(carNames[2]);
 			car3.start();
 			
-			Agent car4=new AgentCar(car4Name);
+			Agent car4=new AgentCar(carNames[3]);
 			car4.start();
 			
 			this.wakedAgents = true;
@@ -204,13 +196,68 @@ public class AgentController extends Agent {
 	/**
 	 * Mandarle el conversationId a todos los agentes y empezar la negociación para ver quién va a explorar el mapa
 	 * 
-	 * @author
+	 * @author Hugo Maldonado
 	 */
 	private void stateCheckAgentsExplore() {
 		
 		if(DEBUG)
 			System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
 		
+		JsonObject message = new JsonObject();
+		
+		message.add("conversationID-server", this.conversationID);
+		
+		for(AgentID carName : carNames) {
+			sendMessage(carName, ACLMessage.INFORM, "", conversationID, message.asString());
+		}
+		
+		boolean startCFP = true;
+		
+		for(int i=0; i<4; i++) {
+			ACLMessage receive = this.receiveMessage();
+			
+			if(receive.getPerformativeInt() != ACLMessage.INFORM)
+				startCFP = false;
+		}
+		
+		message = new JsonObject();
+		
+		message.add("checkMap", "flying");
+		
+		if(startCFP) {
+			for(AgentID carName : carNames) {
+				sendMessage(carName, ACLMessage.CFP, "", conversationID, message.asString());
+			}
+			
+			boolean flyingFound = false;
+			AgentID flyingAgent = null;
+			
+			for(int i=0; i<4 && flyingFound; i++) {
+				ACLMessage receive = this.receiveMessage();
+
+				if(receive.getPerformativeInt() == ACLMessage.AGREE) {
+					flyingFound = true;
+					
+					flyingAgent = receive.getSender();
+				}	
+			}
+			
+			if(flyingFound) {
+				for(AgentID carName : carNames) {
+					if (carName == flyingAgent) {
+						sendMessage(flyingAgent, ACLMessage.ACCEPT_PROPOSAL, "", conversationID, message.asString());
+					} else {
+						sendMessage(flyingAgent, ACLMessage.REJECT_PROPOSAL, "", conversationID, message.asString());	
+					}
+					
+					this.state = EXPLORE_MAP;
+				}
+			}
+			else 
+				this.state = RE_RUN;
+		}
+		else 
+			this.state = FINALIZE;
 	}
 	
 	/**
@@ -323,10 +370,9 @@ public class AgentController extends Agent {
 		if(this.wakedAgents) {
 			JsonObject message = new JsonObject().add("die", "now");
 			
-			sendMessage(car1Name, ACLMessage.REQUEST, "", conversationID, message.asString());    
-			sendMessage(car2Name, ACLMessage.REQUEST, "", conversationID, message.asString());    
-			sendMessage(car3Name, ACLMessage.REQUEST, "", conversationID, message.asString());    
-			sendMessage(car4Name, ACLMessage.REQUEST, "", conversationID, message.asString());  
+			for(AgentID carName : carNames) {
+				sendMessage(carName, ACLMessage.REQUEST, "", conversationID, message.asString());    
+			}
 			
 			for(int i=0; i<4; i++) {
 				ACLMessage receive = this.receiveMessage();
