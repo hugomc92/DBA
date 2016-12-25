@@ -1,0 +1,10 @@
+{
+	"completed": true,
+	"tam": 100,
+	"pos": {
+		"x": 1,
+		"y": 2
+	},
+	"direction": "left",
+	"map": [0,0,0,0,0,0,0]
+}

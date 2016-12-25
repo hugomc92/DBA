@@ -7,12 +7,14 @@ import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Clase que define al agente controlador
@@ -26,17 +28,16 @@ public class AgentController extends Agent {
     private static final int CHECK_AGENTS_EXPLORE = 2;
     private static final int RE_RUN = 3;
     private static final int SAVE_MAP = 4;
-    private static final int LOAD_MAP = 5;
-    private static final int CHECK_MAP = 6;
-    private static final int SUBSCRIBE_MAP = 7;
-    private static final int EXPLORE_MAP = 8;
-    private static final int WAKE_AGENTS = 9;
-    private static final int FINALIZE = 10;
-    private static final int FUEL_INFORMATION = 11;
-    private static final int CHOOSE_AGENTS = 12;
-    private static final int CONTROL_AGENTS= 13;
-    private static final int SEND_MAP = 14;
-    private static final int CHECK_AGENTS= 15;
+    private static final int CHECK_MAP = 5;
+    private static final int SUBSCRIBE_MAP = 6;
+    private static final int EXPLORE_MAP = 7;
+    private static final int WAKE_AGENTS = 8;
+    private static final int FINALIZE = 9;
+    private static final int FUEL_INFORMATION = 10;
+    private static final int CHOOSE_AGENTS = 11;
+    private static final int CONTROL_AGENTS= 12;
+    private static final int SEND_MAP = 13;
+    private static final int CHECK_AGENTS= 14;
 	
 	private static final boolean DEBUG = true;
 	
@@ -51,6 +52,8 @@ public class AgentController extends Agent {
     private String conversationID;
 	private boolean wakedAgents;
 	private boolean finish = false;
+	
+	private JsonObject savedMap;
     
 	/**
 	 * Constructor 
@@ -93,6 +96,8 @@ public class AgentController extends Agent {
 		this.conversationID = "";
 		wakedAgents = false;
 		
+		savedMap = new JsonObject();
+		
 		System.out.println("AgetnController has just started");
 	}
 	
@@ -104,28 +109,41 @@ public class AgentController extends Agent {
     private void stateCheckMap() {
 		
 		if(DEBUG)
-			System.out.println("AgentController state: CHECK_MAP");
+			System.out.println("AgentController state: CHECK_MAP"); 
         
-        String path = "maps/" + this.map;
-		
-        File file = new File(path);
-        
-        if(file.exists()) {
-			// Pasar el fichero a un JsonObject
-			JsonObject savedMap = new JsonObject();
+        String path = "maps/" + this.map + ".json";
+
+		// Pasar el fichero a un JsonObject
+		try {
+			FileInputStream fisTargetFile = new FileInputStream(new File(path));
+
+			String fileString = IOUtils.toString(fisTargetFile, "UTF-8");
 			
-			// FALTA LA LECTURA DEL FICHERO EN EL JSON OBJECT
+			System.out.println("fileString: " + fileString);
 			
-            boolean completed = savedMap.get("completed").asBoolean();
+			this.savedMap = Json.parse(fileString).asObject();
 			
-			if(completed)
-				this.state = LOAD_MAP;
+			System.out.println("SavedMap" + savedMap.toString());
+
+			boolean completed = savedMap.get("completed").asBoolean();
+			
+			System.out.println("Map completed: " + completed);
+			
+			this.state = FINALIZE;
+
+			/*if(completed)s
+				this.state = SUBSCRIBE_MAP;
 			else
-				this.state = SUBS_MAP_EXPLORE;
-        }
-		else {
-            this.state = SUBS_MAP_EXPLORE;
-        } 
+				this.state = SUBS_MAP_EXPLORE;*/
+		} catch(IOException ex) {
+			
+			if(DEBUG)
+				System.out.println("MAP " + map + " NOT FOUND");
+			
+			//this.state = SUBS_MAP_EXPLORE;
+			
+			this.state = FINALIZE;
+		}
     }
 	
 	/**
@@ -236,18 +254,6 @@ public class AgentController extends Agent {
 	}
 	
 	/**
-	 * Cargar el mapa
-	 * 
-	 * @author
-	 */
-	private void stateLoadMap() {
-		
-		if(DEBUG)
-			System.out.println("AgentController state: LOAD_MAP");
-		
-	}
-	
-	/**
 	 * Mandarle el conversationId a todos los agentes y esperar sus capacidades
 	 * 
 	 * @author
@@ -335,7 +341,7 @@ public class AgentController extends Agent {
 		}
 		
 		// Mandar el CANCEL
-		sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
+		//sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
         
         // Guardar la traza si es necesario
 		
@@ -400,11 +406,6 @@ public class AgentController extends Agent {
 				case RE_RUN:
 					
 					this.stateReRun();
-					
-					break;
-				case LOAD_MAP:
-					
-					this.stateLoadMap();
 					
 					break;
 				case SUBSCRIBE_MAP:
