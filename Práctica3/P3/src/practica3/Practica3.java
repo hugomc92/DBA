@@ -1,32 +1,56 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package practica3;
 
 import es.upv.dsic.gti_ia.core.AgentID;
+import es.upv.dsic.gti_ia.core.AgentsConnection;
 import java.util.UUID;
 
 /**
  *
- * @author JoseDavid
+ * @author JoseDavid and Hugo Maldonado
  */
 public class Practica3 {
 
     private static final AgentID SERVER_AGENT = new AgentID("Izar");
 	
-	// Generamos los nombres de los agentes de forma aleatoria y Ãºnica en cada ejecuciÃ³n para evitar la duplicidad de nombres con otros agentes en la plataforma
-	// Son constantes durante toda la ejecuciÃ³n.
+	// Generamos los nombres de los agentes de forma aleatoria y única en cada ejecución para evitar la duplicidad de nombres con otros agentes en la plataforma
+	// Son constantes durante toda la ejecución.
 	private static final AgentID CONTROLLER_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
+	private static final String MAP = "map1";
 	private static final AgentID CAR1_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
 	private static final AgentID CAR2_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
 	private static final AgentID CAR3_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
 	private static final AgentID CAR4_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5));
 	
-    
+    /**
+	 * Inicio del programa
+	 * @param args Argumentos de la línea de comandos al iniciar el programa
+	 * 
+	 * @author Hugo Maldonado
+	 */
     public static void main(String[] args) {
-        // TODO code application logic here
+		
+		// Nuestra configuración privada de conexión con el servidor
+		AgentsConnection.connect("isg2.ugr.es", 6000, SERVER_AGENT.getLocalName(), "Cadenas", "Toro", false);
+		
+		// Lanzamos el agente controlador de los demás
+		try {
+			AgentController controller = new AgentController(CONTROLLER_NAME, SERVER_AGENT, MAP, CAR1_NAME, CAR2_NAME, CAR3_NAME, CAR4_NAME);
+
+			controller.start();
+			
+			System.out.println("\nINFORMATION:");
+			System.out.println("MAP: " + MAP);
+			System.out.println("CAR 1: " + CAR1_NAME.getLocalName());
+			System.out.println("CAR 2: " + CAR2_NAME.getLocalName());
+			System.out.println("CAR 3: " + CAR3_NAME.getLocalName());
+			System.out.println("CAR 4: " + CAR4_NAME.getLocalName());
+		} catch(Exception ex) {
+			System.err.println("Error starting controller");
+
+			System.err.println(ex.getMessage());
+			
+			System.exit(-1);
+		}
     }
-    
 }

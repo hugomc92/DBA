@@ -1,111 +1,79 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package practica3;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
 
 /**
- *
- * @author JoseDavid
+ * Clase que define una clase abstracta para un agente.
+ * 
+ * @author JoseDavid, Hugo Maldonado
  */
 public class Agent extends SingleAgent {
+	
+	private static final boolean DEBUG = true;
     
     protected String convIDServer;
     protected String convIDAgents;
     
     /**
      * Constructor
-	 * @author Jose David
-     * @param name Nombre del agente
+     * @param aid ID del agente
      * @throws Exception 
+	 * 
+	 * @author Jose David, Hugo Maldonado
      */
-    public Agent(AgentID name) throws Exception {
+    public Agent(AgentID aid) throws Exception {
 		
-        super(name);   
-    }
-    
-    /**
-     * Obtiene el nombre de un agente
-	 * @author Jose David
-     * @return Nombre del agente
-     */
-    
-    @Override
-    public String getName() {
-		
-        return this.getAid().getLocalName();
+        super(aid);   
     }
 
     /**
      * Envia un mensaje a otro agente
-	 * @author Jose David
-     * @param messageSend Datos del mensaje
+	 * @param receiver El agente que va a recivir el mensaje
+	 * @param performative La performativa usada para la transmisión del mensaje
+	 * @param replyWidth El id al que se tiene que responder
+	 * @param conversationId El Id de la conversación
+	 * @param message El mensaje a enviar
+	 * 
+	 * @author Hugo Maldonado
      */
-    public void sendMessage(ACLMessage messageSend) {
-        ACLMessage outbox = new ACLMessage();
-        outbox.setSender(this.getAid());
-        //outbox.setReceiver(new AgentID(messageSend.getReceiver()));
-        outbox.setReceiver(messageSend.getReceiver());
-        outbox.setPerformative(messageSend.getPerformative());
-        String content = messageSend.getContent().toString();
-        outbox.setContent(content);
-        this.send(outbox);
-        System.out.println(getName()+" -----> "+messageSend.getReceiver()+
-                            " (" + outbox.getPerformative() + "): "+content);
+    public void sendMessage(AgentID receiver, int performative, String replyWidth, String conversationId, String message) {
+        
+		ACLMessage outbox = new ACLMessage();
+        
+		outbox.setSender(this.getAid());
+        outbox.setReceiver(receiver);
+		
+        outbox.setPerformative(performative);
+		outbox.setReplyWith(replyWidth);
+		outbox.setConversationId(conversationId);
+                
+		outbox.setContent(message);
+        
+		this.send(outbox);
+		
+		if(DEBUG)
+			System.out.println(this.getName() + " -----> " + receiver.getLocalName() + " (" + outbox.getPerformative() + "): " + message);
     }
     
     /**
      * Recibir mensaje de otro agente
-     * @author Jose David
+     * @author Jose David, Hugo Maldonado
      * @return Contenido del mensaje
      */
     
     public ACLMessage receiveMessage() {
         try {
             ACLMessage inbox = this.receiveACLMessage();
-            JsonObject content = Json.parse(inbox.getContent()).asObject();
-                    
-            /*toReceive messageReceived = 
-                    new toReceive(
-                            inbox.getSender().getLocalName(),
-                            inbox.getPerformativeInt(),
-                            content);
-            */
-            
-            System.out.println(
-                    getName()+" <----- "+inbox.getSender().getLocalName()+
-                    " (" + inbox.getPerformative() + "): "+inbox.getContent());
+           
+			if(DEBUG)
+				System.out.println(this.getName() + " <----- " + inbox.getSender().getLocalName() + " (" + inbox.getPerformative() + "): " + inbox.getContent());
             
             return inbox;
         } catch (InterruptedException ex) {
             return null;
         }
     }
-    
-    /**
-     * @author Jose David
-     * Sends an Inform message to an agent
-     * @param agentName Name of receiver agent 
-     * @param result param to send
-    */
-    public void sendInform(AgentID agentName, String result) {
-        JsonObject obj = Json.object().add("result", result); 
-        ACLMessage inbox = new ACLMessage();
-        inbox.setPerformative(ACLMessage.INFORM);
-        inbox.addReceiver(agentName);
-        inbox.setContent(obj.asString());
-        //toSend messageToSend = new toSend(agentName, ACLMessage.INFORM, obj);
-        sendMessage(inbox);      
-    }
-    
-    
-    
-
 }
