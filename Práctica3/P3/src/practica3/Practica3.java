@@ -35,10 +35,11 @@ public class Practica3 {
 		
 		// Lanzamos el agente controlador de los demás
 		try {
+      // Se inicializa el agente controlador y se le pasa la ID para todos los agent car que se van a despertar
 			AgentController controller = new AgentController(CONTROLLER_NAME, SERVER_AGENT, MAP, CAR1_NAME, CAR2_NAME, CAR3_NAME, CAR4_NAME);
-
+      //Se lanza el agente controlador
 			controller.start();
-			
+			//Se muestra información cobre el mapa y los coches.
 			System.out.println("\nINFORMATION:");
 			System.out.println("MAP: " + MAP);
 			System.out.println("CAR 1: " + CAR1_NAME.getLocalName());

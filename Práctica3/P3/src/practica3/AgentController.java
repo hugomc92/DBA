@@ -1,4 +1,3 @@
-
 package practica3;
 
 import com.eclipsesource.json.Json;
@@ -22,11 +21,11 @@ import org.apache.commons.io.IOUtils;
 /**
  * Clase que define al agente controlador
  * 
- * @author JoseDavid and Hugo Maldonado
+ * @author JoseDavid , Hugo Maldonado and Bryan Moreno
  */
 public class AgentController extends Agent {
 	
-	private static final int SUBS_MAP_EXPLORE = 0;
+    private static final int SUBS_MAP_EXPLORE = 0;
     private static final int WAKE_AGENTS_EXPLORE = 1;
     private static final int CHECK_AGENTS_EXPLORE = 2;
     private static final int RE_RUN = 3;
@@ -42,53 +41,52 @@ public class AgentController extends Agent {
     private static final int SEND_MAP = 13;
     private static final int CHECK_AGENTS= 14;
 	
-	private static final int WIDTH = 511, HEIGHT = 511;
+    private static final int WIDTH = 511, HEIGHT = 511;
 	
-	private static final boolean DEBUG = true;
+    private static final boolean DEBUG = true;
 	
-	private final AgentID serverName;
-	private final AgentID carNames[] = new AgentID[4];
+    private final AgentID serverName;
+    private final AgentID carNames[] = new AgentID[4];
     private final String map;
-	
-	private int [][] mapWorld;
-	private int mapWorldSize;
-	private int mapWorldPosX;
-	private int mapWorldPosY;
-	private boolean mapWorldCompleted;
+    
+    private int [][] mapWorld;
+    private int mapWorldSize;
+    private int mapWorldPosX;
+    private int mapWorldPosY;
+    private boolean mapWorldCompleted;
     
     private int state;
     private String conversationID;
-	private boolean wakedAgents;
-	private boolean finish = false;
-	
-	private JsonObject savedMap;
-    
-	/**
-	 * Constructor 
-	 * 
-	 * @param name El nombre de éste agente
-	 * @param serverName El nombre del servidor
-	 * @param map El nombre del mapa al que vamos a loguearnos
-	 * @param car1Name El nombre del primer agente.
-	 * @param car2Name El nombre del segundo agente.
-	 * @param car3Name El nombre del tercer agente.
-	 * @param car4Name El nombre del cuarto agente.
-	 * 
-	 * @throws Exception
-	 * 
-	 * @author JoseDavid and Hugo Maldonado
-	 */
+    private boolean wakedAgents;
+    private boolean finish = false;
+
+    private JsonObject savedMap;
+
+    /**
+     * Constructor 
+     * 
+     * @param name El nombre de éste agente
+     * @param serverName El nombre del servidor
+     * @param map El nombre del mapa al que vamos a loguearnos
+     * @param car1Name El nombre del primer agente.
+     * @param car2Name El nombre del segundo agente.
+     * @param car3Name El nombre del tercer agente.
+     * @param car4Name El nombre del cuarto agente.
+     * 
+     * @throws Exception
+     * 
+     * @author JoseDavid and Hugo Maldonado
+     */
     public AgentController(AgentID name, AgentID serverName, String map, AgentID car1Name, AgentID car2Name, AgentID car3Name, AgentID car4Name) throws Exception {
 		
         super(name);
-		
-        this.serverName = serverName;
-		
-		this.carNames[0] = car1Name;
+		//Inicializamos los nombres del servidor y los agentCar
+        this.serverName = serverName;	
+        this.carNames[0] = car1Name;
         this.carNames[1] = car2Name;
-		this.carNames[2] = car3Name;
-		this.carNames[3] = car4Name;
-		
+        this.carNames[2] = car3Name;
+        this.carNames[3] = car4Name;
+        //Se almacena el mapa en el que vamos a trabajar.
         this.map = map;
     }
 	
@@ -99,7 +97,7 @@ public class AgentController extends Agent {
 	  */
 	@Override
 	public void init() {
-		
+		//Iniciamos en el estado de chequeo del mapa para ver si está completo o necesitamos seguir explorando.
 		this.state = CHECK_MAP;
 		
 		this.conversationID = "";
@@ -129,60 +127,50 @@ public class AgentController extends Agent {
         
         String path = "maps/" + this.map + ".json";
 
-		// Pasar el fichero a un JsonObject
+		//Leemos el fichero de "mapa" y lo pasamos a JSon
 		try {
 			FileInputStream fisTargetFile = new FileInputStream(new File(path));
-
 			String fileString = IOUtils.toString(fisTargetFile, "UTF-8");
-			
 			this.savedMap = Json.parse(fileString).asObject();
-
 			boolean completed = savedMap.get("completed").asBoolean();
-			
 			this.mapWorldSize = savedMap.get("tam").asInt();
-			
 			mapWorld = new int[this.mapWorldSize][this.mapWorldSize];
-			
+			//Miramos si el estado del mapa guardado es "completo" (ya se conoce todo el mapa)
 			if(completed) {
+                //Marcamos la bandera en caso afirmativo y pasamos al estado de subscripción al mapa
 				this.mapWorldCompleted = true;
-				
 				this.state = SUBSCRIBE_MAP;
 			}
 			else {
+                //Pasamos al modo exploración y almacenamos la posición desde la que seguimos explorando"
 				this.state = SUBS_MAP_EXPLORE;
-				
 				this.mapWorldPosX = savedMap.get("pos").asObject().get("x").asInt();
 				this.mapWorldPosY = savedMap.get("pos").asObject().get("y").asInt();
 			}
 		} catch(IOException ex) {
-			
+			//No existe mapa previo, por lo que entramos en modo exploración y inicializamos las estructuras necesarias.
 			if(DEBUG)
 				System.out.println("MAP " + map + " NOT FOUND");
 			
 			mapWorld = new int[WIDTH][HEIGHT];
-			
 			this.mapWorldSize = WIDTH;
-			
 			this.state = SUBS_MAP_EXPLORE;
 		}
     }
 	
 	/**
-	 * Subscribirse al mapa.
-	 * 
-	 * Es un método aparte porque se va a utilizar en varios estados.
+	 * Subscribirse al mapa. Devuelve un booleano true si ha conseguido subscribirse.
+     * Es un método aparte porque se va a utilizar en varios estados.
 	 * 
 	 * @author Hugo Maldonado
 	 */
 	private boolean subscribe() {
-		
-		JsonObject obj = Json.object().add("world", map); 
-		
+		JsonObject obj = Json.object().add("world", map);
 		sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
-		
         ACLMessage receive = new ACLMessage();
 		
         if(receive.getPerformativeInt() == ACLMessage.INFORM) {
+            //Si el mensaje que obtenemos es un INFORM almacenamos el conversationID, para su uso posterior
             this.conversationID = receive.getConversationId();
 			
 			if(DEBUG)
@@ -202,9 +190,10 @@ public class AgentController extends Agent {
     private boolean wakeAgents() {
         
 		try {
+            //Creamos a los agentes y los despertamos utilizando los nombres pasados en el constructor.
 			Agent car1=new AgentCar(carNames[0]);
 			car1.start();
-			
+            
 			Agent car2=new AgentCar(carNames[1]);
 			car2.start();
 			
@@ -214,6 +203,7 @@ public class AgentController extends Agent {
 			Agent car4=new AgentCar(carNames[3]);
 			car4.start();
 			
+            //Cambiamos el estado del sistema para que conste que estan despiertos los agentes.
 			this.wakedAgents = true;
 			
 			return true;
@@ -235,28 +225,14 @@ public class AgentController extends Agent {
 		
 		if(DEBUG)
 			System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
-		
+        
+        //Llamamos a la funcion que manda la conversation ID del servidor y espera por la confirmación
+		boolean startCFP =this.requestCheckIn();
+
 		JsonObject message = new JsonObject();
-		
-		message.add("conversationID-server", this.conversationID);
-		
-		for(AgentID carName : carNames) {
-			sendMessage(carName, ACLMessage.INFORM, "", conversationID, message.asString());
-		}
-		
-		boolean startCFP = true;
-		
-		for(int i=0; i<4; i++) {
-			ACLMessage receive = this.receiveMessage();
-			
-			if(receive.getPerformativeInt() != ACLMessage.INFORM)
-				startCFP = false;
-		}
-		
-		message = new JsonObject();
-		
 		message.add("checkMap", "flying");
 		
+        //Una vez tenemos los agentes despiertos y funcionando, pasamos a buscar el "volador"
 		if(startCFP) {
 			for(AgentID carName : carNames) {
 				sendMessage(carName, ACLMessage.CFP, "", conversationID, message.asString());
@@ -276,7 +252,7 @@ public class AgentController extends Agent {
 			}
 			
 			if(flyingFound) {
-				
+				//Si tenemos el agente volador, mandamos confirmación y la informacion necesaria y rechazamos al resto.
 				JsonObject messageAccept = new JsonObject(message);
 				
 				messageAccept.add("startX", this.mapWorldPosX);
@@ -293,7 +269,7 @@ public class AgentController extends Agent {
 					this.state = EXPLORE_MAP;
 				}
 			}
-			else 
+			else
 				this.state = RE_RUN;
 		}
 		else 
@@ -392,27 +368,41 @@ public class AgentController extends Agent {
 	}
 	
 	/**
-	 * Terminar la iteración y volver a empezar otra
+	 * Terminar la iteración y volver a empezar otra, pasamos al modo SUBS_MAP_EXPLORE
 	 * 
-	 * @author
+	 * @author Bryan Moreno Picamán
 	 */
 	private void stateReRun() {
-		
-		if(DEBUG)
-			System.out.println("AgentController state: RE_RUN");
-		
+        System.out.println("Fliying Agent Not Found, resubscribe");
+        
+		JsonObject message = new JsonObject();
+		message.add("die", "now");
+
+        for(AgentID carName : carNames) {
+			sendMessage(carName, ACLMessage.REQUEST, "", conversationID, message.asString());
+		}
+        
+        //Esperamos una contestación por cada uno de los mensajes enviados
+		for(int i=0; i<carNames.length; i++) {
+			ACLMessage receive = this.receiveMessage();
+			//Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
+			if(receive.getPerformativeInt() != ACLMessage.AGREE){
+                // Si alguno de los mensajes no es un AGREE, matamos la conexión al completo
+                sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
+            }
+		}
+        
+		this.state=	SUBS_MAP_EXPLORE;	
 	}
 	
 	/**
-	 * Mandarle el conversationId a todos los agentes y esperar sus capacidades
+	 * Mandarle el conversationId a todos los agentes
 	 * 
-	 * @author
+	 * @author Bryan Moreno Picamán
 	 */
 	private void stateCheckAgents() {
-		
-		if(DEBUG)
-			System.out.println("AgentController state: CHECK_AGENTS");
-		
+        //Llamamos a la funcion que manda la conversation ID del servidor y espera por la confirmación
+        this.requestCheckIn();
 	}
 	
 	/**
@@ -511,7 +501,7 @@ public class AgentController extends Agent {
 		while(!finish) {
 			switch(state) {
 				case CHECK_MAP:
-					
+					//Primer estado, chequeo del mapa
 					this.stateCheckMap();
 
 					break;
@@ -519,7 +509,7 @@ public class AgentController extends Agent {
 					
 					if(DEBUG)
 						System.out.println("AgentController state: SUBS_MAP_EXPLORE");
-					
+					//Iniciamos subscripción, si se completa pasamos al siguiente estado, en caso contrário finalizamos.
 					if(this.subscribe())
 						this.state = WAKE_AGENTS_EXPLORE;
 					else
@@ -538,22 +528,30 @@ public class AgentController extends Agent {
                                     
 					break;
 				case CHECK_AGENTS_EXPLORE:
+                    if(DEBUG)
+						System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
 					
 					this.stateCheckAgentsExplore();
           
 					break;
 				case EXPLORE_MAP:
-					
+                    if(DEBUG)
+						System.out.println("AgentController state: EXPLORE_MAP");
+						
 					this.stateExploreMap();
 
 					break;
 				case SAVE_MAP:
-					
+                    if(DEBUG)
+						System.out.println("AgentController state: SAVE_MAP");
+										
 					this.stateSaveMap();
 					
 					break;
 				case RE_RUN:
-					
+                    if(DEBUG)
+						System.out.println("AgentController state: RE_RUN");
+										
 					this.stateReRun();
 					
 					break;
@@ -580,32 +578,44 @@ public class AgentController extends Agent {
 					
 					break;
 				case CHECK_AGENTS:
-					
+                    if(DEBUG)
+						System.out.println("AgentController state: CHECK_AGENTS");
+										
 					this.stateCheckAgents();
 					
 					break;
 				case SEND_MAP:
-					
+                    if(DEBUG)
+						System.out.println("AgentController state: SEND_MAP");
+										
 					this.stateSendMap();
 					
 					break;
 				case FUEL_INFORMATION:
-					
+                    if(DEBUG)
+						System.out.println("AgentController state: FUEL_INFORMATION");
+										
 					this.stateFuelInformation();
 					
 					break;
 				case CHOOSE_AGENTS:
-					
+                    if(DEBUG)
+						System.out.println("AgentController state: CHOOSE_AGENTS");
+										
 					this.stateChooseAgents();
 					
 					break;
                 case CONTROL_AGENTS:
-					
+                    if(DEBUG)
+						System.out.println("AgentController state: CONTROL_AGENTS");
+										
 					this.stateControlAgents();
 					
 					break;
                 case FINALIZE:
-					
+                    if(DEBUG)
+						System.out.println("AgentController state: FINALIZE");
+										
 					this.stateFinalize();  
 					
 					break;
@@ -671,4 +681,27 @@ public class AgentController extends Agent {
 		
 		return UUID.randomUUID().toString().substring(0, 5);
 	}
+    
+    
+    private boolean requestCheckIn(){
+            //Creamos el mensaje con la conversationID
+            JsonObject message = new JsonObject();
+            message.add("conversationID-server", this.conversationID);
+            //Por cada uno de los agentCar, mandamos un mensaje
+            for(AgentID carName : carNames) {
+                sendMessage(carName, ACLMessage.INFORM, "", conversationID, message.asString());
+            }
+
+            //Esperamos una contestación por cada uno de los mensajes enviados
+            for(int i=0; i<carNames.length; i++) {
+                ACLMessage receive = this.receiveMessage();
+                //Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
+                if(receive.getPerformativeInt() != ACLMessage.INFORM){
+                    // Si alguno de los mensajes no es un AGREE, matamos la conexión al completo
+                    sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
+                    return false;    
+                }
+            }
+            return true;
+    }
 }

@@ -1,4 +1,3 @@
-
 package practica3;
 
 import es.upv.dsic.gti_ia.core.ACLMessage;
@@ -18,11 +17,10 @@ public class Agent extends SingleAgent {
      * Constructor
      * @param aid ID del agente
      * @throws Exception 
-	 * 
-	 * @author Jose David, Hugo Maldonado
+     * 
+     * @author Jose David, Hugo Maldonado
      */
     public Agent(AgentID aid) throws Exception {
-		
         super(aid);   
     }
 
@@ -41,9 +39,9 @@ public class Agent extends SingleAgent {
 		ACLMessage outbox = new ACLMessage();
         
 		outbox.setSender(this.getAid());
-        outbox.setReceiver(receiver);
+    outbox.setReceiver(receiver);
 		
-        outbox.setPerformative(performative);
+    outbox.setPerformative(performative);
 		outbox.setReplyWith(replyWidth);
 		outbox.setConversationId(conversationId);
                 
