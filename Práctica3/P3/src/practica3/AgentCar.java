@@ -2,6 +2,7 @@ package practica3;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class AgentCar extends Agent {
     
     private int goalPositionX;
     private int goalPositionY;
-    private ArrayList<ArrayList> pathtoGoal;
+    private ArrayList<ArrayList> pathToGoal;
     private int fuelToGoal;
     
     private final AgentID serverName;
@@ -49,6 +50,10 @@ public class AgentCar extends Agent {
     private int range;
     private int fuelRate;
     private TypeAgent type;
+    private boolean inGoal;
+    
+    private String errorMessage;
+    private int[][] radar;
     
     /**
      * Constructor
@@ -81,6 +86,8 @@ public class AgentCar extends Agent {
         this.fuelRate = 999999;
         this.fuelLocal=-1;
         this.fuelGlobal=-1;
+        this.inGoal = false;
+        
         if (DEBUG)
             System.out.println("AgentCar " + this.getName() + " has just started");
     }
@@ -124,9 +131,11 @@ public class AgentCar extends Agent {
             state = NOT_UND_FAILURE_REFUSE;
         }
         else{
+            replyWithServer = messageReceived.getReplyWith();
             //Guardamos las capabilities
             myJson = Json.parse(messageReceived.getContent()).asObject();
             this.range = myJson.get("capabilities").asObject().get("range").asInt();
+            this.radar = new int [range][range];
             this.fuelRate = myJson.get("capabilities").asObject().get("fuelrate").asInt();
             this.fuelLocal = 100; //EL fuel inicial es 100?
             if(myJson.get("capabilities").asObject().get("fly").asBoolean() == true)
@@ -153,6 +162,7 @@ public class AgentCar extends Agent {
      */
     private void stateReady(){
         ACLMessage messageReceived = receiveMessage();
+        replyWithController = messageReceived.getReplyWith();
         
         switch (messageReceived.getPerformativeInt()) {
             case ACLMessage.CFP:
@@ -175,8 +185,147 @@ public class AgentCar extends Agent {
                     System.out.println("La has liado, cebollón");
                 }   
                 break;
-            default:
-                break;
+        }
+    }
+    
+    private void commandMove(int newX, int newY){
+        String movement;
+        //Calculamos el movimiento que queremos hacer, traduciendo la x y la y
+        if(newX == positionX-1) {		//Se mueve hacia el Oeste
+            if(newY == positionY-1)	//Se mueve hacia Norte
+                    movement = "moveNW";
+            else if(newY == positionY)
+                    movement = "moveW";
+            else
+                    movement = "moveSW";
+        }
+        else if(newX == positionX) {
+                if(newY == positionY-1)
+                        movement = "moveN";
+                else
+                        movement = "moveS";
+        }
+        else {
+                if(newY == positionY-1)
+                        movement = "moveNE";
+                else if(newY == positionY)
+                        movement = "moveE";
+                else
+                        movement = "moveSE";
+        }
+        
+        //Se lo enviamos al Server
+        JsonObject myJson = new JsonObject();
+        myJson.add("command",movement);
+        answerMessage(serverName,ACLMessage.REQUEST,replyWithServer,convIDServer,myJson.toString());       
+        
+        //Esperamos respuesta del server
+        ACLMessage messageReceived = receiveMessage();
+        
+        //Si es NOT UNDERSTOOD o FAILURE, pasamos al estado NOT_UND_FAILURE_REFUSE
+        //Guardamos el string con el tipo de fallo
+        if(messageReceived.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD ||
+                messageReceived.getPerformativeInt() == ACLMessage.FAILURE){
+            state = NOT_UND_FAILURE_REFUSE;
+            if(messageReceived.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD)
+                errorMessage = "NOT_UNDERSTOOD";
+            else
+                errorMessage = "FAILURE";
+        }
+        
+        //Si no, guardamos la nueva posición y guardamos el replyWith
+        else{
+            replyWithServer = messageReceived.getReplyWith();
+            positionX = newX;
+            positionY = newY;
+            fuelLocal -= fuelRate;
+        }
+    }
+    
+    private void commandRefuel(){
+        //Mandamos el command refuel al server
+        JsonObject myJson = new JsonObject();
+        myJson.add("command","refuel");
+        answerMessage(serverName,ACLMessage.REQUEST,replyWithServer,convIDServer,myJson.toString());  
+        
+        //Esperamos su respuesta
+        ACLMessage messageReceived = receiveMessage();
+        
+        //Si es NOT UNDERSTOOD o REFUSE, pasamos al estado NOT_UND_FAILURE_REFUSE
+        //Guardamos el string con el tipo de fallo
+        if(messageReceived.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD ||
+                messageReceived.getPerformativeInt() == ACLMessage.REFUSE){
+            state = NOT_UND_FAILURE_REFUSE;
+            if(messageReceived.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD)
+                errorMessage = "NOT_UNDERSTOOD";
+            else
+                errorMessage = "REFUSE";
+        }
+        
+        //Si no, actualizamos el fuel y guardamos el replyWith
+        else{
+            replyWithServer = messageReceived.getReplyWith();
+            fuelLocal = 100;
+        }
+    }
+    
+    private void requestPerceptions(){
+        //Mandamos la petición de las percepciones al server
+        answerMessage(serverName,ACLMessage.QUERY_REF,replyWithServer,convIDServer,"");  
+        
+        //Esperamos su respuesta
+        ACLMessage messageReceived = receiveMessage();
+        
+        //Si es NOT UNDERSTOOD, pasamos al estado NOT_UND_FAILURE_REFUSE
+        if(messageReceived.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD){
+            state = NOT_UND_FAILURE_REFUSE;
+            if(messageReceived.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD)
+                errorMessage = "NOT_UNDERSTOOD";
+            else
+                errorMessage = "REFUSE";
+        }
+        
+        //Si no, actualizamos las percepciones y guardamos el replyWith
+        else{
+            replyWithServer = messageReceived.getReplyWith();
+            JsonObject myJson = new JsonObject();
+            String message = messageReceived.getContent();
+            myJson = Json.parse(message).asObject();
+            //positionX = myJson.get("result").asObject().get("x").asInt();
+            //positionY = myJson.get("result").asObject().get("y").asInt();
+            fuelLocal = myJson.get("result").asObject().get("battery").asInt();
+            fuelGlobal = myJson.get("result").asObject().get("energy").asInt();
+            inGoal = myJson.get("result").asObject().get("goal").asBoolean();
+            int x = 0,y = 0;
+            for(JsonValue j : myJson.get("result").asObject().get("sensor").asArray()){
+                radar[y][x] = j.asInt();
+                x++;
+                if(x == range){
+                    x = 0;
+                    y++;
+                }
+            }
+        }
+    }
+    
+    /**
+     * ESTADO POSITION_REQUESTING: pide las percepciones al server, se las mandamos
+     * al Controller si no hay fallo y volvemos al estado READY.
+     * Si hubiera fallo, pasaríamos a NOT_UND_REFUSE_FAILURE.
+     * @author Aaron Rodriguez
+     */
+    private void statePositionRequesting(){
+        //Pedimos las percepciones para saber nuestra posición
+        requestPerceptions();
+        
+        //Le mandamos las coordenadas al server y volvemos al estado READY
+        if (state != NOT_UND_FAILURE_REFUSE){
+            JsonObject myJson = new JsonObject();
+            myJson.add("posX",positionX);
+            myJson.add("posY",positionY);
+            answerMessage(serverName,ACLMessage.INFORM,replyWithController,convIDServer,myJson.toString());
+            
+            state = READY;
         }
     }
     
@@ -274,29 +423,15 @@ public class AgentCar extends Agent {
 	}
     
 	/**
-     * ESTADO POSITION_REQUESTING
-     * Coge su posición y se la manda al controlador
-     * @author Bryan Moreno 
-	 */
-    private void statePositionRequesting() {
-        //Avisamos al server de nuestra posición
-        JsonObject myJson = new JsonObject();
-        myJson.add("posX",positionX);
-        myJson.add("posY",positionY);
-        sendMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
-        this.state = READY;
-    }
-    
-	/**
      * ESTADO CALCULATE_PATH
      * Calcula el camino entre el agente y el goal ademas del fuel necesario para alcanzarlo
      * @author Bryan Moreno 
 	 */
     private void stateCalculatePath() {
         
-        this.pathtoGoal=this.type.calculatePath(goalPositionX,goalPositionY);
+        this.pathToGoal=this.type.calculatePath(goalPositionX,goalPositionY);
         //El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
-        this.fuelToGoal=this.pathtoGoal.size()*this.fuelRate;
+        this.fuelToGoal=this.pathToGoal.size()*this.fuelRate;
         this.state=SEND_NECESSARY_FUEL;
     }
     

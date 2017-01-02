@@ -12,7 +12,6 @@ public class Fly extends TypeAgent{
      * @author Bryan Moreno 
      */
     public Fly(){
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     /**

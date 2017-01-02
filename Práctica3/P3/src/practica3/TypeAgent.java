@@ -21,7 +21,7 @@ public abstract class TypeAgent {
      * Recibe el mapa completo del entorno
      * @author Bryan Moreno 
      */
-    public void setMap(int [][] mapWorl){
+    public void setMap(int [][] mapWorld){
         this.mapWorld=mapWorld;
     }
 

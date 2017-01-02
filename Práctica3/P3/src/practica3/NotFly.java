@@ -11,7 +11,6 @@ public class NotFly extends TypeAgent{
      * @author Bryan Moreno 
      */
     public NotFly(){
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     /**

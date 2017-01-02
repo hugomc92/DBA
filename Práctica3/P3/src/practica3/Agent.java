@@ -3,6 +3,7 @@ package practica3;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
+import java.util.UUID;
 
 /**
  * Clase que define una clase abstracta para un agente.
@@ -102,4 +103,16 @@ public class Agent extends SingleAgent {
             return null;
         }
     }
+    
+    	/**
+	 * Función privada para generar un Id de respuesta aleatorio y único para mandarse los mensajes
+	 * 
+	 * @return el Id de respuesta
+	 * 
+	 * @author Hugo Maldonado
+	 */
+	String generateReplyId() {
+		
+		return UUID.randomUUID().toString().substring(0, 5);
+	}
 }

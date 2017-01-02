@@ -921,18 +921,6 @@ public class AgentController extends Agent {
 			System.err.println(ex.getMessage());
 		}
 	}
-	
-	/**
-	 * Función privada para generar un Id de respuesta aleatorio y único para mandarse los mensajes
-	 * 
-	 * @return el Id de respuesta
-	 * 
-	 * @author Hugo Maldonado
-	 */
-	private String generateReplyId() {
-		
-		return UUID.randomUUID().toString().substring(0, 5);
-	}
     
     /**
 	 * Función para solicitar el check-in de todos los agentes
