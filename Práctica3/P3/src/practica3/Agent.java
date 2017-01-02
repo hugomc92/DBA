@@ -18,7 +18,7 @@ public class Agent extends SingleAgent {
      * @param aid ID del agente
      * @throws Exception 
      * 
-     * @author Jose David, Hugo Maldonado
+     * @author Jose David and0 Hugo Maldonado
      */
     public Agent(AgentID aid) throws Exception {
         super(aid);   
@@ -39,10 +39,39 @@ public class Agent extends SingleAgent {
 		ACLMessage outbox = new ACLMessage();
         
 		outbox.setSender(this.getAid());
-    outbox.setReceiver(receiver);
+                outbox.setReceiver(receiver);
 		
-    outbox.setPerformative(performative);
+                outbox.setPerformative(performative);
 		outbox.setReplyWith(replyWidth);
+		outbox.setConversationId(conversationId);
+                
+		outbox.setContent(message);
+        
+		this.send(outbox);
+		
+		if(DEBUG)
+			System.out.println(this.getName() + " -----> " + receiver.getLocalName() + " (" + outbox.getPerformative() + "): " + message);
+    }
+    
+        /**
+     * Contesta a un mensaje previo de otro agente
+	 * @param receiver El agente que va a recivir el mensaje
+	 * @param performative La performativa usada para la transmisión del mensaje
+	 * @param inReplyTo El id al que se tiene que responder
+	 * @param conversationId El Id de la conversación
+	 * @param message El mensaje a enviar
+	 * 
+	 * @author Aaron Rodriguez
+     */
+    public void answerMessage(AgentID receiver, int performative, String inReplyTo, String conversationId, String message) {
+        
+		ACLMessage outbox = new ACLMessage();
+        
+		outbox.setSender(this.getAid());
+                outbox.setReceiver(receiver);
+		
+                outbox.setPerformative(performative);
+		outbox.setInReplyTo(inReplyTo);
 		outbox.setConversationId(conversationId);
                 
 		outbox.setContent(message);
