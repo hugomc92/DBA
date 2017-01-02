@@ -39,9 +39,9 @@ public class Agent extends SingleAgent {
 		ACLMessage outbox = new ACLMessage();
         
 		outbox.setSender(this.getAid());
-                outbox.setReceiver(receiver);
+		outbox.setReceiver(receiver);
 		
-                outbox.setPerformative(performative);
+		outbox.setPerformative(performative);
 		outbox.setReplyWith(replyWidth);
 		outbox.setConversationId(conversationId);
                 
@@ -68,9 +68,9 @@ public class Agent extends SingleAgent {
 		ACLMessage outbox = new ACLMessage();
         
 		outbox.setSender(this.getAid());
-                outbox.setReceiver(receiver);
+        outbox.setReceiver(receiver);
 		
-                outbox.setPerformative(performative);
+        outbox.setPerformative(performative);
 		outbox.setInReplyTo(inReplyTo);
 		outbox.setConversationId(conversationId);
                 

@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -21,7 +22,7 @@ import org.apache.commons.io.IOUtils;
 /**
  * Clase que define al agente controlador
  * 
- * @author JoseDavid , Hugo Maldonado and Bryan Moreno
+ * @author Hugo Maldonado and Bryan Moreno and Aarón Rodríguez and JoseDavid
  */
 public class AgentController extends Agent {
 	
@@ -37,13 +38,22 @@ public class AgentController extends Agent {
     private static final int FINALIZE = 9;
     private static final int FUEL_INFORMATION = 10;
     private static final int CHOOSE_AGENTS = 11;
-    private static final int CONTROL_AGENTS= 12;
-    private static final int SEND_MAP = 13;
-    private static final int CHECK_AGENTS= 14;
+    private static final int CONTROL_AGENTS = 12;
+	private static final int CHECK_AGENTS = 13;
+	private static final int REQUEST_POSITION = 14;
+    private static final int SEND_MAP = 15;
+    
 	
     private static final int WIDTH = 511, HEIGHT = 511;
 	
     private static final boolean DEBUG = true;
+	
+	private static final int INDEX_POSX = 0;
+	private static final int INDEX_POSY = 1;
+	private static final int INDEX_ACTUAL_FUEL = 2;
+	private static final int INDEX_FUEL_TO_GOAL = 3;
+	private static final int INDEX_OBJX = 4;
+	private static final int INDEX_OBJY = 5;
 	
     private final AgentID serverName;
     private final AgentID carNames[] = new AgentID[4];
@@ -54,9 +64,13 @@ public class AgentController extends Agent {
     private int mapWorldPosX;
     private int mapWorldPosY;
     private boolean mapWorldCompleted;
+	
+	private int globalFuel;
+	private final int [][] carLocalInfo = new int[4][6];
     
     private int state;
-    private String conversationID;
+    private String conversationIdServer;
+	private String conversationIdController;
     private boolean wakedAgents;
     private boolean finish = false;
 
@@ -100,10 +114,14 @@ public class AgentController extends Agent {
 		//Iniciamos en el estado de chequeo del mapa para ver si está completo o necesitamos seguir explorando.
 		this.state = CHECK_MAP;
 		
-		this.conversationID = "";
+		this.conversationIdServer = "";
+		this.conversationIdController = UUID.randomUUID().toString().substring(0, 5);
+		
 		this.wakedAgents = false;
 		
 		this.savedMap = new JsonObject();
+		
+		this.globalFuel = -1;
 		
 		this.mapWorldSize = -1;
 		
@@ -171,10 +189,10 @@ public class AgentController extends Agent {
 		
         if(receive.getPerformativeInt() == ACLMessage.INFORM) {
             //Si el mensaje que obtenemos es un INFORM almacenamos el conversationID, para su uso posterior
-            this.conversationID = receive.getConversationId();
+            this.conversationIdServer = receive.getConversationId();
 			
 			if(DEBUG)
-				System.out.println("SUSCRITO. ConvID:" + conversationID);
+				System.out.println("SUSCRITO. ConvIDServer:" + conversationIdServer);
 			
 			return true;
         }
@@ -191,16 +209,16 @@ public class AgentController extends Agent {
         
 		try {
             //Creamos a los agentes y los despertamos utilizando los nombres pasados en el constructor.
-			Agent car1=new AgentCar(carNames[0]);
+			Agent car1 = new AgentCar(carNames[0], this.getAid(), this.serverName);
 			car1.start();
             
-			Agent car2=new AgentCar(carNames[1]);
+			Agent car2 = new AgentCar(carNames[1], this.getAid(), this.serverName);
 			car2.start();
 			
-			Agent car3=new AgentCar(carNames[2]);
+			Agent car3 = new AgentCar(carNames[2], this.getAid(), this.serverName);
 			car3.start();
 			
-			Agent car4=new AgentCar(carNames[3]);
+			Agent car4 = new AgentCar(carNames[3], this.getAid(), this.serverName);
 			car4.start();
 			
             //Cambiamos el estado del sistema para que conste que estan despiertos los agentes.
@@ -227,16 +245,15 @@ public class AgentController extends Agent {
 			System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
         
         //Llamamos a la funcion que manda la conversation ID del servidor y espera por la confirmación
-		boolean startCFP =this.requestCheckIn();
+		boolean startCFP = this.requestCheckIn();
 
 		JsonObject message = new JsonObject();
 		message.add("checkMap", "flying");
 		
         //Una vez tenemos los agentes despiertos y funcionando, pasamos a buscar el "volador"
 		if(startCFP) {
-			for(AgentID carName : carNames) {
-				sendMessage(carName, ACLMessage.CFP, "", conversationID, message.asString());
-			}
+			for(AgentID carName : carNames)
+				sendMessage(carName, ACLMessage.CFP, this.generateReplyId(), this.conversationIdController, message.asString());
 			
 			boolean flyingFound = false;
 			AgentID flyingAgent = null;
@@ -260,11 +277,10 @@ public class AgentController extends Agent {
 				messageAccept.add("size", this.mapWorldSize);
 				
 				for(AgentID carName : carNames) {
-					if (carName == flyingAgent) {
-						sendMessage(flyingAgent, ACLMessage.ACCEPT_PROPOSAL, "", conversationID, messageAccept.asString());
-					} else {
-						sendMessage(flyingAgent, ACLMessage.REJECT_PROPOSAL, "", conversationID, message.asString());	
-					}
+					if(carName == flyingAgent)
+						sendMessage(flyingAgent, ACLMessage.ACCEPT_PROPOSAL, this.generateReplyId(), conversationIdController, messageAccept.asString());
+					else
+						sendMessage(flyingAgent, ACLMessage.REJECT_PROPOSAL, this.generateReplyId(), conversationIdController, message.asString());	
 					
 					this.state = EXPLORE_MAP;
 				}
@@ -370,62 +386,285 @@ public class AgentController extends Agent {
 	/**
 	 * Terminar la iteración y volver a empezar otra, pasamos al modo SUBS_MAP_EXPLORE
 	 * 
-	 * @author Bryan Moreno Picamán
+	 * @author Bryan Moreno Picamán and Hugo Maldonado
 	 */
 	private void stateReRun() {
-        System.out.println("Fliying Agent Not Found, resubscribe");
+		
+        System.out.println("AgentController state: RE_RUN");
         
 		JsonObject message = new JsonObject();
 		message.add("die", "now");
 
-        for(AgentID carName : carNames) {
-			sendMessage(carName, ACLMessage.REQUEST, "", conversationID, message.asString());
-		}
+        for(AgentID carName : carNames)
+			sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
         
-        //Esperamos una contestación por cada uno de los mensajes enviados
-		for(int i=0; i<carNames.length; i++) {
+		boolean allOk = true;
+		
+		//Esperamos una contestación por cada uno de los mensajes enviados
+		for(AgentID carName : carNames) {
 			ACLMessage receive = this.receiveMessage();
 			//Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
 			if(receive.getPerformativeInt() != ACLMessage.AGREE){
-                // Si alguno de los mensajes no es un AGREE, matamos la conexión al completo
-                sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
-            }
+				allOk = false;
+			}
 		}
         
-		this.state=	SUBS_MAP_EXPLORE;	
+		if(allOk)
+			this.state = SUBS_MAP_EXPLORE;
+		else
+			this.state = FINALIZE;
 	}
 	
 	/**
 	 * Mandarle el conversationId a todos los agentes
 	 * 
-	 * @author Bryan Moreno Picamán
+	 * @author Bryan Moreno Picamán and Hugo Maldonado
 	 */
 	private void stateCheckAgents() {
         //Llamamos a la funcion que manda la conversation ID del servidor y espera por la confirmación
-        this.requestCheckIn();
+        if(this.requestCheckIn())
+			this.state = REQUEST_POSITION;
+		else
+			this.state = FINALIZE;
 	}
 	
 	/**
-	 * Enviar el mapa al resto de agentes
+	 * Obtener la posición de cada uno de los agentes
 	 * 
-	 * @author
+	 * @author Hugo Maldonado
+	 */
+	private void stateRequestPosition() {
+		
+		if(DEBUG)
+			System.out.println("AgentController state: REQUEST_POSITION");
+		
+		JsonObject message = new JsonObject();
+		
+		message.add("givePosition", "ok");
+		
+		for(AgentID carName : carNames)
+			sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
+
+		boolean allOk = true;
+		
+		//Esperamos una contestación por cada uno de los mensajes enviados
+		for(AgentID carName : carNames) {
+			ACLMessage receive = this.receiveMessage();
+			//Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
+			if(receive.getPerformativeInt() != ACLMessage.INFORM) {
+				allOk = false;
+			}
+			else {
+				int row = -1;
+
+				if(receive.getSender() == carNames[0])
+					row = 0;
+				else if(receive.getSender() == carNames[1])
+					row = 1;
+				else if(receive.getSender() == carNames[2])
+					row = 2;
+				else if(receive.getSender() == carNames[3])
+					row = 3;
+
+				if(row != -1) {
+					JsonObject response = Json.parse(receive.getContent()).asObject();
+
+					int posX = response.get("posX").asInt();
+					int posY = response.get("posY").asInt();
+
+					this.carLocalInfo[row][INDEX_POSX] = posX;
+					this.carLocalInfo[row][INDEX_POSY] = posY;
+				}
+				else {
+					allOk = false;
+				}
+			}
+		}
+		
+		if(allOk)
+			this.state = SEND_MAP;
+		else
+			this.state = FINALIZE;
+	}
+	
+	/**
+	 * Función que calcula la distancia Euclídea de 2 puntos
+	 * 
+	 * @author Hugo Maldonado
+	 */
+	private double euclideanDist(int posXIni, int posYIni, int posXFin, int posYFin) {
+		
+		return Math.sqrt((Math.pow((posXFin - posXIni), 2) + Math.pow((posYFin - posYIni), 2)));
+	}
+	
+	/**
+	 * Enviar el mapa al resto de agentes así como las posiciones de los objetivos de cada uno
+	 * 
+	 * @author Hugo Maldonado
 	 */
 	private void stateSendMap() {
 		
 		if(DEBUG)
 			System.out.println("AgentController state: SEND_MAP");
 		
+		JsonObject message = new JsonObject();
+		
+		// Recorrer el mapa buscando todas las posiciones que sean objetivos
+		ArrayList<Integer> posObj = new ArrayList<>();
+		
+		for(int y=0; y<this.mapWorldSize; y++) {
+			for(int x=0; x<this.mapWorldSize; x++) {
+				if(this.mapWorld[y][x] == 3) {
+					posObj.add(x);
+					posObj.add(y);
+				}
+			}
+		}
+		
+		// Calcular el X y el Y de los objetivos de cada uno de los agentes
+		for(int i=0; i<carNames.length; i++) {
+			int objX = -1;
+			int objY = -1;
+			
+			// Calcular la distancia euclídea de la posición del agente al objetivo
+			double minDist = 99999999;
+			
+			// Recorrer todas las posiciones del objetivo para sacar la distancia euclídea mínima
+			for(int k=0; k<posObj.size(); k+=2) {
+				int objPosX = posObj.get(k);
+				int objPosY = posObj.get(k+1);
+				
+				double dist = euclideanDist(carLocalInfo[i][INDEX_POSX], carLocalInfo[i][INDEX_POSY], objPosX, objPosY);
+				
+				if(dist < minDist) {
+					minDist = dist;
+					
+					objX = objPosX;
+					objY = objPosY;
+				}
+			}
+			
+			// Comprobar que los objetivos de los siguientes agentes (1, 2 y 3) no coinciden con ninguno de los anteriores. Si coinciden volver a calcular las posiciones objetivo 
+			for(int j=0; j<i; j++) {
+				while(objX == carLocalInfo[j][INDEX_OBJX] && objY == carLocalInfo[j][INDEX_OBJY]) {
+					// Coinciden,luego recalcular el proceso
+					minDist = 99999999;
+			
+					// Recorrer todas las posiciones del objetivo para sacar la distancia euclídea mínima
+					for(int k=0; k<posObj.size(); k+=2) {
+						int objPosX = posObj.get(k);
+						int objPosY = posObj.get(k+1);
+
+						double dist = euclideanDist(carLocalInfo[i][INDEX_POSX], carLocalInfo[i][INDEX_POSY], objPosX, objPosY);
+
+						if(dist < minDist && objPosX != carLocalInfo[j][INDEX_OBJX] && objPosY != carLocalInfo[j][INDEX_OBJY]) {
+							minDist = dist;
+
+							objX = objPosX;
+							objY = objPosY;
+						}
+					}
+				}
+			}
+			
+			carLocalInfo[i][INDEX_OBJX] = objX;
+			carLocalInfo[i][INDEX_OBJY] = objY;
+		}
+		
+		for(int k=0; k<carNames.length; k++) {
+			// Mandar el mapa con una pequeña modificación a cada uno, para hacer que los objetivos de los otros agentes sean muros
+			int mapAux[][] = new int[this.mapWorldSize][this.mapWorldSize];
+			for(int y=0; y<this.mapWorldSize; y++) {
+				for(int x=0; x<this.mapWorldSize; x++) {
+					mapAux[y][x] = this.mapWorld[y][x];
+				}
+			}
+			
+			for(int i=0; i<carNames.length; i++) {
+				if(i != k) {
+					mapAux[carLocalInfo[i][INDEX_OBJX]][carLocalInfo[i][INDEX_OBJY]] = 2;
+				}
+			}
+			
+			
+			JsonArray sendMap = new JsonArray();
+			
+			for(int y=0; y<this.mapWorldSize; y++) {
+				for(int x=0; x<this.mapWorldSize; x++) {
+					sendMap.add(mapAux[y][x]);
+				}
+			}
+		
+			message.add("map", sendMap);
+			message.add("goalX", carLocalInfo[k][INDEX_OBJX]);
+			message.add("goalY", carLocalInfo[k][INDEX_OBJY]);
+		
+			this.sendMessage(carNames[k], ACLMessage.INFORM, this.generateReplyId(), conversationIdController, message.asString());
+		}
+		
+		this.state = FUEL_INFORMATION;
 	}
 	
 	/**
 	 * Obtener la información de la batería de los agentes
 	 * 
-	 * @author
+	 * @author Hugo Maldonado
 	 */
 	private void stateFuelInformation() {
 		
 		if(DEBUG)
 			System.out.println("AgentController state: FUEL_INFORMATION");
+		
+		JsonObject message = new JsonObject();
+		
+		message.add("agent-info", "OK");
+		
+		// Enviar petición de información de batería
+		for(AgentID carName : carNames)
+			this.sendMessage(carName, ACLMessage.QUERY_REF, this.generateReplyId(), conversationIdController, message.asString());
+		
+		boolean allOk = true;
+		
+		// Recibir información de batería
+		for(AgentID carName : carNames) {
+			ACLMessage inbox = this.receiveMessage();
+			
+			if(inbox.getPerformativeInt() != ACLMessage.INFORM) {
+				allOk = false;
+			}
+			else {
+				// Guardar la información de la batería de cada agente para procesarla en el estado CHOOSE_AGENTS
+				int row = -1;
+				
+				if(inbox.getSender() == carNames[0])
+					row = 0;
+				else if(inbox.getSender() == carNames[1])
+					row = 1;
+				else if(inbox.getSender() == carNames[2])
+					row = 2;
+				else if(inbox.getSender() == carNames[3])
+					row = 3;
+				
+				if(row != -1) {
+					JsonObject response = Json.parse(inbox.getContent()).asObject();
+				
+					this.globalFuel = response.get("global-fuel").asInt();
+					int actualFuel = response.get("actual-fuel").asInt();
+					int fuelToGoal = response.get("fuel-to-goal").asInt();
+
+					this.carLocalInfo[row][INDEX_ACTUAL_FUEL] = actualFuel;
+					this.carLocalInfo[row][INDEX_FUEL_TO_GOAL] = fuelToGoal;
+				}
+				else {
+					allOk = false;
+				}
+			}
+		}
+		
+		if(allOk)
+			this.state = CHOOSE_AGENTS;
+		else
+			this.state = FINALIZE;
 		
 	}
 	
@@ -437,7 +676,7 @@ public class AgentController extends Agent {
 	private void stateChooseAgents() {
 		
 		if(DEBUG)
-			System.out.println("AgentController state: FUEL_INFORMATION");
+			System.out.println("AgentController state: CHOOSE_AGENTS");
 		
 	}
 	
@@ -449,7 +688,7 @@ public class AgentController extends Agent {
 	private void stateControlAgents() {
 		
 		if(DEBUG)
-			System.out.println("AgentController state: FUEL_INFORMATION");
+			System.out.println("AgentController state: CONTROL_AGENTS");
 		
 	}
 	
@@ -468,7 +707,7 @@ public class AgentController extends Agent {
 			JsonObject message = new JsonObject().add("die", "now");
 			
 			for(AgentID carName : carNames) {
-				sendMessage(carName, ACLMessage.REQUEST, "", conversationID, message.asString());    
+				sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());    
 			}
 			
 			for(int i=0; i<4; i++) {
@@ -509,6 +748,7 @@ public class AgentController extends Agent {
 					
 					if(DEBUG)
 						System.out.println("AgentController state: SUBS_MAP_EXPLORE");
+					
 					//Iniciamos subscripción, si se completa pasamos al siguiente estado, en caso contrário finalizamos.
 					if(this.subscribe())
 						this.state = WAKE_AGENTS_EXPLORE;
@@ -582,6 +822,11 @@ public class AgentController extends Agent {
 						System.out.println("AgentController state: CHECK_AGENTS");
 										
 					this.stateCheckAgents();
+					
+					break;
+				case REQUEST_POSITION:
+					
+					this.stateRequestPosition();
 					
 					break;
 				case SEND_MAP:
@@ -677,31 +922,43 @@ public class AgentController extends Agent {
 		}
 	}
 	
+	/**
+	 * Función privada para generar un Id de respuesta aleatorio y único para mandarse los mensajes
+	 * 
+	 * @return el Id de respuesta
+	 * 
+	 * @author Hugo Maldonado
+	 */
 	private String generateReplyId() {
 		
 		return UUID.randomUUID().toString().substring(0, 5);
 	}
     
-    
-    private boolean requestCheckIn(){
+    /**
+	 * Función para solicitar el check-in de todos los agentes
+	 * 
+	 * @return true si todos han podido hacer el check-in o false de otra forma.
+	 * 
+	 * @author Bryan Moreno and Hugo Maldonado
+	 */
+    private boolean requestCheckIn() {
             //Creamos el mensaje con la conversationID
             JsonObject message = new JsonObject();
-            message.add("conversationID-server", this.conversationID);
+            message.add("conversationID-server", this.conversationIdServer);
             //Por cada uno de los agentCar, mandamos un mensaje
             for(AgentID carName : carNames) {
-                sendMessage(carName, ACLMessage.INFORM, "", conversationID, message.asString());
+                sendMessage(carName, ACLMessage.INFORM, this.generateReplyId(), conversationIdController, message.asString());
             }
 
-            //Esperamos una contestación por cada uno de los mensajes enviados
-            for(int i=0; i<carNames.length; i++) {
-                ACLMessage receive = this.receiveMessage();
-                //Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
-                if(receive.getPerformativeInt() != ACLMessage.INFORM){
-                    // Si alguno de los mensajes no es un AGREE, matamos la conexión al completo
-                    sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
-                    return false;    
-                }
-            }
+			//Esperamos una contestación por cada uno de los mensajes enviados
+			for(AgentID carName : carNames) {
+				ACLMessage receive = this.receiveMessage();
+				//Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
+				if(receive.getPerformativeInt() != ACLMessage.INFORM){
+					return false;
+				}
+			}
+			
             return true;
     }
 }
