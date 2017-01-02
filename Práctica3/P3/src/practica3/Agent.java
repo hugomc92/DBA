@@ -18,7 +18,7 @@ public class Agent extends SingleAgent {
      * @param aid ID del agente
      * @throws Exception 
      * 
-     * @author Jose David and0 Hugo Maldonado
+     * @author Jose David and Hugo Maldonado
      */
     public Agent(AgentID aid) throws Exception {
         super(aid);   
