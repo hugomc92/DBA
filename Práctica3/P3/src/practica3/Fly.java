@@ -1,30 +1,45 @@
 package practica3;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Clase que define los agentes con capacidad de volar del sistema.
  * 
- * @author Bryan Moreno 
+ * @author Bryan Moreno and Hugo Maldonado
  */
 public class Fly extends TypeAgent{
     
     /**
      * Constructor por defecto para los agentes de tipo Fly
 	 * 
-     * @author Bryan Moreno 
+     * @author Bryan Moreno and Hugo Maldonado
      */
     public Fly(){
+		
     }
     
     /**
      * Calcula el camino hacia la posición que se le indica
 	 * 
-     * @author Bryan Moreno 
+     * @author Bryan Moreno and Hugo Maldonado
      */
     @Override
-    ArrayList<ArrayList> calculatePath(int x, int y) {
+    List<Node> calculatePath(int posX, int posY, int goalX, int goalY) {
+		nodes = new Node[this.mapWorld.length][this.mapWorld.length];
+		
+		for(int y=0; y<mapWorld.length; y++) {
+			for(int x=0; x<mapWorld.length; x++) {
+				if(mapWorld[y][x] != 2)
+					nodes[y][x] = new Node(x, y, true);
+				else
+					nodes[y][x] = new Node(x, y, false);
+			}
+		}
+		
+		Map myMap = new Map(mapWorld.length, mapWorld.length, nodes);
+		
         System.out.println("Calculating Path to Goal");
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		
+        return myMap.findPath(posX, posY, goalX, goalY);
     }
-    
 }

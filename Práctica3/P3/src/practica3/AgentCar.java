@@ -5,7 +5,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Clase que define cada uno de los agentes
@@ -31,6 +31,8 @@ public class AgentCar extends Agent {
 	private boolean finish;
     
     private int fuelLocal;
+	
+	private int [][] mapWorld;
 
     private int positionX;
     private int positionY;
@@ -38,7 +40,7 @@ public class AgentCar extends Agent {
     
     private int goalPositionX;
     private int goalPositionY;
-    private ArrayList<ArrayList> pathToGoal;
+    private List<Node> pathToGoal;
     private int fuelToGoal;
     
     private final AgentID serverName;
@@ -371,7 +373,7 @@ public class AgentCar extends Agent {
                 case ACCEPT_REFUSE_PROP:
                     if (DEBUG)
                         System.out.println("AgentCar " + this.getName() + " en el estado ACCEPT_REFUSE_PROP");
-                    stateRefuseProp();
+                    stateAcceptRefuseProp();
                     break;
                     
                 case READY:
@@ -440,7 +442,7 @@ public class AgentCar extends Agent {
 	 */
     private void stateCalculatePath() {
         
-        this.pathToGoal=this.type.calculatePath(goalPositionX,goalPositionY);
+        this.pathToGoal=this.type.calculatePath(positionX, positionY, goalPositionX,goalPositionY);
         //El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
         this.fuelToGoal=this.pathToGoal.size()*this.fuelRate;
         this.state=SEND_NECESSARY_FUEL;
@@ -499,7 +501,7 @@ public class AgentCar extends Agent {
         }
     }
 
-    private void stateRefuseProp() {
+    private void stateAcceptRefuseProp() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

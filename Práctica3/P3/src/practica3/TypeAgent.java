@@ -1,6 +1,6 @@
 package practica3;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Clase abstracta que define las capacidades comunes de los agentes del sistema
@@ -8,17 +8,10 @@ import java.util.ArrayList;
  * @author Bryan Moreno Picamán and Hugo Maldonado
  */
 public abstract class TypeAgent {
-    public int [][] mapWorld;
-    
-    /**
-     * Constructor por defecto
-	 * 
-     * @author Bryan Moreno 
-     */
-    public TypeAgent(){
-        
-    }
-    
+	
+    protected int [][] mapWorld;
+    protected Node[][] nodes;
+	
      /**
      * Recibe el mapa completo del entorno
      *  
@@ -33,5 +26,5 @@ public abstract class TypeAgent {
 				this.mapWorld[i][j] = mapWorld[i][j];
     }
 
-    abstract ArrayList<ArrayList> calculatePath(int x,int y);
+    abstract  List<Node> calculatePath(int posX, int posY, int x,int y);
 }
