@@ -27,6 +27,7 @@ public class Agent extends SingleAgent {
 
     /**
      * Envia un mensaje a otro agente
+	 * 
 	 * @param receiver El agente que va a recivir el mensaje
 	 * @param performative La performativa usada para la transmisión del mensaje
 	 * @param replyWidth El id al que se tiene que responder
@@ -54,8 +55,9 @@ public class Agent extends SingleAgent {
 			System.out.println(this.getName() + " -----> " + receiver.getLocalName() + " (" + outbox.getPerformative() + "): " + message);
     }
     
-        /**
+    /**
      * Contesta a un mensaje previo de otro agente
+	 * 
 	 * @param receiver El agente que va a recivir el mensaje
 	 * @param performative La performativa usada para la transmisión del mensaje
 	 * @param inReplyTo El id al que se tiene que responder
@@ -88,7 +90,7 @@ public class Agent extends SingleAgent {
      * 
      * @return El mensaje entero (ACLMessage)
 	 * 
-	 * @author Jose David, Hugo Maldonado
+	 * @author Jose David and Hugo Maldonado
      */
     
     public ACLMessage receiveMessage() {
@@ -104,7 +106,7 @@ public class Agent extends SingleAgent {
         }
     }
     
-    	/**
+    /**
 	 * Función privada para generar un Id de respuesta aleatorio y único para mandarse los mensajes
 	 * 
 	 * @return el Id de respuesta

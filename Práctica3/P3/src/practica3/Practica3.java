@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * Clase que lanza el programa
  * 
- * @author JoseDavid and Hugo Maldonado
+ * @author Hugo Maldonado and JoseDavid
  */
 public class Practica3 {
 
@@ -25,6 +25,7 @@ public class Practica3 {
 	
     /**
 	 * Inicio del programa
+	 * 
 	 * @param args Argumentos de la línea de comandos al iniciar el programa
 	 * 
 	 * @author Hugo Maldonado

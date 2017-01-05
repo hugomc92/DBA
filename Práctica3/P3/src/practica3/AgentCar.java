@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 /**
  * Clase que define cada uno de los agentes
+ * 
  * @author Aaron Rodriguez and Bryan Moreno
  */
 public class AgentCar extends Agent {
@@ -27,6 +28,7 @@ public class AgentCar extends Agent {
     private static final int ACCEPT_REFUSE_PROP = 9;
     private static final int POSITION_REQUESTING = 10;
     private int state;
+	private boolean finish;
     
     private int fuelLocal;
 
@@ -57,6 +59,7 @@ public class AgentCar extends Agent {
     
     /**
      * Constructor
+	 * 
      * @param name ID de este agente
      * @param controllerName ID del agente Controlador
      * @param serverName ID del agente Server
@@ -71,12 +74,15 @@ public class AgentCar extends Agent {
 	
     /**
       * Método de inicialización del agente Coche.
+	  * 
       * @author Aaron Rodriguez and Bryan Moreno Picamán
       */
     @Override
     public void init() {
 
         this.state = IDLE;
+		finish = false;
+		
         this.convIDController = new String();
         this.convIDServer = new String();
         this.replyWithController = new String();
@@ -88,13 +94,13 @@ public class AgentCar extends Agent {
         this.fuelGlobal=-1;
         this.inGoal = false;
         
-        if (DEBUG)
-            System.out.println("AgentCar " + this.getName() + " has just started");
+        System.out.println("AgentCar " + this.getName() + " has just started");
     }
 
     /**
      * ESTADO IDLE: Espera a que el controlador le mande alguna acción,
      * y según lo que le pida pasará a un estado u otro.
+	 * 
      * @author Aaron Rodriguez
      */
     private void stateIdle(){
@@ -117,7 +123,8 @@ public class AgentCar extends Agent {
     /**
      * ESTADO GET_CAPABILITIES: hace check in en el Server, y luego avisa al Controller
      * de que ya está hecho.
-     * @author Aaron Rodriguez and Bryan Moreno Picamán
+	 * 
+     * @author Aaron Rodriguez and Bryan Moreno Picamán and Hugo Maldonado
      */
     private void stateGetCapabilities(){
         //Mandamos el checkin
@@ -146,7 +153,7 @@ public class AgentCar extends Agent {
             //Avisamos al server de que las hemos obtenido
             myJson = new JsonObject();
             myJson.add("capabilites","received");
-            sendMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
+            this.answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
             
             this.state = READY;
         }
@@ -158,6 +165,7 @@ public class AgentCar extends Agent {
      * -Pedir la posición: Estado POSITION_REQUESTING
      * -Calcular el camino al goal dado: Estado CALCULATE_PATH
      * -Petición de morirse: estado FINALIZE
+	 * 
      * @author Aaron Rodriguez and Bryan Moreno Picamán
      */
     private void stateReady(){
@@ -311,19 +319,20 @@ public class AgentCar extends Agent {
     /**
      * ESTADO POSITION_REQUESTING: pide las percepciones al server, se las mandamos
      * al Controller si no hay fallo y volvemos al estado READY.
+	 * 
      * Si hubiera fallo, pasaríamos a NOT_UND_REFUSE_FAILURE.
-     * @author Aaron Rodriguez
+     * @author Aaron Rodriguez and Hugo Maldonado
      */
     private void statePositionRequesting(){
         //Pedimos las percepciones para saber nuestra posición
         requestPerceptions();
         
-        //Le mandamos las coordenadas al server y volvemos al estado READY
+        //Le mandamos las coordenadas al controller y volvemos al estado READY
         if (state != NOT_UND_FAILURE_REFUSE){
             JsonObject myJson = new JsonObject();
             myJson.add("posX",positionX);
             myJson.add("posY",positionY);
-            answerMessage(serverName,ACLMessage.INFORM,replyWithController,convIDServer,myJson.toString());
+            answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
             
             state = READY;
         }
@@ -336,12 +345,10 @@ public class AgentCar extends Agent {
      */
     @Override
     public void execute() {
-	
-        if (DEBUG)
-            System.out.println("AgentCar " + this.getName() + " execution");
+
+        System.out.println("AgentCar " + this.getName() + " execution");
                 
-        while(true){
-        
+        while(!finish) {
             switch(state){
                 case IDLE:
                     if (DEBUG)
@@ -406,7 +413,9 @@ public class AgentCar extends Agent {
                 case FINALIZE:
                     if (DEBUG)
                         System.out.println("AgentCar " + this.getName() + " en el estado FINALIZE");
-                    stateFinalize();
+                    
+					this.finish = true;
+					
                     break;
             }
         }
@@ -414,6 +423,7 @@ public class AgentCar extends Agent {
 	
 	/**
 	  * Método de finalización del agente Controlador.
+	  * 
 	  * @author Hugo Maldonado
 	  */
 	@Override
@@ -424,6 +434,7 @@ public class AgentCar extends Agent {
     
 	/**
      * ESTADO CALCULATE_PATH
+	 * 
      * Calcula el camino entre el agente y el goal ademas del fuel necesario para alcanzarlo
      * @author Bryan Moreno 
 	 */
@@ -438,9 +449,10 @@ public class AgentCar extends Agent {
 	/**
      * ESTADO SEND_NECESSARY_FUEL
      * Espera la petición de información.
+	 * 
      * Manda el fuel calculado para llegar al goal al controlador y espera su decisión. 
      * El controlador puede decidir si el agente va al goal o muere.
-     * @author Bryan Moreno 
+     * @author Bryan Moreno and Hugo Maldonado
 	 */
     private void stateSendNecessaryFuel() {
         //Recibimos el mensaje
@@ -452,7 +464,7 @@ public class AgentCar extends Agent {
             myJson.add("global-fuel",this.fuelGlobal);
             myJson.add("actual-fuel",this.fuelLocal);
             myJson.add("fuel-to-goal",this.fuelToGoal);
-            sendMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
+            this.answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
             
             ACLMessage actionReceived = receiveMessage();
                 if(actionReceived.getPerformativeInt() == ACLMessage.QUERY_REF && messageReceived.getContent().contains("go-to-goal") ){
@@ -468,31 +480,23 @@ public class AgentCar extends Agent {
 	/**
      * ESTADO NOT_UND_FAILURE_REFUSE
      * Informa al controlador de la respuesta no entendida y espera a la petición de muerte.
-     * @author Bryan Moreno 
+	 * 
+     * @author Bryan Moreno and Hugo Maldonado
 	 */
     private void stateNotUndFailureRefuse() {
         //No se que contenido mandar en el NOT_UND, no lo veo especificado
         JsonObject myJson = new JsonObject();
         myJson.add("details","No entendido");
-        sendMessage(controllerName,ACLMessage.NOT_UNDERSTOOD,replyWithController,convIDController,myJson.toString());
+        this.answerMessage(controllerName,ACLMessage.NOT_UNDERSTOOD,replyWithController,convIDController,myJson.toString());
         
         //Esperamos la recepción del mensaje con la petición de muerte.
         ACLMessage messageReceived = receiveMessage();
         if (messageReceived.getPerformativeInt() == ACLMessage.REQUEST && messageReceived.getContent().contains("die")){
             myJson = new JsonObject();
             myJson.add("die","ok");
-            sendMessage(controllerName,ACLMessage.AGREE,replyWithController,convIDController,myJson.toString());
+            this.answerMessage(controllerName,ACLMessage.AGREE,replyWithController,convIDController,myJson.toString());
             this.state=FINALIZE;
         }
-    }
-    
-	/**
-     * ESTADO FINALIZE
-     * Mata al agente.
-     * @author Bryan Moreno 
-	 */
-    private void stateFinalize() {
-        this.finalize();
     }
 
     private void stateRefuseProp() {
@@ -506,6 +510,4 @@ public class AgentCar extends Agent {
     private void stateExploreMap() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-    
 }

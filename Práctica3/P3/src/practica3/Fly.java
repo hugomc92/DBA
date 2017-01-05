@@ -3,12 +3,14 @@ import java.util.ArrayList;
 
 /**
  * Clase que define los agentes con capacidad de volar del sistema.
+ * 
  * @author Bryan Moreno 
  */
 public class Fly extends TypeAgent{
     
     /**
      * Constructor por defecto para los agentes de tipo Fly
+	 * 
      * @author Bryan Moreno 
      */
     public Fly(){
@@ -16,6 +18,7 @@ public class Fly extends TypeAgent{
     
     /**
      * Calcula el camino hacia la posición que se le indica
+	 * 
      * @author Bryan Moreno 
      */
     @Override
