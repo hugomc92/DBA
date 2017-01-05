@@ -26,7 +26,7 @@ import java.util.List;
  * @version 1.0
  * @param <T>
  * 
- * @author Got it from internet, some modifications Hugo Maldonado
+ * @author Got it from internet, some modifications by Hugo Maldonado
  */
 public class Map<T extends Node> {
 

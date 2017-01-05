@@ -1,6 +1,7 @@
 package practica3;
 
 import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.ACLMessage;
@@ -301,8 +302,8 @@ public class AgentCar extends Agent {
             JsonObject myJson = new JsonObject();
             String message = messageReceived.getContent();
             myJson = Json.parse(message).asObject();
-            //positionX = myJson.get("result").asObject().get("x").asInt();
-            //positionY = myJson.get("result").asObject().get("y").asInt();
+            positionX = myJson.get("result").asObject().get("x").asInt();
+            positionY = myJson.get("result").asObject().get("y").asInt();
             fuelLocal = myJson.get("result").asObject().get("battery").asInt();
             fuelGlobal = myJson.get("result").asObject().get("energy").asInt();
             inGoal = myJson.get("result").asObject().get("goal").asBoolean();
@@ -437,15 +438,43 @@ public class AgentCar extends Agent {
 	/**
      * ESTADO CALCULATE_PATH
 	 * 
-     * Calcula el camino entre el agente y el goal ademas del fuel necesario para alcanzarlo
-     * @author Bryan Moreno 
+     * Primero recibe el mapa del controlador y calcula el camino entre el agente y el goal ademas del fuel necesario para alcanzarlo
+     * @author Bryan Moreno and Hugo Maldonado
 	 */
     private void stateCalculatePath() {
+		
+		ACLMessage inbox = this.receiveMessage();
+		
+		if(inbox.getPerformativeInt() == ACLMessage.INFORM) {
+			JsonObject receive = Json.parse(inbox.getContent()).asObject();
+			
+			int mapSize = receive.get("mapSize").asInt();
+			
+			JsonArray mapArray = receive.get("map").asArray();
+			
+			// Pasar el mapa a la matriz
+			int cont = 0;
+			
+			this.mapWorld = new int[mapSize][mapSize];
+			
+			for(int y=0; y<mapSize; y++) {
+				for(int x=0; x<mapSize; x++) {
+					this.mapWorld[y][x] = mapArray.get(cont).asInt();
+					cont++;
+				}
+			}
+			
+			this.goalPositionX = receive.get("goalX").asInt();
+			this.goalPositionY = receive.get("goalY").asInt();
+		
         
-        this.pathToGoal=this.type.calculatePath(positionX, positionY, goalPositionX,goalPositionY);
-        //El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
-        this.fuelToGoal=this.pathToGoal.size()*this.fuelRate;
-        this.state=SEND_NECESSARY_FUEL;
+			this.pathToGoal=this.type.calculatePath(positionX, positionY, goalPositionX,goalPositionY);
+			//El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
+			this.fuelToGoal=this.pathToGoal.size()*this.fuelRate;
+			this.state=SEND_NECESSARY_FUEL;
+		}
+		else
+			this.state = NOT_UND_FAILURE_REFUSE;
     }
     
 	/**

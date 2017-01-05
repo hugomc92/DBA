@@ -596,6 +596,7 @@ public class AgentController extends Agent {
 			}
 		
 			message.add("map", sendMap);
+			message.add("mapSize", this.mapWorldSize);
 			message.add("goalX", carLocalInfo[k][INDEX_OBJX]);
 			message.add("goalY", carLocalInfo[k][INDEX_OBJY]);
 		

@@ -26,7 +26,7 @@ package practica3;
  *
  * @version 1.0
  * 
- * @author Got it from internet, some modifications Hugo Maldonado
+ * @author Got it from internet, some modifications by Hugo Maldonado
  */
 public class Node {
 
