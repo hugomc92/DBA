@@ -64,6 +64,7 @@ public class AgentController extends Agent {
     private int mapWorldPosX;
     private int mapWorldPosY;
     private boolean mapWorldCompleted;
+    private String mapWorldDirection;
 	
 	private int globalFuel;
 	private final int [][] carLocalInfo = new int[4][6];
@@ -127,7 +128,7 @@ public class AgentController extends Agent {
 		
 		this.mapWorldPosX = -1;
 		this.mapWorldPosY = -1;
-		
+		this.mapWorldDirection = "";
 		this.mapWorldCompleted = false;
 		
 		System.out.println("AgetnController has just started");
@@ -164,6 +165,7 @@ public class AgentController extends Agent {
 				this.state = SUBS_MAP_EXPLORE;
 				this.mapWorldPosX = savedMap.get("pos").asObject().get("x").asInt();
 				this.mapWorldPosY = savedMap.get("pos").asObject().get("y").asInt();
+                                this.mapWorldDirection = savedMap.get("direction").asString();
 			}
 		} catch(IOException ex) {
 			//No existe mapa previo, por lo que entramos en modo exploración y inicializamos las estructuras necesarias.
@@ -172,6 +174,9 @@ public class AgentController extends Agent {
 			
 			mapWorld = new int[WIDTH][HEIGHT];
 			this.mapWorldSize = WIDTH;
+                        this.mapWorldPosX = 0;
+                        this.mapWorldPosY = 0;
+                        this.mapWorldDirection = "right";
 			this.state = SUBS_MAP_EXPLORE;
 		}
     }
@@ -277,6 +282,7 @@ public class AgentController extends Agent {
 				messageAccept.add("startX", this.mapWorldPosX);
 				messageAccept.add("startY", this.mapWorldPosY);
 				messageAccept.add("size", this.mapWorldSize);
+                                messageAccept.add("direction", this.mapWorldDirection);
 				
 				for(AgentID carName : flyingAgents) {
 					if(carName == flyingAgents[0])

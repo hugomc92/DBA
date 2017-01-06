@@ -60,6 +60,10 @@ public class AgentCar extends Agent {
     private String errorMessage;
     private int[][] radar;
     
+    private int startExploringX;
+    private int startExploringY;
+    private String mapDirection;
+    
     /**
      * Constructor
 	 * 
@@ -200,30 +204,37 @@ public class AgentCar extends Agent {
         }
     }
     
+    /**
+     * Petición de movimiento al server hacia una casilla anexa a nuestra posición actual,
+     * y respuesta de éste.
+     * @param newX Coordenada x hacia la que queremos movernos.
+     * @param newY Coordenada y hacia la que queremos movernos.
+     * @author Aarón Rodríguez
+     */
     private void commandMove(int newX, int newY){
         String movement;
         //Calculamos el movimiento que queremos hacer, traduciendo la x y la y
         if(newX == positionX-1) {		//Se mueve hacia el Oeste
             if(newY == positionY-1)	//Se mueve hacia Norte
-				movement = "moveNW";
+		movement = "moveNW";
             else if(newY == positionY)
-				movement = "moveW";
+		movement = "moveW";
             else
-				movement = "moveSW";
+		movement = "moveSW";
         }
         else if(newX == positionX) {
-			if(newY == positionY-1)
-				movement = "moveN";
-			else
-				movement = "moveS";
+            if(newY == positionY-1)
+		movement = "moveN";
+            else
+                    movement = "moveS";
         }
         else {
-			if(newY == positionY-1)
-				movement = "moveNE";
-			else if(newY == positionY)
-				movement = "moveE";
-			else
-				movement = "moveSE";
+            if(newY == positionY-1)
+                    movement = "moveNE";
+            else if(newY == positionY)
+                    movement = "moveE";
+            else
+                    movement = "moveSE";
         }
         
         //Se lo enviamos al Server
@@ -251,10 +262,14 @@ public class AgentCar extends Agent {
             positionX = newX;
             positionY = newY;
             fuelLocal -= fuelRate;
-			fuelToGoal -= fuelRate;
+            fuelToGoal -= fuelRate;
         }
     }
     
+    /**
+     * Petición al server de repostar, y respuesta de éste.
+     * @author Aarón Rodríguez
+     */
     private void commandRefuel(){
         //Mandamos el command refuel al server
         JsonObject myJson = new JsonObject();
@@ -283,7 +298,7 @@ public class AgentCar extends Agent {
     }
     
 	/**
-	 * Recibir las percepciones
+	 * Petición al servidor y respuesta de éste sobre las percepciones.
 	 *
 	 * @author Aaron Rodríguez
 	 */
@@ -543,7 +558,7 @@ public class AgentCar extends Agent {
 	/**
 	 * Estado en que se envía si el agente vuela o no y se toma la decisión del controlador de explorar el mapa o no
 	 * 
-	 * @author Hugo Maldonado and Bryan Moreno
+	 * @author Hugo Maldonado and Bryan Moreno and Aaron Rodriguez
 	 */
     private void stateAcceptRefuseProp() {
 		
@@ -556,8 +571,14 @@ public class AgentCar extends Agent {
 			
 			ACLMessage receiveAccept = this.receiveMessage();
 			
-			if(receiveAccept.getPerformativeInt() == ACLMessage.ACCEPT_PROPOSAL)
+			if(receiveAccept.getPerformativeInt() == ACLMessage.ACCEPT_PROPOSAL){
 				this.state = EXPLORE_MAP;
+                                replyWithController = receiveAccept.getReplyWith();
+                                JsonObject responseObject = Json.parse(receiveAccept.getContent()).asObject();
+                                this.startExploringX = responseObject.get("startX").asInt();
+                                this.startExploringY = responseObject.get("startY").asInt();
+                                this.mapDirection = responseObject.get("direction").asString();
+                        }
 			else
 				this.state = READY;
 		}
@@ -627,8 +648,165 @@ public class AgentCar extends Agent {
 			}
 		}
     }
-
+    
+    /**
+     * ESTADO EXPLORE_MAP: se dirige hacia la posición indicada por el controller,
+     * y una vez llegue, comienza a escanear el mapa completo haciendo zig-zag en horizontal.
+     * @author Aaron Rodriguez
+     */
     private void stateExploreMap() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("AgentCar " + this.getName() + " en el estado EXPLORE_MAP");
+        
+        //Primero hacemos un requestPerceptions para saber dónde nos encontramos
+        requestPerceptions();
+
+        //Aquí deberíamos crear la imagen a visualizar y pintarla
+        
+        //Avanzamos hacia la posición dada por el controller
+        boolean inPosition = false;
+        int newX, newY;
+        while(!inPosition && state != NOT_UND_FAILURE_REFUSE){
+            //Repostamos si estamos en números rojos
+            if(fuelLocal <= fuelRate){
+                commandRefuel();
+            }
+            else{
+                if (positionX > startExploringX)
+                    newX = positionX-1;
+                else if(positionX == startExploringX)
+                    newX = positionX;
+                else
+                    newX = positionX + 1;
+                
+                if (positionY > startExploringY)
+                    newY = positionY-1;
+                else if(positionY == startExploringY)
+                    newY = positionY;
+                else
+                    newY = positionY + 1;
+                
+                //Comprobamos si estamos encima de la posición inicial
+                if(newX == positionX && newY == positionY){
+                    inPosition = true;
+                }
+                else{
+                    //MOVIMIENTO
+                    commandMove(newX,newY);
+
+                    //PERCEPCIÓN
+                    requestPerceptions();
+
+                    //ACTUALIZAR IMAGEN A VISUALIZAR
+                }
+            }
+        }
+
+        //Iniciamos las variables pertinentes
+        final int SIZE_MAP = 510;
+        int [][] mapChecked = new int [SIZE_MAP][SIZE_MAP];
+        boolean goLeft, mapExplored = false, goDown = false;
+        int depth = -1;
+        if(mapDirection == "right")
+            goLeft = true;
+        else
+            goLeft = false;
+        
+        //Empezamos el zig-zag
+        while (!mapExplored && state != NOT_UND_FAILURE_REFUSE){
+            //Repostamos si estamos en números rojos
+            if(fuelLocal <= fuelRate){
+                commandRefuel();
+            }
+            else{
+                //Si vamos en horizontal
+                if(!goDown){
+                    //Nos movemos en nuestra dirección si no hay pared externa,
+                    //en caso contrario apuntamos para bajar
+                    if((goLeft && mapChecked[positionX-1][positionY] != 2) ||
+                            (!goLeft && mapChecked[positionX+1][positionY] != 2)){
+                        //MOVIMIENTO
+                        if(goLeft)
+                            commandMove(positionX-1,positionY);
+                        else
+                            commandMove(positionX+1,positionY);
+
+                        //PERCEPCIÓN
+                        requestPerceptions();
+
+                        //Guardamos la percepción en nuestro mapa
+                        for (int j = positionX-1; j <= positionX+1; j++){   //Columnas
+                            for (int i = positionY-1; i <= positionY+1; i++){    //Filas
+                                mapChecked[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
+                            }
+                        }
+
+                        //ACTUALIZAR IMAGEN A VISUALIZAR
+                        
+                    }
+                    else{   //Hay pared en la dirección horizontal en la que nos movemos
+                        //Intercambiamos direcciones para posteriores movimientos en horizontal
+                        if(goLeft)  goLeft = false;
+                        else        goLeft = true;
+                        depth = positionY+3;
+                        goDown = true;
+                    }
+                }
+                //Si vamos en vertical
+                else{
+                    if(mapChecked[positionX][positionY+1] != 2 && positionY < depth){
+                        //MOVIMIENTO
+                        commandMove(positionX,positionY+1);
+
+                        //PERCEPCIÓN
+                        requestPerceptions();
+
+                        //Guardamos la percepción en nuestro mapa
+                        for (int j = positionX-1; j <= positionX+1; j++){   //Columnas
+                            for (int i = positionY-1; i <= positionY+1; i++){    //Filas
+                                mapChecked[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
+                            }
+                        }
+
+                        //ACTUALIZAR IMAGEN A VISUALIZA
+                    }
+                    else if (mapChecked[positionX][positionY+1] == 2){  //Tocamos la pared de abajo
+                        if(depth - positionY <= 1){  //No es necesario explorar horizontalmente
+                            mapExplored = true;
+                        }
+                        else{   //Hay que explorar la última fila
+                            goDown = false;
+                        }
+                    }
+                }
+            }
+        }
+        
+        //Enviamos los datos recabados al controller
+        JsonObject myJson = new JsonObject();
+			
+        JsonArray mapArray = new JsonArray();
+        for (int j = 0; j < SIZE_MAP; j++){ //Columnas
+            for (int i = 0; i < SIZE_MAP; i++){  //Filas
+                mapArray.add(mapChecked[i][j]);
+            }
+        }
+        myJson.add("map",mapArray);
+        myJson.add("finalX", positionX);
+        myJson.add("finalY", positionY);
+        if(mapExplored)
+            myJson.add("completed","true");
+        else
+            myJson.add("completed","false");
+        if(goLeft)
+            myJson.add("direction", "left");
+        else
+            myJson.add("direction", "right");
+
+        this.answerMessage(controllerName, ACLMessage.INFORM, replyWithController, convIDController, myJson.asString());
+        
+        
+        if(state != NOT_UND_FAILURE_REFUSE)
+            state = READY;
     }
+
 }
