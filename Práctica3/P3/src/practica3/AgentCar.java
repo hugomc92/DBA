@@ -93,8 +93,9 @@ public class AgentCar extends Agent {
         
         this.range = -1;
         this.fuelRate = 999999;
-        this.fuelLocal=-1;
-        this.fuelGlobal=-1;
+        this.fuelLocal = -1;
+        this.fuelGlobal = -1;
+		this.fuelToGoal = -1;
         this.inGoal = false;
         
         System.out.println("AgentCar " + this.getName() + " has just started");
@@ -204,25 +205,25 @@ public class AgentCar extends Agent {
         //Calculamos el movimiento que queremos hacer, traduciendo la x y la y
         if(newX == positionX-1) {		//Se mueve hacia el Oeste
             if(newY == positionY-1)	//Se mueve hacia Norte
-                    movement = "moveNW";
+				movement = "moveNW";
             else if(newY == positionY)
-                    movement = "moveW";
+				movement = "moveW";
             else
-                    movement = "moveSW";
+				movement = "moveSW";
         }
         else if(newX == positionX) {
-                if(newY == positionY-1)
-                        movement = "moveN";
-                else
-                        movement = "moveS";
+			if(newY == positionY-1)
+				movement = "moveN";
+			else
+				movement = "moveS";
         }
         else {
-                if(newY == positionY-1)
-                        movement = "moveNE";
-                else if(newY == positionY)
-                        movement = "moveE";
-                else
-                        movement = "moveSE";
+			if(newY == positionY-1)
+				movement = "moveNE";
+			else if(newY == positionY)
+				movement = "moveE";
+			else
+				movement = "moveSE";
         }
         
         //Se lo enviamos al Server
@@ -250,6 +251,7 @@ public class AgentCar extends Agent {
             positionX = newX;
             positionY = newY;
             fuelLocal -= fuelRate;
+			fuelToGoal -= fuelRate;
         }
     }
     
@@ -280,7 +282,12 @@ public class AgentCar extends Agent {
         }
     }
     
-    private void requestPerceptions(){
+	/**
+	 * Recibir las percepciones
+	 *
+	 * @author Aaron Rodríguez
+	 */
+	private void requestPerceptions(){
         //Mandamos la petición de las percepciones al server
         answerMessage(serverName,ACLMessage.QUERY_REF,replyWithServer,convIDServer,"");  
         
@@ -438,7 +445,8 @@ public class AgentCar extends Agent {
 	/**
      * ESTADO CALCULATE_PATH
 	 * 
-     * Primero recibe el mapa del controlador y calcula el camino entre el agente y el goal ademas del fuel necesario para alcanzarlo
+     * Primero recibe el mapa del controlador así como su objetivo y calcula el camino entre el agente y el goal ademas del fuel necesario para alcanzarlo
+	 * 
      * @author Bryan Moreno and Hugo Maldonado
 	 */
     private void stateCalculatePath() {
@@ -466,12 +474,14 @@ public class AgentCar extends Agent {
 			
 			this.goalPositionX = receive.get("goalX").asInt();
 			this.goalPositionY = receive.get("goalY").asInt();
-		
         
-			this.pathToGoal=this.type.calculatePath(positionX, positionY, goalPositionX,goalPositionY);
-			//El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
-			this.fuelToGoal=this.pathToGoal.size()*this.fuelRate;
-			this.state=SEND_NECESSARY_FUEL;
+			this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
+			
+			if(this.pathToGoal != null)
+				//El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
+				this.fuelToGoal = this.pathToGoal.size() * this.fuelRate;
+				
+			this.state = SEND_NECESSARY_FUEL;
 		}
 		else
 			this.state = NOT_UND_FAILURE_REFUSE;
@@ -498,11 +508,11 @@ public class AgentCar extends Agent {
             this.answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
             
             ACLMessage actionReceived = receiveMessage();
-                if(actionReceived.getPerformativeInt() == ACLMessage.QUERY_REF && messageReceived.getContent().contains("go-to-goal") ){
-                    this.state= MOVE_TO_GOAL;
-                }
-                else
-                    this.state= FINALIZE;
+			if(actionReceived.getPerformativeInt() == ACLMessage.REQUEST && messageReceived.getContent().contains("go-to-goal") ){
+				this.state = MOVE_TO_GOAL;
+			}
+			else
+				this.state = FINALIZE;
         }
         else //Si no es una petición, algo ha ido mal, finalizamos
             this.state= NOT_UND_FAILURE_REFUSE;
@@ -530,12 +540,92 @@ public class AgentCar extends Agent {
         }
     }
 
+	/**
+	 * Estado en que se envía si el agente vuela o no y se toma la decisión del controlador de explorar el mapa o no
+	 * 
+	 * @author Hugo Maldonado and Bryan Moreno
+	 */
     private void stateAcceptRefuseProp() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		
+		JsonObject message = new JsonObject();
+		
+		message.add("checkMap", "flying");
+        
+		if(type.getClass() == Fly.class) {
+			this.answerMessage(controllerName, ACLMessage.AGREE, replyWithController, convIDController, message.asString());
+			
+			ACLMessage receiveAccept = this.receiveMessage();
+			
+			if(receiveAccept.getPerformativeInt() == ACLMessage.ACCEPT_PROPOSAL)
+				this.state = EXPLORE_MAP;
+			else
+				this.state = READY;
+		}
+		else {
+			this.answerMessage(controllerName, ACLMessage.REFUSE, replyWithController, convIDController, message.asString());
+			
+			this.state = READY;
+		}
     }
 
+	/**
+	 * Estado para moverse al objetivo
+	 * 
+	 * @author Bryan Moreno and Hugo Maldonado
+	 */
     private void stateMoveToGoal() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+		for(Node node : pathToGoal) {
+			if(this.fuelLocal < fuelToGoal) {
+				this.commandRefuel();
+			}
+			
+			this.commandMove(node.getxPosition(), node.getyPosition());
+			
+			JsonObject message = new JsonObject();
+			
+			message.add("x", positionX);
+			message.add("y", positionY);
+			
+			this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, message.asString());
+			
+			this.requestPerceptions();
+			
+			boolean otherAgentFound = false;
+			JsonArray otherAgentsPosition = new JsonArray();
+			
+			for(int y=0; y<range; y++)
+				for(int x=0; x<range; x++)
+					if(radar[y][x] == 4) {
+						otherAgentFound = true;
+						
+						JsonObject position = new JsonObject();
+						position.add("x", x);
+						position.add("y", y);
+						
+						otherAgentsPosition.add(position);
+					}
+			
+			if(otherAgentFound) {
+				JsonObject messageCanMove = new JsonObject();
+				
+				message.add("canMove", "OK");
+				message.add("otherAgents", otherAgentsPosition);
+			
+				this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, messageCanMove.asString());
+				
+				ACLMessage inbox = this.receiveMessage();
+				
+				if(inbox.getPerformativeInt() == ACLMessage.DISCONFIRM) {
+					inbox = this.receiveMessage();
+					
+					if(inbox.getPerformativeInt() != ACLMessage.INFORM)
+						this.state = NOT_UND_FAILURE_REFUSE;
+				}
+				else if(inbox.getPerformativeInt() != ACLMessage.CONFIRM)
+					this.state = NOT_UND_FAILURE_REFUSE;
+			}
+		}
     }
 
     private void stateExploreMap() {

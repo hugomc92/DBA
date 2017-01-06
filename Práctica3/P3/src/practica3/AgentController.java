@@ -56,7 +56,7 @@ public class AgentController extends Agent {
 	private static final int INDEX_OBJY = 5;
 	
     private final AgentID serverName;
-    private final AgentID carNames[] = new AgentID[4];
+    private AgentID carNames[] = new AgentID[4];
     private final String map;
     
     private int [][] mapWorld;
@@ -256,7 +256,8 @@ public class AgentController extends Agent {
 				sendMessage(carName, ACLMessage.CFP, this.generateReplyId(), this.conversationIdController, message.asString());
 			
 			boolean flyingFound = false;
-			AgentID flyingAgent = null;
+			AgentID flyingAgents [] = new AgentID[4];
+			int cont = 0;
 			
 			for(int i=0; i<4 && flyingFound; i++) {
 				ACLMessage receive = this.receiveMessage();
@@ -264,7 +265,8 @@ public class AgentController extends Agent {
 				if(receive.getPerformativeInt() == ACLMessage.AGREE) {
 					flyingFound = true;
 					
-					flyingAgent = receive.getSender();
+					flyingAgents[cont] = receive.getSender();
+					cont++;
 				}	
 			}
 			
@@ -276,11 +278,11 @@ public class AgentController extends Agent {
 				messageAccept.add("startY", this.mapWorldPosY);
 				messageAccept.add("size", this.mapWorldSize);
 				
-				for(AgentID carName : carNames) {
-					if(carName == flyingAgent)
-						sendMessage(flyingAgent, ACLMessage.ACCEPT_PROPOSAL, this.generateReplyId(), conversationIdController, messageAccept.asString());
+				for(AgentID carName : flyingAgents) {
+					if(carName == flyingAgents[0])
+						sendMessage(carName, ACLMessage.ACCEPT_PROPOSAL, this.generateReplyId(), conversationIdController, messageAccept.asString());
 					else
-						sendMessage(flyingAgent, ACLMessage.REJECT_PROPOSAL, this.generateReplyId(), conversationIdController, message.asString());	
+						sendMessage(carName, ACLMessage.REJECT_PROPOSAL, this.generateReplyId(), conversationIdController, message.asString());
 					
 					this.state = EXPLORE_MAP;
 				}
@@ -609,7 +611,7 @@ public class AgentController extends Agent {
 	/**
 	 * Obtener la información de la batería de los agentes
 	 * 
-	 * @author Hugo Maldonado
+	 * @author Hugo Maldonado and Bryan Moreno
 	 */
 	private void stateFuelInformation() {
 		
@@ -625,6 +627,9 @@ public class AgentController extends Agent {
 			this.sendMessage(carName, ACLMessage.QUERY_REF, this.generateReplyId(), conversationIdController, message.asString());
 		
 		boolean allOk = true;
+		
+		AgentID carNamesRemoved [] = new AgentID[4];
+		int cont = 0;
 		
 		// Recibir información de batería
 		for(AgentID carName : carNames) {
@@ -655,12 +660,44 @@ public class AgentController extends Agent {
 
 					this.carLocalInfo[row][INDEX_ACTUAL_FUEL] = actualFuel;
 					this.carLocalInfo[row][INDEX_FUEL_TO_GOAL] = fuelToGoal;
+					
+					if(fuelToGoal == -1) {
+						message = new JsonObject();
+						
+						message.add("die", "now");
+						
+						this.sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
+						
+						inbox = this.receiveMessage();
+						
+						if(inbox.getPerformativeInt() == ACLMessage.AGREE) {
+							carNamesRemoved[cont] = carName;
+							cont++;
+						}
+							
+					}
 				}
 				else {
 					allOk = false;
 				}
 			}
 		}
+		
+		AgentID newCarNames [] = new AgentID[carNames.length - cont];
+		int cont2 = 0;
+		
+		for(AgentID carName : carNames) {
+			boolean added = false;
+			for(AgentID carNameRemove : carNamesRemoved) {
+				if(carName != carNameRemove && !added) {
+					newCarNames[cont2] = carName;
+					cont2++;
+					added = true;
+				}
+			}
+		}
+		
+		this.carNames = newCarNames;
 		
 		if(allOk)
 			this.state = CHOOSE_AGENTS;
