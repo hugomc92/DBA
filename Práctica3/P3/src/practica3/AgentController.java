@@ -62,6 +62,7 @@ public class AgentController extends Agent {
     private int mapWorldPosY;
     private boolean mapWorldCompleted;
     private String mapWorldDirection;
+    private int carsInGoal;
 	
 	private int globalFuel;
 	private final int [][] carLocalInfo = new int[4][6];
@@ -73,6 +74,7 @@ public class AgentController extends Agent {
     private boolean finish = false;
 
     private JsonObject savedMap;
+    private int numSentCars;
 
     /**
      * Constructor 
@@ -125,6 +127,8 @@ public class AgentController extends Agent {
 		this.mapWorldPosY = -1;
 		this.mapWorldDirection = "";
 		this.mapWorldCompleted = false;
+                this.numSentCars = 0;
+                this.carsInGoal = 0;
 		
 		System.out.println("AgetnController has just started");
 	}
@@ -714,7 +718,7 @@ public class AgentController extends Agent {
                     contador+=fuelNeeded[i];
                 }
             
-                ArrayList <Integer> listaElegidos = new ArrayList <Integer>();
+                ArrayList <Integer> chosenList = new ArrayList <Integer>();
 
                 int maxIndex;
                 do{
@@ -725,11 +729,12 @@ public class AgentController extends Agent {
                 
                 for(int i=0;i<fuelNeeded.length;i++){
                     if(fuelNeeded[i]>=0)
-                        listaElegidos.add(i);
+                        chosenList.add(i);
                 }
+                this.numSentCars = chosenList.size();
                 
-                this.sendCars(listaElegidos);
-                
+                this.sendCars(chosenList);
+                this.state = CONTROL_AGENTS;
 	}
         
 	/**
@@ -770,10 +775,32 @@ public class AgentController extends Agent {
 	 * @author
 	 */
 	private void stateControlAgents() {
+            
+            int numCars = this.numSentCars;
+            while(numCars > 0){
+                ACLMessage receive = this.receiveMessage();
+                
+                //Si es un move
+                if(receive.getPerformativeInt() == ACLMessage.INFORM){
+                    //Actualizamos el mapa
+                    
+                    //Si tenemos a otro car bloqueado, avisarlo
+                    
+                    //Si ha llegado a su goal, bajar numCars y subir carsInGoal
+                }
+                //Ha visto a otro car
+                else if (receive.getPerformativeInt() == ACLMessage.QUERY_REF){
+                    //Mirar si hay que bloquear a este car
+                    
+                    //Si hay que bloquearlo, enviarle el mensaje y meterlo en la lista de bloqueados
+                }
+                //Algo malo ha pasado
+                else{
+                    numCars--;
+                }
+            }
 		
-		if(DEBUG)
-			System.out.println("AgentController state: CONTROL_AGENTS");
-		
+            state = FINALIZE;
 	}
 	
 	/**
@@ -852,28 +879,28 @@ public class AgentController extends Agent {
                                     
 					break;
 				case CHECK_AGENTS_EXPLORE:
-                    if(DEBUG)
+                                    if(DEBUG)
 						System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
 					
 					this.stateCheckAgentsExplore();
           
 					break;
 				case EXPLORE_MAP:
-                    if(DEBUG)
+                                    if(DEBUG)
 						System.out.println("AgentController state: EXPLORE_MAP");
 						
 					this.stateExploreMap();
 
 					break;
 				case SAVE_MAP:
-                    if(DEBUG)
+                                    if(DEBUG)
 						System.out.println("AgentController state: SAVE_MAP");
 										
 					this.stateSaveMap();
 					
 					break;
 				case RE_RUN:
-                    if(DEBUG)
+                                    if(DEBUG)
 						System.out.println("AgentController state: RE_RUN");
 										
 					this.stateReRun();
@@ -885,64 +912,65 @@ public class AgentController extends Agent {
 						System.out.println("AgentController state: SUBSCRIBE_MAP");
 					
 					if(this.subscribe())
-						this.state = WAKE_AGENTS_EXPLORE;
+						this.state = WAKE_AGENTS;
 					else
 						this.state = FINALIZE;
 					
 					break;
 				case WAKE_AGENTS:
 					
-					if(DEBUG)
-						System.out.println("AgentController state: WAKE_AGENTS");
+                                    if(DEBUG)
+					System.out.println("AgentController state: WAKE_AGENTS");
 					
-					if(this.wakeAgents())
-						this.state = CHECK_AGENTS;
-					else
-						this.state = FINALIZE;              
+                                    if(this.wakeAgents())
+                                        this.state = CHECK_AGENTS;
+                                    else
+                                        this.state = FINALIZE;              
 					
 					break;
 				case CHECK_AGENTS:
-                    if(DEBUG)
+                                    if(DEBUG)
 						System.out.println("AgentController state: CHECK_AGENTS");
 										
 					this.stateCheckAgents();
 					
 					break;
 				case REQUEST_POSITION:
-					
+					if(DEBUG)
+						System.out.println("AgentController state: REQUEST_POSITION");
 					this.stateRequestPosition();
 					
 					break;
 				case SEND_MAP:
-                    if(DEBUG)
+                                    if(DEBUG)
 						System.out.println("AgentController state: SEND_MAP");
 										
 					this.stateSendMap();
 					
 					break;
 				case FUEL_INFORMATION:
-                    if(DEBUG)
+                                    if(DEBUG)
 						System.out.println("AgentController state: FUEL_INFORMATION");
 										
 					this.stateFuelInformation();
 					
 					break;
 				case CHOOSE_AGENTS:
-                    if(DEBUG)
+                                    if(DEBUG)
 						System.out.println("AgentController state: CHOOSE_AGENTS");
 										
 					this.stateChooseAgents();
 					
 					break;
-                case CONTROL_AGENTS:
-                    if(DEBUG)
+                                case CONTROL_AGENTS:
+                                    if(DEBUG)
 						System.out.println("AgentController state: CONTROL_AGENTS");
 										
 					this.stateControlAgents();
 					
 					break;
-                case FINALIZE:
-                    if(DEBUG)
+                                case FINALIZE:
+                                    if(DEBUG)
 						System.out.println("AgentController state: FINALIZE");
 										
 					this.stateFinalize();  
