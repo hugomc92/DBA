@@ -42,9 +42,6 @@ public class AgentController extends Agent {
 	private static final int CHECK_AGENTS = 13;
 	private static final int REQUEST_POSITION = 14;
     private static final int SEND_MAP = 15;
-    
-	
-    private static final int WIDTH = 511, HEIGHT = 511;
 	
     private static final boolean DEBUG = true;
 	
@@ -60,7 +57,7 @@ public class AgentController extends Agent {
     private final String map;
     
     private int [][] mapWorld;
-    private int mapWorldSize;
+    private final int mapWorldSize = 510;
     private int mapWorldPosX;
     private int mapWorldPosY;
     private boolean mapWorldCompleted;
@@ -124,8 +121,6 @@ public class AgentController extends Agent {
 		
 		this.globalFuel = -1;
 		
-		this.mapWorldSize = -1;
-		
 		this.mapWorldPosX = -1;
 		this.mapWorldPosY = -1;
 		this.mapWorldDirection = "";
@@ -152,7 +147,6 @@ public class AgentController extends Agent {
 			String fileString = IOUtils.toString(fisTargetFile, "UTF-8");
 			this.savedMap = Json.parse(fileString).asObject();
 			boolean completed = savedMap.get("completed").asBoolean();
-			this.mapWorldSize = savedMap.get("tam").asInt();
 			mapWorld = new int[this.mapWorldSize][this.mapWorldSize];
 			//Miramos si el estado del mapa guardado es "completo" (ya se conoce todo el mapa)
 			if(completed) {
@@ -172,8 +166,7 @@ public class AgentController extends Agent {
 			if(DEBUG)
 				System.out.println("MAP " + map + " NOT FOUND");
 			
-			mapWorld = new int[WIDTH][HEIGHT];
-			this.mapWorldSize = WIDTH;
+			mapWorld = new int[mapWorldSize][mapWorldSize];
                         this.mapWorldPosX = 0;
                         this.mapWorldPosY = 0;
                         this.mapWorldDirection = "right";
@@ -315,8 +308,6 @@ public class AgentController extends Agent {
 		if(receive.getPerformativeInt() == ACLMessage.INFORM) {
 			JsonObject responseObject = Json.parse(receive.getContent()).asObject();
 
-			this.mapWorldSize = responseObject.get("size").asInt();
-
 			this.mapWorldPosX = responseObject.get("finalX").asInt();
 			this.mapWorldPosY = responseObject.get("finalY").asInt();
 
@@ -352,7 +343,6 @@ public class AgentController extends Agent {
 		JsonObject mapToSave = new JsonObject();
 		
 		mapToSave.add("completed", this.mapWorldCompleted);
-		mapToSave.add("tam", this.mapWorldSize);
 		
 		JsonObject pos = new JsonObject();
 		
@@ -604,7 +594,6 @@ public class AgentController extends Agent {
 			}
 		
 			message.add("map", sendMap);
-			message.add("mapSize", this.mapWorldSize);
 			message.add("goalX", carLocalInfo[k][INDEX_OBJX]);
 			message.add("goalY", carLocalInfo[k][INDEX_OBJY]);
 		
@@ -668,7 +657,7 @@ public class AgentController extends Agent {
 					this.carLocalInfo[row][INDEX_FUEL_TO_GOAL] = fuelToGoal;
 					
 					if(fuelToGoal == -1) {
-						message = new JsonObject();
+						/*message = new JsonObject();
 						
 						message.add("die", "now");
 						
@@ -679,8 +668,8 @@ public class AgentController extends Agent {
 						if(inbox.getPerformativeInt() == ACLMessage.AGREE) {
 							carNamesRemoved[cont] = carName;
 							cont++;
-						}
-							
+						}*/
+						allOk = false;	
 					}
 				}
 				else {
@@ -715,15 +704,66 @@ public class AgentController extends Agent {
 	/**
 	 * Elegir qué agentes van al objetivo y cuáles no
 	 * 
-	 * @author
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
 	 */
 	private void stateChooseAgents() {
-		
-		if(DEBUG)
-			System.out.println("AgentController state: CHOOSE_AGENTS");
-		
+		int [] fuelNeeded = new int [4];
+                int contador = 0;
+                for (int i = 0; i < 4; i++){
+                    fuelNeeded[i] = carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL];
+                    contador+=fuelNeeded[i];
+                }
+            
+                ArrayList <Integer> listaElegidos = new ArrayList <Integer>();
+
+                int maxIndex;
+                do{
+                    maxIndex=this.calculateMaxIndex(fuelNeeded);
+                    contador-=fuelNeeded[maxIndex];
+                    fuelNeeded[maxIndex]=-1;
+                }while(contador>this.globalFuel);
+                
+                for(int i=0;i<fuelNeeded.length;i++){
+                    if(fuelNeeded[i]>=0)
+                        listaElegidos.add(i);
+                }
+                
+                this.sendCars(listaElegidos);
+                
 	}
-	
+        
+	/**
+         * Enviar una confirmación de moverse al goal a los agentes elegidos
+         * @param chosenList Lista de agentes elegidos
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
+         */
+        private void sendCars(ArrayList<Integer> chosenList){
+            for(Integer i : chosenList){ 
+                JsonObject message = new JsonObject();
+                message.add("go-to-goal", "OK");
+                this.sendMessage(carNames[ i.intValue()], ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
+            }
+                
+        }
+        
+        
+        /**
+         * Calcula el índice del mayor elemento de una lista de enteros
+         * @param array Lista de valores enteros
+         * @return El índice del mayor valor
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
+         */
+        private int calculateMaxIndex(int [] array){               
+            int maxIndex = 0;
+            for (int i = 1; i < array.length; i++){
+                int newnumber = array[i];
+                if ((newnumber > array[maxIndex])){
+                    maxIndex = i;
+                }
+            }
+            return maxIndex;
+        }
+        
 	/**
 	 * Obtener información de los agentes durante su movimiento para evitar colisiones entre ellos
 	 * 

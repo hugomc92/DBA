@@ -33,6 +33,7 @@ public class AgentCar extends Agent {
     
     private int fuelLocal;
 	
+        private final int SIZE_MAP = 510;
 	private int [][] mapWorld;
 
     private int positionX;
@@ -99,8 +100,9 @@ public class AgentCar extends Agent {
         this.fuelRate = 999999;
         this.fuelLocal = -1;
         this.fuelGlobal = -1;
-		this.fuelToGoal = -1;
+        this.fuelToGoal = -1;
         this.inGoal = false;
+        this.mapWorld = new int[this.SIZE_MAP][this.SIZE_MAP];
         
         System.out.println("AgentCar " + this.getName() + " has just started");
     }
@@ -324,8 +326,8 @@ public class AgentCar extends Agent {
             JsonObject myJson = new JsonObject();
             String message = messageReceived.getContent();
             myJson = Json.parse(message).asObject();
-            positionX = myJson.get("result").asObject().get("x").asInt();
-            positionY = myJson.get("result").asObject().get("y").asInt();
+            positionX = myJson.get("result").asObject().get("x").asInt()+5;
+            positionY = myJson.get("result").asObject().get("y").asInt()+5;
             fuelLocal = myJson.get("result").asObject().get("battery").asInt();
             fuelGlobal = myJson.get("result").asObject().get("energy").asInt();
             inGoal = myJson.get("result").asObject().get("goal").asBoolean();
@@ -471,17 +473,15 @@ public class AgentCar extends Agent {
 		if(inbox.getPerformativeInt() == ACLMessage.INFORM) {
 			JsonObject receive = Json.parse(inbox.getContent()).asObject();
 			
-			int mapSize = receive.get("mapSize").asInt();
-			
 			JsonArray mapArray = receive.get("map").asArray();
 			
 			// Pasar el mapa a la matriz
 			int cont = 0;
 			
-			this.mapWorld = new int[mapSize][mapSize];
+			this.mapWorld = new int[SIZE_MAP][SIZE_MAP];
 			
-			for(int y=0; y<mapSize; y++) {
-				for(int x=0; x<mapSize; x++) {
+			for(int y=0; y<SIZE_MAP; y++) {
+				for(int x=0; x<SIZE_MAP; x++) {
 					this.mapWorld[y][x] = mapArray.get(cont).asInt();
 					cont++;
 				}
@@ -489,6 +489,7 @@ public class AgentCar extends Agent {
 			
 			this.goalPositionX = receive.get("goalX").asInt();
 			this.goalPositionY = receive.get("goalY").asInt();
+                        this.type.setMap(mapWorld);
         
 			this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
 			
@@ -578,6 +579,16 @@ public class AgentCar extends Agent {
                                 this.startExploringX = responseObject.get("startX").asInt();
                                 this.startExploringY = responseObject.get("startY").asInt();
                                 this.mapDirection = responseObject.get("direction").asString();
+                                
+                                int x = 0, y = 0;
+                                for (JsonValue j : responseObject.get("map").asArray()){
+                                    mapWorld[y][x]=j.asInt();
+                                    x++;
+                                    if(x % SIZE_MAP == 0){
+                                        x = 0;
+                                        y++;
+                                    }
+                                }
                         }
 			else
 				this.state = READY;
@@ -702,14 +713,12 @@ public class AgentCar extends Agent {
         }
 
         //Iniciamos las variables pertinentes
-        final int SIZE_MAP = 510;
-        int [][] mapChecked = new int [SIZE_MAP][SIZE_MAP];
         boolean goLeft, mapExplored = false, goDown = false;
         int depth = -1;
         if(mapDirection == "right")
-            goLeft = true;
-        else
             goLeft = false;
+        else
+            goLeft = true;
         
         //Empezamos el zig-zag
         while (!mapExplored && state != NOT_UND_FAILURE_REFUSE){
@@ -722,8 +731,8 @@ public class AgentCar extends Agent {
                 if(!goDown){
                     //Nos movemos en nuestra dirección si no hay pared externa,
                     //en caso contrario apuntamos para bajar
-                    if((goLeft && mapChecked[positionX-1][positionY] != 2) ||
-                            (!goLeft && mapChecked[positionX+1][positionY] != 2)){
+                    if((goLeft && mapWorld[positionX-1][positionY] != 2) ||
+                            (!goLeft && mapWorld[positionX+1][positionY] != 2)){
                         //MOVIMIENTO
                         if(goLeft)
                             commandMove(positionX-1,positionY);
@@ -736,24 +745,23 @@ public class AgentCar extends Agent {
                         //Guardamos la percepción en nuestro mapa
                         for (int j = positionX-1; j <= positionX+1; j++){   //Columnas
                             for (int i = positionY-1; i <= positionY+1; i++){    //Filas
-                                mapChecked[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
+                                mapWorld[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
                             }
                         }
-
+                        
                         //ACTUALIZAR IMAGEN A VISUALIZAR
                         
                     }
                     else{   //Hay pared en la dirección horizontal en la que nos movemos
                         //Intercambiamos direcciones para posteriores movimientos en horizontal
-                        if(goLeft)  goLeft = false;
-                        else        goLeft = true;
+                        goLeft = !goLeft;
                         depth = positionY+3;
                         goDown = true;
                     }
                 }
                 //Si vamos en vertical
                 else{
-                    if(mapChecked[positionX][positionY+1] != 2 && positionY < depth){
+                    if(mapWorld[positionX][positionY+1] != 2 && positionY < depth){
                         //MOVIMIENTO
                         commandMove(positionX,positionY+1);
 
@@ -763,18 +771,18 @@ public class AgentCar extends Agent {
                         //Guardamos la percepción en nuestro mapa
                         for (int j = positionX-1; j <= positionX+1; j++){   //Columnas
                             for (int i = positionY-1; i <= positionY+1; i++){    //Filas
-                                mapChecked[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
+                                mapWorld[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
                             }
                         }
 
                         //ACTUALIZAR IMAGEN A VISUALIZA
                     }
-                    else if (mapChecked[positionX][positionY+1] == 2){  //Tocamos la pared de abajo
+                    else if (mapWorld[positionX][positionY+1] == 2){  //Tocamos la pared de abajo
                         if(depth - positionY <= 1){  //No es necesario explorar horizontalmente
-                            mapExplored = true;
+                            goDown = false;
                         }
                         else{   //Hay que explorar la última fila
-                            goDown = false;
+                            mapExplored = true;
                         }
                     }
                 }
@@ -787,7 +795,7 @@ public class AgentCar extends Agent {
         JsonArray mapArray = new JsonArray();
         for (int j = 0; j < SIZE_MAP; j++){ //Columnas
             for (int i = 0; i < SIZE_MAP; i++){  //Filas
-                mapArray.add(mapChecked[i][j]);
+                mapArray.add(mapWorld[i][j]);
             }
         }
         myJson.add("map",mapArray);
