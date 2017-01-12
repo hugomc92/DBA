@@ -834,12 +834,12 @@ public class AgentController extends Agent {
                 //Si es un move
                 if(receive.getPerformativeInt() == ACLMessage.INFORM){
                     //Actualizamos su posición
-                    carLocalInfo[rowAgent][this.INDEX_POSX]=content.get("x").asInt();
-                    carLocalInfo[rowAgent][this.INDEX_POSY]=content.get("y").asInt();
-                    carLocalInfo[rowAgent][this.INDEX_STEPS_TO_GOAL] --;
+                    carLocalInfo[rowAgent][INDEX_POSX]=content.get("x").asInt();
+                    carLocalInfo[rowAgent][INDEX_POSY]=content.get("y").asInt();
+                    carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL] --;
                     
                     //Actualizamos el mapa
-                    m.updatePos(carLocalInfo[rowAgent][this.INDEX_POSX], carLocalInfo[rowAgent][this.INDEX_POSY], rowAgent);
+                    m.updatePos(carLocalInfo[rowAgent][INDEX_POSX], carLocalInfo[rowAgent][INDEX_POSY], rowAgent);
                     m.repaint();
                     
                     //Si tenemos a otro car bloqueado y hay una distancia mínima
