@@ -521,6 +521,7 @@ public class AgentCar extends Agent {
             myJson.add("global-fuel",this.fuelGlobal);
             myJson.add("actual-fuel",this.fuelLocal);
             myJson.add("fuel-to-goal",this.fuelToGoal);
+            myJson.add("num-steps",this.pathToGoal.size());
             this.answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
             
             ACLMessage actionReceived = receiveMessage();
@@ -644,7 +645,7 @@ public class AgentCar extends Agent {
 				message.add("canMove", "OK");
 				message.add("otherAgents", otherAgentsPosition);
 			
-				this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, messageCanMove.asString());
+				this.sendMessage(controllerName, ACLMessage.QUERY_IF, this.generateReplyId(), convIDController, messageCanMove.asString());
 				
 				ACLMessage inbox = this.receiveMessage();
 				

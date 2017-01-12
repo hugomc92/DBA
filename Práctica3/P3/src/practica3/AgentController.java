@@ -51,9 +51,11 @@ public class AgentController extends Agent {
 	private static final int INDEX_FUEL_TO_GOAL = 3;
 	private static final int INDEX_OBJX = 4;
 	private static final int INDEX_OBJY = 5;
+        private static final int INDEX_STEPS_TO_GOAL = 6;
 	
     private final AgentID serverName;
     private AgentID carNames[] = new AgentID[4];
+    private String replyWithAgents [] = new String[4];
     private final String map;
     
     private int [][] mapWorld;
@@ -65,7 +67,7 @@ public class AgentController extends Agent {
     private int carsInGoal;
 	
 	private int globalFuel;
-	private final int [][] carLocalInfo = new int[4][6];
+	private final int [][] carLocalInfo = new int[4][7];
     
     private int state;
     private String conversationIdServer;
@@ -606,7 +608,28 @@ public class AgentController extends Agent {
 		
 		this.state = FUEL_INFORMATION;
 	}
-	
+
+        /**
+         * Devuelve el índice de un AgentID dado
+         * @param thisAgent AgentID del agente a buscar su índice
+         * @return Índice del AgentID dado
+         * @author Aaron Rodriguez Bueno and Jose David Torres de las Morenas
+         */
+        int getIndexCar(AgentID thisAgent){
+            int row = -1;
+				
+            if(thisAgent == carNames[0])
+                    row = 0;
+            else if(thisAgent == carNames[1])
+                    row = 1;
+            else if(thisAgent == carNames[2])
+                    row = 2;
+            else if(thisAgent == carNames[3])
+                    row = 3;
+            
+            return row;
+        }
+        
 	/**
 	 * Obtener la información de la batería de los agentes
 	 * 
@@ -639,16 +662,7 @@ public class AgentController extends Agent {
 			}
 			else {
 				// Guardar la información de la batería de cada agente para procesarla en el estado CHOOSE_AGENTS
-				int row = -1;
-				
-				if(inbox.getSender() == carNames[0])
-					row = 0;
-				else if(inbox.getSender() == carNames[1])
-					row = 1;
-				else if(inbox.getSender() == carNames[2])
-					row = 2;
-				else if(inbox.getSender() == carNames[3])
-					row = 3;
+				int row = getIndexCar(inbox.getSender());
 				
 				if(row != -1) {
 					JsonObject response = Json.parse(inbox.getContent()).asObject();
@@ -656,9 +670,11 @@ public class AgentController extends Agent {
 					this.globalFuel = response.get("global-fuel").asInt();
 					int actualFuel = response.get("actual-fuel").asInt();
 					int fuelToGoal = response.get("fuel-to-goal").asInt();
+                                        int steps = response.get("num-steps").asInt();
 
 					this.carLocalInfo[row][INDEX_ACTUAL_FUEL] = actualFuel;
 					this.carLocalInfo[row][INDEX_FUEL_TO_GOAL] = fuelToGoal;
+                                        this.carLocalInfo[row][INDEX_STEPS_TO_GOAL] = steps;
 					
 					if(fuelToGoal == -1) {
 						/*message = new JsonObject();
@@ -772,25 +788,57 @@ public class AgentController extends Agent {
 	/**
 	 * Obtener información de los agentes durante su movimiento para evitar colisiones entre ellos
 	 * 
-	 * @author
+	 * @author Aaron Rodriguez Bueno and Jose David Torres de las Morenas
 	 */
 	private void stateControlAgents() {
-            
+            int [] bloquedCars = new int [4];
+            for (int i = 0; i < bloquedCars.length; i++)
+                bloquedCars[i] = -1;
             int numCars = this.numSentCars;
+            int rowAgent;
+            
             while(numCars > 0){
                 ACLMessage receive = this.receiveMessage();
+                rowAgent = getIndexCar(receive.getSender());
+                this.replyWithAgents[rowAgent] = receive.getReplyWith();
+                JsonObject content = Json.parse(receive.getContent()).asObject();
                 
                 //Si es un move
                 if(receive.getPerformativeInt() == ACLMessage.INFORM){
+                    //Actualizamos su posición
+                    carLocalInfo[rowAgent][this.INDEX_POSX]=content.get("x").asInt();
+                    carLocalInfo[rowAgent][this.INDEX_POSY]=content.get("y").asInt();
+                    
                     //Actualizamos el mapa
                     
-                    //Si tenemos a otro car bloqueado, avisarlo
                     
-                    //Si ha llegado a su goal, bajar numCars y subir carsInGoal
+                    //Si tenemos a otro car bloqueado y hay una distancia mínima
+                    //entre dicho coche y el que había avistado, avisarlo
+                    for (int i = 0; i < bloquedCars.length; i++){
+                        if(bloquedCars[i] == rowAgent){  //Está bloqueando al car de índice i
+                            if(Math.max(Math.abs(carLocalInfo[rowAgent][INDEX_POSX]-carLocalInfo[i][INDEX_POSX])    //Cogemos la mayor diferencia de X o de Y entre los dos cars
+                                        ,Math.abs(carLocalInfo[rowAgent][INDEX_POSY]-carLocalInfo[i][INDEX_POSY])) 
+                                    >= 7){
+                                //Mensaje de puede moverse
+                                JsonObject message = new JsonObject();
+                                message.add("canMove","OK");
+                                sendMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.asString());
+                                
+                                //Liberamos bloquedCars[i]
+                                bloquedCars[i] = -1;
+                            }
+                        }  
+                    }
+                    
+                    //Si ha llegado a su goal, bajar numCars, subir carsInGoal y bajar el
+                    //nº de pasos del coche hasta el goal
+                    if()
+                    
                 }
                 //Ha visto a otro car
                 else if (receive.getPerformativeInt() == ACLMessage.QUERY_REF){
                     //Mirar si hay que bloquear a este car
+                    
                     
                     //Si hay que bloquearlo, enviarle el mensaje y meterlo en la lista de bloqueados
                 }
