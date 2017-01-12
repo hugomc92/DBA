@@ -663,8 +663,8 @@ public class AgentCar extends Agent {
 			if(otherAgentFound) {
 				JsonObject messageCanMove = new JsonObject();
 				
-				message.add("canMove", "OK");
-				message.add("otherAgents", otherAgentsPosition);
+				messageCanMove.add("canMove", "OK");
+				messageCanMove.add("otherAgents", otherAgentsPosition);
 			
 				this.sendMessage(controllerName, ACLMessage.QUERY_IF, this.generateReplyId(), convIDController, messageCanMove.asString());
 				
