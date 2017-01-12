@@ -52,7 +52,7 @@ public class AgentController extends Agent {
 	private static final int INDEX_FUEL_TO_GOAL = 3;
 	private static final int INDEX_OBJX = 4;
 	private static final int INDEX_OBJY = 5;
-        private static final int INDEX_STEPS_TO_GOAL = 6;
+	private static final int INDEX_STEPS_TO_GOAL = 6;
 	
     private final AgentID serverName;
     private AgentID carNames[] = new AgentID[4];
@@ -638,19 +638,21 @@ public class AgentController extends Agent {
          * Devuelve el índice de un AgentID dado
          * @param thisAgent AgentID del agente a buscar su índice
          * @return Índice del AgentID dado
+		 * 
          * @author Aaron Rodriguez Bueno and Jose David Torres de las Morenas
          */
         int getIndexCar(AgentID thisAgent){
+			
             int row = -1;
 				
             if(thisAgent == carNames[0])
-                    row = 0;
+				row = 0;
             else if(thisAgent == carNames[1])
-                    row = 1;
+				row = 1;
             else if(thisAgent == carNames[2])
-                    row = 2;
+				row = 2;
             else if(thisAgent == carNames[3])
-                    row = 3;
+				row = 3;
             
             return row;
         }
@@ -695,14 +697,16 @@ public class AgentController extends Agent {
 					this.globalFuel = response.get("global-fuel").asInt();
 					int actualFuel = response.get("actual-fuel").asInt();
 					int fuelToGoal = response.get("fuel-to-goal").asInt();
-                                        int steps = response.get("num-steps").asInt();
+					int steps = response.get("num-steps").asInt();
 
 					this.carLocalInfo[row][INDEX_ACTUAL_FUEL] = actualFuel;
 					this.carLocalInfo[row][INDEX_FUEL_TO_GOAL] = fuelToGoal;
-                                        this.carLocalInfo[row][INDEX_STEPS_TO_GOAL] = steps;
+					this.carLocalInfo[row][INDEX_STEPS_TO_GOAL] = steps;
 					
 					if(fuelToGoal == -1) {
-						message = new JsonObject();
+						
+						this.carLocalInfo[row][INDEX_STEPS_TO_GOAL] = -1;
+						/*message = new JsonObject();
 						
 						message.add("die", "now");
 						
@@ -713,7 +717,7 @@ public class AgentController extends Agent {
 						if(inbox.getPerformativeInt() == ACLMessage.AGREE) {
 							carNamesRemoved[cont] = carName;
 							cont++;
-						}
+						}*/
 					}
 				}
 				else {
@@ -722,7 +726,7 @@ public class AgentController extends Agent {
 			}
 		}
 		
-		AgentID newCarNames [] = new AgentID[carNames.length - cont];
+		/*AgentID newCarNames [] = new AgentID[carNames.length - cont];
 		int cont2 = 0;
 		
 		for(AgentID carName : carNames) {
@@ -736,7 +740,7 @@ public class AgentController extends Agent {
 			}
 		}
 		
-		this.carNames = newCarNames;
+		this.carNames = newCarNames;*/
 		
 		if(allOk)
 			this.state = CHOOSE_AGENTS;

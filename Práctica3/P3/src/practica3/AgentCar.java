@@ -506,9 +506,14 @@ public class AgentCar extends Agent {
     
 			this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
 			
-			if(this.pathToGoal != null)
+			if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {
 				//El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
 				this.fuelToGoal = this.pathToGoal.size() * this.fuelRate;
+			}
+			else {
+				this.fuelToGoal = -1;
+			}
+			
 				
 			this.state = SEND_NECESSARY_FUEL;
 		}
@@ -534,7 +539,10 @@ public class AgentCar extends Agent {
             myJson.add("global-fuel",this.fuelGlobal);
             myJson.add("actual-fuel",this.fuelLocal);
             myJson.add("fuel-to-goal",this.fuelToGoal);
-            myJson.add("num-steps",this.pathToGoal.size());
+			if(fuelGlobal != -1)
+				myJson.add("num-steps",this.pathToGoal.size());
+			else
+				myJson.add("num-steps",-1);
             this.answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
             
             ACLMessage actionReceived = receiveMessage();
@@ -677,6 +685,7 @@ public class AgentCar extends Agent {
     /**
      * ESTADO EXPLORE_MAP: se dirige hacia la posición indicada por el controller,
      * y una vez llegue, comienza a escanear el mapa completo haciendo zig-zag en horizontal.
+	 * 
      * @author Aaron Rodriguez
      */
     private void stateExploreMap() {
