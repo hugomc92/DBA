@@ -337,9 +337,8 @@ public class AgentCar extends Agent {
         //Si no, actualizamos las percepciones y guardamos el replyWith
         else{
             replyWithServer = messageReceived.getReplyWith();
-            JsonObject myJson = new JsonObject();
             String message = messageReceived.getContent();
-            myJson = Json.parse(message).asObject();
+            JsonObject myJson = Json.parse(message).asObject();
             positionX = myJson.get("result").asObject().get("x").asInt()+5;
             positionY = myJson.get("result").asObject().get("y").asInt()+5;
             fuelLocal = myJson.get("result").asObject().get("battery").asInt();
@@ -749,7 +748,7 @@ public class AgentCar extends Agent {
         //Iniciamos las variables pertinentes
         boolean goLeft, mapExplored = false, goDown = false;
         int depth = -1;
-        if(mapDirection == "right")
+        if(mapDirection.equals("right"))
             goLeft = false;
         else
             goLeft = true;
