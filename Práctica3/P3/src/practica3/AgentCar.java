@@ -7,6 +7,7 @@ import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import java.util.List;
+import javax.swing.JFrame;
 
 /**
  * Clase que define cada uno de los agentes
@@ -33,7 +34,7 @@ public class AgentCar extends Agent {
     
     private int fuelLocal;
 	
-        private final int SIZE_MAP = 510;
+	private final int SIZE_MAP = 510;
 	private int [][] mapWorld;
 
     private int positionX;
@@ -64,6 +65,11 @@ public class AgentCar extends Agent {
     private int startExploringX;
     private int startExploringY;
     private String mapDirection;
+	
+	private JFrame jframe;
+    private MyDrawPanel m;
+	
+	private boolean iniDraw;
     
     /**
      * Constructor
@@ -103,6 +109,14 @@ public class AgentCar extends Agent {
         this.fuelToGoal = -1;
         this.inGoal = false;
         this.mapWorld = new int[this.SIZE_MAP][this.SIZE_MAP];
+		
+		for(int y=0; y<SIZE_MAP; y++) {
+			for(int x=0; x<SIZE_MAP; x++) {
+				this.mapWorld[y][x] = -1;
+			}
+		}
+		
+		iniDraw = false;
         
         System.out.println("AgentCar " + this.getName() + " has just started");
     }
@@ -335,7 +349,7 @@ public class AgentCar extends Agent {
             for(JsonValue j : myJson.get("result").asObject().get("sensor").asArray()){
                 radar[y][x] = j.asInt();
                 x++;
-                if(x == range){
+                if(x == range-1){
                     x = 0;
                     y++;
                 }
@@ -489,8 +503,8 @@ public class AgentCar extends Agent {
 			
 			this.goalPositionX = receive.get("goalX").asInt();
 			this.goalPositionY = receive.get("goalY").asInt();
-                        this.type.setMap(mapWorld);
-        
+			this.type.setMap(mapWorld);
+    
 			this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
 			
 			if(this.pathToGoal != null)
@@ -667,11 +681,28 @@ public class AgentCar extends Agent {
      */
     private void stateExploreMap() {
         System.out.println("AgentCar " + this.getName() + " en el estado EXPLORE_MAP");
+		
+		if(!iniDraw) {
+			jframe = new JFrame();
+			m = new MyDrawPanel(this.mapWorld);
+			jframe.add(m);
+			jframe.setSize(this.SIZE_MAP+10, this.SIZE_MAP+50);
+			jframe.setVisible(true);
+
+			//jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
+			jframe.setUndecorated(true);
+			jframe.setTitle(this.getName());
+			
+			iniDraw = true;
+		}
         
         //Primero hacemos un requestPerceptions para saber dónde nos encontramos
         requestPerceptions();
 
         //Aquí deberíamos crear la imagen a visualizar y pintarla
+		m.updateMap(radar, positionX, positionY);
+		
+		m.repaint();
         
         //Avanzamos hacia la posición dada por el controller
         boolean inPosition = false;
@@ -708,6 +739,9 @@ public class AgentCar extends Agent {
                     requestPerceptions();
 
                     //ACTUALIZAR IMAGEN A VISUALIZAR
+					m.updateMap(radar, positionX, positionY);
+		
+					m.repaint();
                 }
             }
         }

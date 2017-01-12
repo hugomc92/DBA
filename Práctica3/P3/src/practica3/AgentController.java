@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+import javax.swing.JFrame;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -75,6 +76,9 @@ public class AgentController extends Agent {
 
     private JsonObject savedMap;
     private int numSentCars;
+	
+	private JFrame jframe;
+    private MyDrawPanel m;
 
     /**
      * Constructor 
@@ -95,7 +99,7 @@ public class AgentController extends Agent {
 		
         super(name);
 		//Inicializamos los nombres del servidor y los agentCar
-        this.serverName = serverName;	
+        this.serverName = serverName;
         this.carNames[0] = car1Name;
         this.carNames[1] = car2Name;
         this.carNames[2] = car3Name;
@@ -127,8 +131,8 @@ public class AgentController extends Agent {
 		this.mapWorldPosY = -1;
 		this.mapWorldDirection = "";
 		this.mapWorldCompleted = false;
-                this.numSentCars = 0;
-                this.carsInGoal = 0;
+		this.numSentCars = 0;
+		this.carsInGoal = 0;
 		
 		System.out.println("AgetnController has just started");
 	}
@@ -152,18 +156,39 @@ public class AgentController extends Agent {
 			this.savedMap = Json.parse(fileString).asObject();
 			boolean completed = savedMap.get("completed").asBoolean();
 			mapWorld = new int[this.mapWorldSize][this.mapWorldSize];
+			
+			int x = 0, y = 0;
+			for(JsonValue pos : this.savedMap.get("map").asArray()) {
+				this.mapWorld[y][x] = pos.asInt();
+                x++;
+                if(x == this.mapWorldSize - 1){
+                    x = 0;
+                    y++;
+                }
+			}
+			
 			//Miramos si el estado del mapa guardado es "completo" (ya se conoce todo el mapa)
 			if(completed) {
                 //Marcamos la bandera en caso afirmativo y pasamos al estado de subscripción al mapa
 				this.mapWorldCompleted = true;
 				this.state = SUBSCRIBE_MAP;
+				
+				jframe = new JFrame();
+				m = new MyDrawPanel(this.mapWorld);
+				jframe.add(m);
+				jframe.setSize(this.mapWorldSize+10, this.mapWorldSize+50);
+				jframe.setVisible(true);
+
+				//jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
+				jframe.setUndecorated(true);
+				jframe.setTitle(this.map);
 			}
 			else {
                 //Pasamos al modo exploración y almacenamos la posición desde la que seguimos explorando"
 				this.state = SUBS_MAP_EXPLORE;
 				this.mapWorldPosX = savedMap.get("pos").asObject().get("x").asInt();
 				this.mapWorldPosY = savedMap.get("pos").asObject().get("y").asInt();
-                                this.mapWorldDirection = savedMap.get("direction").asString();
+				this.mapWorldDirection = savedMap.get("direction").asString();
 			}
 		} catch(IOException ex) {
 			//No existe mapa previo, por lo que entramos en modo exploración y inicializamos las estructuras necesarias.
@@ -171,9 +196,9 @@ public class AgentController extends Agent {
 				System.out.println("MAP " + map + " NOT FOUND");
 			
 			mapWorld = new int[mapWorldSize][mapWorldSize];
-                        this.mapWorldPosX = 0;
-                        this.mapWorldPosY = 0;
-                        this.mapWorldDirection = "right";
+			this.mapWorldPosX = 0;
+			this.mapWorldPosY = 0;
+			this.mapWorldDirection = "right";
 			this.state = SUBS_MAP_EXPLORE;
 		}
     }
@@ -279,7 +304,7 @@ public class AgentController extends Agent {
 				messageAccept.add("startX", this.mapWorldPosX);
 				messageAccept.add("startY", this.mapWorldPosY);
 				messageAccept.add("size", this.mapWorldSize);
-                                messageAccept.add("direction", this.mapWorldDirection);
+				messageAccept.add("direction", this.mapWorldDirection);
 				
 				for(AgentID carName : flyingAgents) {
 					if(carName == flyingAgents[0])
