@@ -885,9 +885,18 @@ public class AgentController extends Agent {
                 //Ha visto a otro car
                 else if (receive.getPerformativeInt() == ACLMessage.QUERY_IF){
                     //Mirar si hay que bloquear a este car si alguno de los otros tiene prioridad y no está ya en el goal
+                    //Recorrer el array mandado en el mensaje. Para cada car visto:
                     
+                        //Si los steps del car que ha mandado el mensaje son mayores que el de ese car Y ese car no está ya en el goal
+                        
+                            //Avisas por mensaje que está bloqueado
+                            
+                            //Metes al otro car en bloquedCars[rowAgent]
+                            
+                            
+                    //Si no está bloqueado
                     
-                    //Si hay que bloquearlo, enviarle el mensaje y meterlo en la lista de bloqueados
+                        //Mandarle mensaje diciendole que continue
                 }
                 //Algo malo ha pasado
                 else{
