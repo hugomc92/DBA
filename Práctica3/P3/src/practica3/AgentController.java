@@ -832,9 +832,11 @@ public class AgentController extends Agent {
                     //Actualizamos su posición
                     carLocalInfo[rowAgent][this.INDEX_POSX]=content.get("x").asInt();
                     carLocalInfo[rowAgent][this.INDEX_POSY]=content.get("y").asInt();
+                    carLocalInfo[rowAgent][this.INDEX_STEPS_TO_GOAL] --;
                     
                     //Actualizamos el mapa
-                    
+                    m.updatePos(carLocalInfo[rowAgent][this.INDEX_POSX], carLocalInfo[rowAgent][this.INDEX_POSY], rowAgent);
+                    m.repaint();
                     
                     //Si tenemos a otro car bloqueado y hay una distancia mínima
                     //entre dicho coche y el que había avistado, avisarlo
@@ -856,12 +858,29 @@ public class AgentController extends Agent {
                     
                     //Si ha llegado a su goal, bajar numCars, subir carsInGoal y bajar el
                     //nº de pasos del coche hasta el goal
-                    if()
+                    if(carLocalInfo[rowAgent][INDEX_POSX] == carLocalInfo[rowAgent][INDEX_OBJX] &&
+                        carLocalInfo[rowAgent][INDEX_POSY] == carLocalInfo[rowAgent][INDEX_OBJY]){
+                        carsInGoal++;
+                        numCars--;
+                        
+                        //Desbloqueamos los que estuvieran bloqueados por este coche
+                        for (int i = 0; i < bloquedCars.length; i++){
+                            if (bloquedCars[i] == rowAgent){
+                                //Mensaje de puede moverse
+                                JsonObject message = new JsonObject();
+                                message.add("canMove","OK");
+                                sendMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.asString());
+                                
+                                //Liberamos bloquedCars[i]
+                                bloquedCars[i] = -1;
+                            }
+                        }
+                    }
                     
                 }
                 //Ha visto a otro car
-                else if (receive.getPerformativeInt() == ACLMessage.QUERY_REF){
-                    //Mirar si hay que bloquear a este car
+                else if (receive.getPerformativeInt() == ACLMessage.QUERY_IF){
+                    //Mirar si hay que bloquear a este car si alguno de los otros tiene prioridad y no está ya en el goal
                     
                     
                     //Si hay que bloquearlo, enviarle el mensaje y meterlo en la lista de bloqueados
