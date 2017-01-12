@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+import javax.swing.JFrame;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -77,6 +78,9 @@ public class AgentController extends Agent {
 
     private JsonObject savedMap;
     private int numSentCars;
+	
+	private JFrame jframe;
+    private MyDrawPanel m;
 
     /**
      * Constructor 
@@ -97,7 +101,7 @@ public class AgentController extends Agent {
 		
         super(name);
 		//Inicializamos los nombres del servidor y los agentCar
-        this.serverName = serverName;	
+        this.serverName = serverName;
         this.carNames[0] = car1Name;
         this.carNames[1] = car2Name;
         this.carNames[2] = car3Name;
@@ -129,8 +133,8 @@ public class AgentController extends Agent {
 		this.mapWorldPosY = -1;
 		this.mapWorldDirection = "";
 		this.mapWorldCompleted = false;
-                this.numSentCars = 0;
-                this.carsInGoal = 0;
+		this.numSentCars = 0;
+		this.carsInGoal = 0;
 		
 		System.out.println("AgetnController has just started");
 	}
@@ -154,18 +158,39 @@ public class AgentController extends Agent {
 			this.savedMap = Json.parse(fileString).asObject();
 			boolean completed = savedMap.get("completed").asBoolean();
 			mapWorld = new int[this.mapWorldSize][this.mapWorldSize];
+			
+			int x = 0, y = 0;
+			for(JsonValue pos : this.savedMap.get("map").asArray()) {
+				this.mapWorld[y][x] = pos.asInt();
+                x++;
+                if(x == this.mapWorldSize - 1){
+                    x = 0;
+                    y++;
+                }
+			}
+			
 			//Miramos si el estado del mapa guardado es "completo" (ya se conoce todo el mapa)
 			if(completed) {
                 //Marcamos la bandera en caso afirmativo y pasamos al estado de subscripción al mapa
 				this.mapWorldCompleted = true;
 				this.state = SUBSCRIBE_MAP;
+				
+				jframe = new JFrame();
+				m = new MyDrawPanel(this.mapWorld);
+				jframe.add(m);
+				jframe.setSize(this.mapWorldSize+10, this.mapWorldSize+50);
+				jframe.setVisible(true);
+
+				//jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
+				jframe.setUndecorated(true);
+				jframe.setTitle(this.map);
 			}
 			else {
                 //Pasamos al modo exploración y almacenamos la posición desde la que seguimos explorando"
 				this.state = SUBS_MAP_EXPLORE;
 				this.mapWorldPosX = savedMap.get("pos").asObject().get("x").asInt();
 				this.mapWorldPosY = savedMap.get("pos").asObject().get("y").asInt();
-                                this.mapWorldDirection = savedMap.get("direction").asString();
+				this.mapWorldDirection = savedMap.get("direction").asString();
 			}
 		} catch(IOException ex) {
 			//No existe mapa previo, por lo que entramos en modo exploración y inicializamos las estructuras necesarias.
@@ -173,9 +198,9 @@ public class AgentController extends Agent {
 				System.out.println("MAP " + map + " NOT FOUND");
 			
 			mapWorld = new int[mapWorldSize][mapWorldSize];
-                        this.mapWorldPosX = 0;
-                        this.mapWorldPosY = 0;
-                        this.mapWorldDirection = "right";
+			this.mapWorldPosX = 0;
+			this.mapWorldPosY = 0;
+			this.mapWorldDirection = "right";
 			this.state = SUBS_MAP_EXPLORE;
 		}
     }
@@ -281,7 +306,7 @@ public class AgentController extends Agent {
 				messageAccept.add("startX", this.mapWorldPosX);
 				messageAccept.add("startY", this.mapWorldPosY);
 				messageAccept.add("size", this.mapWorldSize);
-                                messageAccept.add("direction", this.mapWorldDirection);
+				messageAccept.add("direction", this.mapWorldDirection);
 				
 				for(AgentID carName : flyingAgents) {
 					if(carName == flyingAgents[0])
@@ -677,7 +702,7 @@ public class AgentController extends Agent {
                                         this.carLocalInfo[row][INDEX_STEPS_TO_GOAL] = steps;
 					
 					if(fuelToGoal == -1) {
-						/*message = new JsonObject();
+						message = new JsonObject();
 						
 						message.add("die", "now");
 						
@@ -688,8 +713,7 @@ public class AgentController extends Agent {
 						if(inbox.getPerformativeInt() == ACLMessage.AGREE) {
 							carNamesRemoved[cont] = carName;
 							cont++;
-						}*/
-						allOk = false;	
+						}
 					}
 				}
 				else {
@@ -728,62 +752,62 @@ public class AgentController extends Agent {
 	 */
 	private void stateChooseAgents() {
 		int [] fuelNeeded = new int [4];
-                int contador = 0;
-                for (int i = 0; i < 4; i++){
-                    fuelNeeded[i] = carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL];
-                    contador+=fuelNeeded[i];
-                }
-            
-                ArrayList <Integer> chosenList = new ArrayList <Integer>();
+		int contador = 0;
+		for (int i = 0; i < 4; i++){
+			fuelNeeded[i] = carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL];
+			contador+=fuelNeeded[i];
+		}
 
-                int maxIndex;
-                do{
-                    maxIndex=this.calculateMaxIndex(fuelNeeded);
-                    contador-=fuelNeeded[maxIndex];
-                    fuelNeeded[maxIndex]=-1;
-                }while(contador>this.globalFuel);
-                
-                for(int i=0;i<fuelNeeded.length;i++){
-                    if(fuelNeeded[i]>=0)
-                        chosenList.add(i);
-                }
-                this.numSentCars = chosenList.size();
-                
-                this.sendCars(chosenList);
-                this.state = CONTROL_AGENTS;
+		ArrayList <Integer> chosenList = new ArrayList <Integer>();
+
+		int maxIndex;
+		do{
+			maxIndex=this.calculateMaxIndex(fuelNeeded);
+			contador-=fuelNeeded[maxIndex];
+			fuelNeeded[maxIndex]=-1;
+		}while(contador>this.globalFuel);
+
+		for(int i=0;i<fuelNeeded.length;i++){
+			if(fuelNeeded[i]>=0)
+				chosenList.add(i);
+		}
+		this.numSentCars = chosenList.size();
+
+		this.sendCars(chosenList);
+		this.state = CONTROL_AGENTS;
 	}
         
 	/**
-         * Enviar una confirmación de moverse al goal a los agentes elegidos
-         * @param chosenList Lista de agentes elegidos
-	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
-         */
-        private void sendCars(ArrayList<Integer> chosenList){
-            for(Integer i : chosenList){ 
-                JsonObject message = new JsonObject();
-                message.add("go-to-goal", "OK");
-                this.sendMessage(carNames[ i.intValue()], ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
-            }
-                
-        }
+	* Enviar una confirmación de moverse al goal a los agentes elegidos
+	* @param chosenList Lista de agentes elegidos
+	* @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
+	*/
+   private void sendCars(ArrayList<Integer> chosenList){
+	   for(Integer i : chosenList){ 
+		   JsonObject message = new JsonObject();
+		   message.add("go-to-goal", "OK");
+		   this.sendMessage(carNames[i], ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
+	   }
+
+   }
         
         
-        /**
-         * Calcula el índice del mayor elemento de una lista de enteros
-         * @param array Lista de valores enteros
-         * @return El índice del mayor valor
-	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
-         */
-        private int calculateMaxIndex(int [] array){               
-            int maxIndex = 0;
-            for (int i = 1; i < array.length; i++){
-                int newnumber = array[i];
-                if ((newnumber > array[maxIndex])){
-                    maxIndex = i;
-                }
-            }
-            return maxIndex;
-        }
+	/**
+	 * Calcula el índice del mayor elemento de una lista de enteros
+	 * @param array Lista de valores enteros
+	 * @return El índice del mayor valor
+ * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
+	 */
+	private int calculateMaxIndex(int [] array){               
+		int maxIndex = 0;
+		for (int i = 1; i < array.length; i++){
+			int newnumber = array[i];
+			if ((newnumber > array[maxIndex])){
+				maxIndex = i;
+			}
+		}
+		return maxIndex;
+	}
         
 	/**
 	 * Obtener información de los agentes durante su movimiento para evitar colisiones entre ellos
@@ -927,28 +951,28 @@ public class AgentController extends Agent {
                                     
 					break;
 				case CHECK_AGENTS_EXPLORE:
-                                    if(DEBUG)
+					if(DEBUG)
 						System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
 					
 					this.stateCheckAgentsExplore();
           
 					break;
 				case EXPLORE_MAP:
-                                    if(DEBUG)
+					if(DEBUG)
 						System.out.println("AgentController state: EXPLORE_MAP");
 						
 					this.stateExploreMap();
 
 					break;
 				case SAVE_MAP:
-                                    if(DEBUG)
+					if(DEBUG)
 						System.out.println("AgentController state: SAVE_MAP");
 										
 					this.stateSaveMap();
 					
 					break;
 				case RE_RUN:
-                                    if(DEBUG)
+					if(DEBUG)
 						System.out.println("AgentController state: RE_RUN");
 										
 					this.stateReRun();
@@ -967,17 +991,17 @@ public class AgentController extends Agent {
 					break;
 				case WAKE_AGENTS:
 					
-                                    if(DEBUG)
-					System.out.println("AgentController state: WAKE_AGENTS");
+					if(DEBUG)
+						System.out.println("AgentController state: WAKE_AGENTS");
 					
-                                    if(this.wakeAgents())
-                                        this.state = CHECK_AGENTS;
-                                    else
-                                        this.state = FINALIZE;              
+					if(this.wakeAgents())
+						this.state = CHECK_AGENTS;
+					else
+						this.state = FINALIZE;              
 					
 					break;
 				case CHECK_AGENTS:
-                                    if(DEBUG)
+					if(DEBUG)
 						System.out.println("AgentController state: CHECK_AGENTS");
 										
 					this.stateCheckAgents();
@@ -990,35 +1014,35 @@ public class AgentController extends Agent {
 					
 					break;
 				case SEND_MAP:
-                                    if(DEBUG)
+					if(DEBUG)
 						System.out.println("AgentController state: SEND_MAP");
 										
 					this.stateSendMap();
 					
 					break;
 				case FUEL_INFORMATION:
-                                    if(DEBUG)
+					if(DEBUG)
 						System.out.println("AgentController state: FUEL_INFORMATION");
 										
 					this.stateFuelInformation();
 					
 					break;
 				case CHOOSE_AGENTS:
-                                    if(DEBUG)
+					if(DEBUG)
 						System.out.println("AgentController state: CHOOSE_AGENTS");
 										
 					this.stateChooseAgents();
 					
 					break;
-                                case CONTROL_AGENTS:
-                                    if(DEBUG)
+				case CONTROL_AGENTS:
+					if(DEBUG)
 						System.out.println("AgentController state: CONTROL_AGENTS");
 										
 					this.stateControlAgents();
 					
 					break;
-                                case FINALIZE:
-                                    if(DEBUG)
+				case FINALIZE:
+					if(DEBUG)
 						System.out.println("AgentController state: FINALIZE");
 										
 					this.stateFinalize();  
