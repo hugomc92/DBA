@@ -106,6 +106,7 @@ public class AgentController extends Agent {
         this.carNames[1] = car2Name;
         this.carNames[2] = car3Name;
         this.carNames[3] = car4Name;
+        System.out.println("Nombre: "+carNames[0] +" "+carNames[0].getLocalName());
         //Se almacena el mapa en el que vamos a trabajar.
         this.map = map;
     }
@@ -220,7 +221,7 @@ public class AgentController extends Agent {
             sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
             ACLMessage receive = this.receiveMessage();
             System.out.println(receive.getContent());
-		
+	
             if(receive.getPerformativeInt() == ACLMessage.INFORM) {
                 //Si el mensaje que obtenemos es un INFORM almacenamos el conversationID, para su uso posterior
                 this.conversationIdServer = receive.getConversationId();
@@ -275,9 +276,6 @@ public class AgentController extends Agent {
 	 * @author Hugo Maldonado
 	 */
 	private void stateCheckAgentsExplore() {
-		
-            if(DEBUG)
-                System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
         
             //Llamamos a la funcion que manda la conversation ID del servidor y espera por la confirmación
             boolean startCFP = this.requestCheckIn();
@@ -288,6 +286,7 @@ public class AgentController extends Agent {
             //Una vez tenemos los agentes despiertos y funcionando, pasamos a buscar el "volador"
             if(startCFP) {
                 for(AgentID carName : carNames)
+                    
                     sendMessage(carName, ACLMessage.CFP, this.generateReplyId(), this.conversationIdController, message.asString());
 
                 boolean flyingFound = false;
@@ -967,8 +966,15 @@ public class AgentController extends Agent {
 		// Mandar el CANCEL
 		sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
         
-        // Guardar la traza si es necesario
-		
+                //Recibimos el agree
+                
+                // Guardar la traza si es necesario
+                ACLMessage receive = receiveMessage();
+                if(receive.getContent().contains("trace"))
+                    System.out.println("LLEGO LA TRAZA");
+                
+                //HABRIA QUE GUARDAR LA TRAZA
+        
 		// Terminar la ejecución
 		this.finish = true;
     } 
@@ -984,7 +990,6 @@ public class AgentController extends Agent {
 		System.out.println("AgentController execution");
 		
 		while(!finish) {
-                    System.out.println("hola");
 			switch(this.state) {
 				case CHECK_MAP:
 					//Primer estado, chequeo del mapa
@@ -1184,12 +1189,18 @@ public class AgentController extends Agent {
         message.add("conversationID-server", this.conversationIdServer);
         //Por cada uno de los agentCar, mandamos un mensaje
         for(AgentID carName : carNames) {
-            sendMessage(carName, ACLMessage.INFORM, this.generateReplyId(), conversationIdController, message.asString());
+            System.out.println("EN EL FOR");
+            System.out.println("AGENTID: "+carName.getLocalName());
+            String elReply = super.generateReplyId();
+            System.out.println("REPLY: "+elReply+"; C-ID: "+this.conversationIdController);
+            sendMessage(carName, ACLMessage.INFORM, elReply, conversationIdController, message.asString());
+            System.out.println("despues!!!!!!!");
         }
 
         //Esperamos una contestación por cada uno de los mensajes enviados
         for(AgentID carName : carNames) {
             ACLMessage receive = this.receiveMessage();
+            System.out.println(receive.getContent());
             //Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
             if(receive.getPerformativeInt() != ACLMessage.INFORM){
                 return false;

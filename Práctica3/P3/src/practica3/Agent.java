@@ -37,7 +37,7 @@ public class Agent extends SingleAgent {
 	 * @author Hugo Maldonado
      */
     public void sendMessage(AgentID receiver, int performative, String replyWidth, String conversationId, String message) {
-        
+        System.out.println("EN SEND MESSAGE");
 		ACLMessage outbox = new ACLMessage();
         
 		outbox.setSender(this.getAid());

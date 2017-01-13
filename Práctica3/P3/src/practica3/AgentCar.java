@@ -134,6 +134,7 @@ public class AgentCar extends Agent {
             this.state = FINALIZE;
         }
         else if (messageReceived.getPerformativeInt() == ACLMessage.INFORM){
+            System.out.println("Me ha llegado el inform");
             this.state = GET_CAPABILITIES;
             //Cogemos los dos convID
             JsonObject responseObject = Json.parse(messageReceived.getContent()).asObject();
