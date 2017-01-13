@@ -146,7 +146,7 @@ public class AgentCar extends Agent {
     }
     
     /**
-     * ESTADO GET_CAPABILITIES: hace check in en el Server, y luego avisa al Controller
+     * ESTADO GET_CAPABILITIES: hace checkin en el Server, y luego avisa al Controller
      * de que ya está hecho.
 	 * 
      * @author Aaron Rodriguez and Bryan Moreno Picamán and Hugo Maldonado
@@ -591,7 +591,7 @@ public class AgentCar extends Agent {
 		message.add("checkMap", "flying");
         
 		if(type.getClass() == Fly.class) {
-			this.answerMessage(controllerName, ACLMessage.AGREE, replyWithController, convIDController, message.asString());
+			this.answerMessage(controllerName, ACLMessage.AGREE, replyWithController, convIDController, message.toString());
 			
 			ACLMessage receiveAccept = this.receiveMessage();
 			
@@ -617,7 +617,7 @@ public class AgentCar extends Agent {
 				this.state = READY;
 		}
 		else {
-			this.answerMessage(controllerName, ACLMessage.REFUSE, replyWithController, convIDController, message.asString());
+			this.answerMessage(controllerName, ACLMessage.REFUSE, replyWithController, convIDController, message.toString());
 			
 			this.state = READY;
 		}
@@ -642,7 +642,7 @@ public class AgentCar extends Agent {
 			message.add("x", positionX);
 			message.add("y", positionY);
 			
-			this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, message.asString());
+			this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, message.toString());
 			
 			this.requestPerceptions();
 			
@@ -667,7 +667,7 @@ public class AgentCar extends Agent {
 				messageCanMove.add("canMove", "OK");
 				messageCanMove.add("otherAgents", otherAgentsPosition);
 			
-				this.sendMessage(controllerName, ACLMessage.QUERY_IF, this.generateReplyId(), convIDController, messageCanMove.asString());
+				this.sendMessage(controllerName, ACLMessage.QUERY_IF, this.generateReplyId(), convIDController, messageCanMove.toString());
 				
 				ACLMessage inbox = this.receiveMessage();
 				
@@ -846,7 +846,7 @@ public class AgentCar extends Agent {
         else
             myJson.add("direction", "right");
 
-        this.answerMessage(controllerName, ACLMessage.INFORM, replyWithController, convIDController, myJson.asString());
+        this.answerMessage(controllerName, ACLMessage.INFORM, replyWithController, convIDController, myJson.toString());
         
         
         if(state != NOT_UND_FAILURE_REFUSE)

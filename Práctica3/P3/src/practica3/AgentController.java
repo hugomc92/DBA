@@ -224,6 +224,13 @@ public class AgentController extends Agent {
 	
             if(receive.getPerformativeInt() == ACLMessage.INFORM) {
                 //Si el mensaje que obtenemos es un INFORM almacenamos el conversationID, para su uso posterior
+                if(receive.getContent().contains("trace")){
+                    System.out.println("Es la traza y su ide es"+receive.getConversationId());
+                    JsonArray trace = Json.parse(receive.getContent()).asObject().get("trace").asArray();
+                    //this.printTrace(trace, true);
+                }
+                receive = this.receiveMessage();
+                System.out.println(receive.getContent());
                 this.conversationIdServer = receive.getConversationId();
 			
                 if(DEBUG)
@@ -287,7 +294,7 @@ public class AgentController extends Agent {
             if(startCFP) {
                 for(AgentID carName : carNames)
                     
-                    sendMessage(carName, ACLMessage.CFP, this.generateReplyId(), this.conversationIdController, message.asString());
+                    sendMessage(carName, ACLMessage.CFP, this.generateReplyId(), this.conversationIdController, message.toString());
 
                 boolean flyingFound = false;
                 AgentID flyingAgents [] = new AgentID[4];
@@ -315,9 +322,9 @@ public class AgentController extends Agent {
 
                     for(AgentID carName : flyingAgents) {
                         if(carName == flyingAgents[0])
-                            sendMessage(carName, ACLMessage.ACCEPT_PROPOSAL, this.generateReplyId(), conversationIdController, messageAccept.asString());
+                            sendMessage(carName, ACLMessage.ACCEPT_PROPOSAL, this.generateReplyId(), conversationIdController, messageAccept.toString());
                         else
-                            sendMessage(carName, ACLMessage.REJECT_PROPOSAL, this.generateReplyId(), conversationIdController, message.asString());
+                            sendMessage(carName, ACLMessage.REJECT_PROPOSAL, this.generateReplyId(), conversationIdController, message.toString());
 
                         this.state = EXPLORE_MAP;
                     }
@@ -430,7 +437,7 @@ public class AgentController extends Agent {
 		message.add("die", "now");
 
         for(AgentID carName : carNames)
-			sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
+			sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
         
 		boolean allOk = true;
 		
@@ -477,7 +484,7 @@ public class AgentController extends Agent {
 		message.add("givePosition", "ok");
 		
 		for(AgentID carName : carNames)
-			sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
+			sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
 
 		boolean allOk = true;
 		
@@ -633,7 +640,7 @@ public class AgentController extends Agent {
 			message.add("goalX", carLocalInfo[k][INDEX_OBJX]);
 			message.add("goalY", carLocalInfo[k][INDEX_OBJY]);
 		
-			this.sendMessage(carNames[k], ACLMessage.INFORM, this.generateReplyId(), conversationIdController, message.asString());
+			this.sendMessage(carNames[k], ACLMessage.INFORM, this.generateReplyId(), conversationIdController, message.toString());
 		}
 		
 		this.state = FUEL_INFORMATION;
@@ -678,7 +685,7 @@ public class AgentController extends Agent {
 		
 		// Enviar petición de información de batería
 		for(AgentID carName : carNames)
-			this.sendMessage(carName, ACLMessage.QUERY_REF, this.generateReplyId(), conversationIdController, message.asString());
+			this.sendMessage(carName, ACLMessage.QUERY_REF, this.generateReplyId(), conversationIdController, message.toString());
 		
 		boolean allOk = true;
 		
@@ -715,7 +722,7 @@ public class AgentController extends Agent {
 						
 						message.add("die", "now");
 						
-						this.sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
+						this.sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
 						
 						inbox = this.receiveMessage();
 						
@@ -795,7 +802,7 @@ public class AgentController extends Agent {
 	   for(Integer i : chosenList){ 
 		   JsonObject message = new JsonObject();
 		   message.add("go-to-goal", "OK");
-		   this.sendMessage(carNames[i], ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());
+		   this.sendMessage(carNames[i], ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
 	   }
 
    }
@@ -857,7 +864,7 @@ public class AgentController extends Agent {
                                 //Mensaje de puede moverse
                                 JsonObject message = new JsonObject();
                                 message.add("canMove","OK");
-                                answerMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.asString());
+                                answerMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.toString());
                                 
                                 //Liberamos bloquedCars[i]
                                 bloquedCars[i] = -1;
@@ -878,7 +885,7 @@ public class AgentController extends Agent {
                                 //Mensaje de puede moverse
                                 JsonObject message = new JsonObject();
                                 message.add("canMove","OK");
-                                sendMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.asString());
+                                sendMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.toString());
                                 
                                 //Liberamos bloquedCars[i]
                                 bloquedCars[i] = -1;
@@ -922,13 +929,13 @@ public class AgentController extends Agent {
                         //Avisas por mensaje que está bloqueado
                         JsonObject answer = new JsonObject();
                         answer.add("canMove", "notOK");
-                        answerMessage(carNames[rowAgent], ACLMessage.DISCONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.asString());
+                        answerMessage(carNames[rowAgent], ACLMessage.DISCONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.toString());
                     }        
                     else{   //Si no está bloqueado
                         //Mandarle mensaje diciendole que continue
                         JsonObject answer = new JsonObject();
                         answer.add("canMove", "OK");
-                        answerMessage(carNames[rowAgent], ACLMessage.CONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.asString()); 
+                        answerMessage(carNames[rowAgent], ACLMessage.CONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.toString()); 
                     }
                 }
                 //Algo malo ha pasado
@@ -952,7 +959,7 @@ public class AgentController extends Agent {
 			JsonObject message = new JsonObject().add("die", "now");
 			
 			for(AgentID carName : carNames) {
-				sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.asString());    
+				sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());    
 			}
 			
 			for(int i=0; i<4; i++) {
@@ -965,15 +972,18 @@ public class AgentController extends Agent {
 		
 		// Mandar el CANCEL
 		sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
-        
-                //Recibimos el agree
-                
-                // Guardar la traza si es necesario
-                ACLMessage receive = receiveMessage();
-                if(receive.getContent().contains("trace"))
-                    System.out.println("LLEGO LA TRAZA");
-                
-                //HABRIA QUE GUARDAR LA TRAZA
+//        
+//        //Recibimos el agree
+//        ACLMessage receive = receiveMessage();
+//        if(receive.getPerformativeInt()==ACLMessage.AGREE)
+//            System.out.println("Trace Agree ");
+//
+//        // Guardar la traza si es necesario
+//        receive = receiveMessage();
+//        if(receive.getPerformativeInt()==ACLMessage.INFORM)
+//            System.out.println("Trace Inform");
+//
+//        //HABRIA QUE GUARDAR LA TRAZA
         
 		// Terminar la ejecución
 		this.finish = true;
@@ -1111,7 +1121,6 @@ public class AgentController extends Agent {
 					
 					break;
 				case FINALIZE:
-                                    System.out.println(this.state);
 					if(DEBUG)
 						System.out.println("AgentController state: FINALIZE");
 										
@@ -1130,7 +1139,7 @@ public class AgentController extends Agent {
 	@Override
 	public void finalize() {
 		
-		System.out.println("AgentController has just finished");
+		System.out.println("AgentController has just finished!");
 		
 		super.finalize();
 	}
@@ -1145,7 +1154,8 @@ public class AgentController extends Agent {
 	 * @author Hugo Maldonado
 	 */
 	private void printTrace(JsonArray trace, boolean error) {
-			
+        System.out.println(trace);
+
 		try {
 			byte data[] = new byte[trace.size()];
 
@@ -1162,8 +1172,10 @@ public class AgentController extends Agent {
 				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date +  ".png"));
 			else
 				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date +  ".png"));
-			
+
 			fos.write(data);
+            System.out.println("WRITE");
+
 			fos.close();
 
 			if(DEBUG)
@@ -1193,9 +1205,10 @@ public class AgentController extends Agent {
             System.out.println("AGENTID: "+carName.getLocalName());
             String elReply = super.generateReplyId();
             System.out.println("REPLY: "+elReply+"; C-ID: "+this.conversationIdController);
-            sendMessage(carName, ACLMessage.INFORM, elReply, conversationIdController, message.asString());
-            System.out.println("despues!!!!!!!");
+
+            sendMessage(carName, ACLMessage.INFORM, elReply, this.conversationIdController, message.toString());
         }
+        System.out.println("Sale del for");
 
         //Esperamos una contestación por cada uno de los mensajes enviados
         for(AgentID carName : carNames) {
