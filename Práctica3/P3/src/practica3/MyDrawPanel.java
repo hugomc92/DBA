@@ -41,7 +41,7 @@ public class MyDrawPanel extends javax.swing.JPanel {
     public void updateMap(int[][] updateWorld, int coordX, int coordY) {
         
         for(int y = 0; y < updateWorld.length; y++)
-			for(int x = 0; x < updateWorld.length; x++)
+            for(int x = 0; x < updateWorld.length; x++)
                 paintCoord(updateWorld, x+coordX-5, y+coordY-5);
     }
     

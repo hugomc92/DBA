@@ -852,7 +852,7 @@ public class AgentController extends Agent {
                                 //Mensaje de puede moverse
                                 JsonObject message = new JsonObject();
                                 message.add("canMove","OK");
-                                sendMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.asString());
+                                answerMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.asString());
                                 
                                 //Liberamos bloquedCars[i]
                                 bloquedCars[i] = -1;
@@ -886,17 +886,45 @@ public class AgentController extends Agent {
                 else if (receive.getPerformativeInt() == ACLMessage.QUERY_IF){
                     //Mirar si hay que bloquear a este car si alguno de los otros tiene prioridad y no está ya en el goal
                     //Recorrer el array mandado en el mensaje. Para cada car visto:
-                    
-                        //Si los steps del car que ha mandado el mensaje son mayores que el de ese car Y ese car no está ya en el goal
+                    JsonObject anAgentPosition;
+                    boolean bloqued = false;
+                    for (JsonValue j : content.get("otherAgents").asArray()){
+                        anAgentPosition = Json.parse(j.asString()).asObject();
+                        //Buscamos quién es el car de esa posición
+                        int xOtherAgent = anAgentPosition.get("x").asInt();
+                        int yOtherAgent = anAgentPosition.get("y").asInt();
+                        boolean founded = false;
+                        int posFounded = -1;
                         
-                            //Avisas por mensaje que está bloqueado
+                        for (int i = 0; i < carLocalInfo.length && !founded; i++){
+                            if(carLocalInfo[i][INDEX_POSX] == xOtherAgent &&
+                                carLocalInfo[i][INDEX_POSY] == yOtherAgent){
+                                founded = true;
+                                posFounded = i;
+                            }
+                        }
+                        
+                        //Si los steps del car que ha mandado el mensaje son mayores que el de ese car Y ese car no está ya en el goal
+                        if(carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL] > 
+                            carLocalInfo[posFounded][INDEX_STEPS_TO_GOAL]){   //Bloqueamos
+                            bloqued = true;
                             
                             //Metes al otro car en bloquedCars[rowAgent]
-                            
-                            
-                    //Si no está bloqueado
-                    
+                            bloquedCars[rowAgent] = posFounded;
+                        }
+                    }
+                    if(bloqued){
+                        //Avisas por mensaje que está bloqueado
+                        JsonObject answer = new JsonObject();
+                        answer.add("canMove", "notOK");
+                        answerMessage(carNames[rowAgent], ACLMessage.DISCONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.asString());
+                    }        
+                    else{   //Si no está bloqueado
                         //Mandarle mensaje diciendole que continue
+                        JsonObject answer = new JsonObject();
+                        answer.add("canMove", "OK");
+                        answerMessage(carNames[rowAgent], ACLMessage.CONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.asString()); 
+                    }
                 }
                 //Algo malo ha pasado
                 else{
