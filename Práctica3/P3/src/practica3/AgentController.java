@@ -195,7 +195,7 @@ public class AgentController extends Agent {
         } catch(IOException ex) {
             //No existe mapa previo, por lo que entramos en modo exploración y inicializamos las estructuras necesarias.
             if(DEBUG)
-                System.out.println("MAP " + map + " NOT FOUND");
+                System.out.println("MAP " + map + " IN FILE NOT FOUND");
 
             mapWorld = new int[mapWorldSize][mapWorldSize];
             this.mapWorldPosX = 0;
@@ -203,6 +203,7 @@ public class AgentController extends Agent {
             this.mapWorldDirection = "right";
             this.state = SUBS_MAP_EXPLORE;
         }
+        System.out.println("final check map");
     }
 	
 	/**
@@ -213,8 +214,12 @@ public class AgentController extends Agent {
 	 */
 	private boolean subscribe() {
             JsonObject obj = Json.object().add("world", map);
+            System.out.println("EN SUBSCRIBE");
+            System.out.println(serverName.toString());
+            System.out.println(map.toString());
             sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
-            ACLMessage receive = new ACLMessage();
+            ACLMessage receive = this.receiveMessage();
+            System.out.println(receive.getContent());
 		
             if(receive.getPerformativeInt() == ACLMessage.INFORM) {
                 //Si el mensaje que obtenemos es un INFORM almacenamos el conversationID, para su uso posterior
@@ -943,9 +948,6 @@ public class AgentController extends Agent {
     */
     private void stateFinalize() {
 		
-		if(DEBUG)
-			System.out.println("AgentController state: FINALIZE");
-		
 		// Matar los agentes si es necesario
 		if(this.wakedAgents) {
 			JsonObject message = new JsonObject().add("die", "now");
@@ -982,7 +984,8 @@ public class AgentController extends Agent {
 		System.out.println("AgentController execution");
 		
 		while(!finish) {
-			switch(state) {
+                    System.out.println("hola");
+			switch(this.state) {
 				case CHECK_MAP:
 					//Primer estado, chequeo del mapa
 					this.stateCheckMap();
@@ -1103,6 +1106,7 @@ public class AgentController extends Agent {
 					
 					break;
 				case FINALIZE:
+                                    System.out.println(this.state);
 					if(DEBUG)
 						System.out.println("AgentController state: FINALIZE");
 										
