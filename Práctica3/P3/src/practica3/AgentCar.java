@@ -709,9 +709,9 @@ public class AgentCar extends Agent {
         requestPerceptions();
 
         //Aquí deberíamos crear la imagen a visualizar y pintarla
-		m.updateMap(radar, positionX, positionY);
-		
-		m.repaint();
+        m.updateMap(radar, positionX, positionY);
+
+        m.repaint();
         
         //Avanzamos hacia la posición dada por el controller
         boolean inPosition = false;
@@ -786,11 +786,7 @@ public class AgentCar extends Agent {
                         requestPerceptions();
 
                         //Guardamos la percepción en nuestro mapa
-                        for (int j = positionX-1; j <= positionX+1; j++){   //Columnas
-                            for (int i = positionY-1; i <= positionY+1; i++){    //Filas
-                                mapWorld[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
-                            }
-                        }
+                        updateMapToSend();
                         
                         //ACTUALIZAR IMAGEN A VISUALIZAR
                         
@@ -812,13 +808,9 @@ public class AgentCar extends Agent {
                         requestPerceptions();
 
                         //Guardamos la percepción en nuestro mapa
-                        for (int j = positionX-1; j <= positionX+1; j++){   //Columnas
-                            for (int i = positionY-1; i <= positionY+1; i++){    //Filas
-                                mapWorld[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
-                            }
-                        }
+                        updateMapToSend();
 
-                        //ACTUALIZAR IMAGEN A VISUALIZA
+                        //ACTUALIZAR IMAGEN A VISUALIZAR
                     }
                     else if (mapWorld[positionX][positionY+1] == 2){  //Tocamos la pared de abajo
                         if(depth - positionY <= 1){  //No es necesario explorar horizontalmente
@@ -860,4 +852,19 @@ public class AgentCar extends Agent {
             state = READY;
     }
 
+    /**
+     * Guarda las percepciones en el mapWorld
+     * @author Aaron Rodriguez Bueno
+     */
+    private void updateMapToSend(){
+        for (int j = positionX-1; j <= positionX+1; j++){   //Columnas
+            for (int i = positionY-1; i <= positionY+1; i++){    //Filas
+                if (radar[i-(positionY-1)][j-(positionX-1)] == 4)   //Tomamos como que los otros vehículos spawnean siempre sobre una casilla vacía
+                    mapWorld[i][j] = 0;
+                else
+                    mapWorld[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
+            }
+        }
+    }
+    
 }

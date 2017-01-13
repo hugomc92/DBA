@@ -146,63 +146,63 @@ public class AgentController extends Agent {
     */
     private void stateCheckMap() {
 		
-		if(DEBUG)
-			System.out.println("AgentController state: CHECK_MAP"); 
+        if(DEBUG)
+                System.out.println("AgentController state: CHECK_MAP"); 
         
         String path = "maps/" + this.map + ".json";
 
-		//Leemos el fichero de "mapa" y lo pasamos a JSon
-		try {
-			FileInputStream fisTargetFile = new FileInputStream(new File(path));
-			String fileString = IOUtils.toString(fisTargetFile, "UTF-8");
-			this.savedMap = Json.parse(fileString).asObject();
-			boolean completed = savedMap.get("completed").asBoolean();
-			mapWorld = new int[this.mapWorldSize][this.mapWorldSize];
-			
-			int x = 0, y = 0;
-			for(JsonValue pos : this.savedMap.get("map").asArray()) {
-				this.mapWorld[y][x] = pos.asInt();
+        //Leemos el fichero de "mapa" y lo pasamos a JSon
+        try {
+            FileInputStream fisTargetFile = new FileInputStream(new File(path));
+            String fileString = IOUtils.toString(fisTargetFile, "UTF-8");
+            this.savedMap = Json.parse(fileString).asObject();
+            boolean completed = savedMap.get("completed").asBoolean();
+            mapWorld = new int[this.mapWorldSize][this.mapWorldSize];
+
+            int x = 0, y = 0;
+            for(JsonValue pos : this.savedMap.get("map").asArray()) {
+                this.mapWorld[y][x] = pos.asInt();
                 x++;
                 if(x == this.mapWorldSize - 1){
                     x = 0;
                     y++;
                 }
-			}
+            }
 			
-			//Miramos si el estado del mapa guardado es "completo" (ya se conoce todo el mapa)
-			if(completed) {
+            //Miramos si el estado del mapa guardado es "completo" (ya se conoce todo el mapa)
+            if(completed) {
                 //Marcamos la bandera en caso afirmativo y pasamos al estado de subscripción al mapa
-				this.mapWorldCompleted = true;
-				this.state = SUBSCRIBE_MAP;
-				
-				jframe = new JFrame();
-				m = new MyDrawPanel(this.mapWorld);
-				jframe.add(m);
-				jframe.setSize(this.mapWorldSize+10, this.mapWorldSize+50);
-				jframe.setVisible(true);
+                this.mapWorldCompleted = true;
+                this.state = SUBSCRIBE_MAP;
 
-				//jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
-				jframe.setUndecorated(true);
-				jframe.setTitle(this.map);
-			}
-			else {
+                jframe = new JFrame();
+                m = new MyDrawPanel(this.mapWorld);
+                jframe.add(m);
+                jframe.setSize(this.mapWorldSize+10, this.mapWorldSize+50);
+                jframe.setVisible(true);
+
+                //jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
+                jframe.setUndecorated(true);
+                jframe.setTitle(this.map);
+            }
+            else {
                 //Pasamos al modo exploración y almacenamos la posición desde la que seguimos explorando"
-				this.state = SUBS_MAP_EXPLORE;
-				this.mapWorldPosX = savedMap.get("pos").asObject().get("x").asInt();
-				this.mapWorldPosY = savedMap.get("pos").asObject().get("y").asInt();
-				this.mapWorldDirection = savedMap.get("direction").asString();
-			}
-		} catch(IOException ex) {
-			//No existe mapa previo, por lo que entramos en modo exploración y inicializamos las estructuras necesarias.
-			if(DEBUG)
-				System.out.println("MAP " + map + " NOT FOUND");
-			
-			mapWorld = new int[mapWorldSize][mapWorldSize];
-			this.mapWorldPosX = 0;
-			this.mapWorldPosY = 0;
-			this.mapWorldDirection = "right";
-			this.state = SUBS_MAP_EXPLORE;
-		}
+                this.state = SUBS_MAP_EXPLORE;
+                this.mapWorldPosX = savedMap.get("pos").asObject().get("x").asInt();
+                this.mapWorldPosY = savedMap.get("pos").asObject().get("y").asInt();
+                this.mapWorldDirection = savedMap.get("direction").asString();
+            }
+        } catch(IOException ex) {
+            //No existe mapa previo, por lo que entramos en modo exploración y inicializamos las estructuras necesarias.
+            if(DEBUG)
+                System.out.println("MAP " + map + " NOT FOUND");
+
+            mapWorld = new int[mapWorldSize][mapWorldSize];
+            this.mapWorldPosX = 0;
+            this.mapWorldPosY = 0;
+            this.mapWorldDirection = "right";
+            this.state = SUBS_MAP_EXPLORE;
+        }
     }
 	
 	/**
@@ -212,55 +212,56 @@ public class AgentController extends Agent {
 	 * @author Hugo Maldonado
 	 */
 	private boolean subscribe() {
-		JsonObject obj = Json.object().add("world", map);
-		sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
-        ACLMessage receive = new ACLMessage();
+            JsonObject obj = Json.object().add("world", map);
+            sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
+            ACLMessage receive = new ACLMessage();
 		
-        if(receive.getPerformativeInt() == ACLMessage.INFORM) {
-            //Si el mensaje que obtenemos es un INFORM almacenamos el conversationID, para su uso posterior
-            this.conversationIdServer = receive.getConversationId();
+            if(receive.getPerformativeInt() == ACLMessage.INFORM) {
+                //Si el mensaje que obtenemos es un INFORM almacenamos el conversationID, para su uso posterior
+                this.conversationIdServer = receive.getConversationId();
 			
-			if(DEBUG)
-				System.out.println("SUSCRITO. ConvIDServer:" + conversationIdServer);
-			
-			return true;
-        }
-		else
-			return false;
+                if(DEBUG)
+                    System.out.println("SUSCRITO. ConvIDServer:" + conversationIdServer);
+
+                return true;
+            }
+            else
+                return false;
 	}
 	
-	/**
-     * Despertar y lanzar el resto de agentes.
-	 * 
-	 * @author Jose David and Hugo Maldonado
+    /**
+    * Despertar y lanzar el resto de agentes.
+    * 
+    * @author Jose David and Hugo Maldonado
     */
     private boolean wakeAgents() {
         
-		try {
+	try {
             //Creamos a los agentes y los despertamos utilizando los nombres pasados en el constructor.
-			Agent car1 = new AgentCar(carNames[0], this.getAid(), this.serverName);
-			car1.start();
-            
-			Agent car2 = new AgentCar(carNames[1], this.getAid(), this.serverName);
-			car2.start();
-			
-			Agent car3 = new AgentCar(carNames[2], this.getAid(), this.serverName);
-			car3.start();
-			
-			Agent car4 = new AgentCar(carNames[3], this.getAid(), this.serverName);
-			car4.start();
+            Agent car1 = new AgentCar(carNames[0], this.getAid(), this.serverName);
+            car1.start();
+
+            Agent car2 = new AgentCar(carNames[1], this.getAid(), this.serverName);
+            car2.start();
+
+            Agent car3 = new AgentCar(carNames[2], this.getAid(), this.serverName);
+            car3.start();
+
+            Agent car4 = new AgentCar(carNames[3], this.getAid(), this.serverName);
+            car4.start();
 			
             //Cambiamos el estado del sistema para que conste que estan despiertos los agentes.
-			this.wakedAgents = true;
-			
-			return true;
-		} catch(Exception ex) {
-			System.err.println("Error waking agents");
+            this.wakedAgents = true;
 
-			System.err.println(ex.getMessage());
-			
-			return false;
-		}
+            return true;
+            
+        } catch(Exception ex) {
+            System.err.println("Error waking agents");
+
+            System.err.println(ex.getMessage());
+
+            return false;
+        }
     }
 	
 	/**
@@ -270,58 +271,58 @@ public class AgentController extends Agent {
 	 */
 	private void stateCheckAgentsExplore() {
 		
-		if(DEBUG)
-			System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
+            if(DEBUG)
+                System.out.println("AgentController state: CHECK_AGENTS_EXPLORE");
         
-        //Llamamos a la funcion que manda la conversation ID del servidor y espera por la confirmación
-		boolean startCFP = this.requestCheckIn();
+            //Llamamos a la funcion que manda la conversation ID del servidor y espera por la confirmación
+            boolean startCFP = this.requestCheckIn();
 
-		JsonObject message = new JsonObject();
-		message.add("checkMap", "flying");
+            JsonObject message = new JsonObject();
+            message.add("checkMap", "flying");
 		
-        //Una vez tenemos los agentes despiertos y funcionando, pasamos a buscar el "volador"
-		if(startCFP) {
-			for(AgentID carName : carNames)
-				sendMessage(carName, ACLMessage.CFP, this.generateReplyId(), this.conversationIdController, message.asString());
-			
-			boolean flyingFound = false;
-			AgentID flyingAgents [] = new AgentID[4];
-			int cont = 0;
-			
-			for(int i=0; i<4 && flyingFound; i++) {
-				ACLMessage receive = this.receiveMessage();
+            //Una vez tenemos los agentes despiertos y funcionando, pasamos a buscar el "volador"
+            if(startCFP) {
+                for(AgentID carName : carNames)
+                    sendMessage(carName, ACLMessage.CFP, this.generateReplyId(), this.conversationIdController, message.asString());
 
-				if(receive.getPerformativeInt() == ACLMessage.AGREE) {
-					flyingFound = true;
-					
-					flyingAgents[cont] = receive.getSender();
-					cont++;
-				}	
-			}
+                boolean flyingFound = false;
+                AgentID flyingAgents [] = new AgentID[4];
+                int cont = 0;
+
+                for(int i=0; i<4 && flyingFound; i++) {
+                    ACLMessage receive = this.receiveMessage();
+
+                    if(receive.getPerformativeInt() == ACLMessage.AGREE) {
+                        flyingFound = true;
+
+                        flyingAgents[cont] = receive.getSender();
+                        cont++;
+                    }	
+                }
 			
-			if(flyingFound) {
-				//Si tenemos el agente volador, mandamos confirmación y la informacion necesaria y rechazamos al resto.
-				JsonObject messageAccept = new JsonObject(message);
-				
-				messageAccept.add("startX", this.mapWorldPosX);
-				messageAccept.add("startY", this.mapWorldPosY);
-				messageAccept.add("size", this.mapWorldSize);
-				messageAccept.add("direction", this.mapWorldDirection);
-				
-				for(AgentID carName : flyingAgents) {
-					if(carName == flyingAgents[0])
-						sendMessage(carName, ACLMessage.ACCEPT_PROPOSAL, this.generateReplyId(), conversationIdController, messageAccept.asString());
-					else
-						sendMessage(carName, ACLMessage.REJECT_PROPOSAL, this.generateReplyId(), conversationIdController, message.asString());
-					
-					this.state = EXPLORE_MAP;
-				}
-			}
-			else
-				this.state = RE_RUN;
-		}
-		else 
-			this.state = FINALIZE;
+                if(flyingFound) {
+                    //Si tenemos el agente volador, mandamos confirmación y la informacion necesaria y rechazamos al resto.
+                    JsonObject messageAccept = new JsonObject(message);
+
+                    messageAccept.add("startX", this.mapWorldPosX);
+                    messageAccept.add("startY", this.mapWorldPosY);
+                    messageAccept.add("size", this.mapWorldSize);
+                    messageAccept.add("direction", this.mapWorldDirection);
+
+                    for(AgentID carName : flyingAgents) {
+                        if(carName == flyingAgents[0])
+                            sendMessage(carName, ACLMessage.ACCEPT_PROPOSAL, this.generateReplyId(), conversationIdController, messageAccept.asString());
+                        else
+                            sendMessage(carName, ACLMessage.REJECT_PROPOSAL, this.generateReplyId(), conversationIdController, message.asString());
+
+                        this.state = EXPLORE_MAP;
+                    }
+                }
+                else
+                    this.state = RE_RUN;
+            }
+            else 
+                this.state = FINALIZE;
 	}
 	
 	/**
@@ -1174,23 +1175,23 @@ public class AgentController extends Agent {
 	 * @author Bryan Moreno and Hugo Maldonado
 	 */
     private boolean requestCheckIn() {
-		//Creamos el mensaje con la conversationID
-		JsonObject message = new JsonObject();
-		message.add("conversationID-server", this.conversationIdServer);
-		//Por cada uno de los agentCar, mandamos un mensaje
-		for(AgentID carName : carNames) {
-			sendMessage(carName, ACLMessage.INFORM, this.generateReplyId(), conversationIdController, message.asString());
-		}
+        //Creamos el mensaje con la conversationID
+        JsonObject message = new JsonObject();
+        message.add("conversationID-server", this.conversationIdServer);
+        //Por cada uno de los agentCar, mandamos un mensaje
+        for(AgentID carName : carNames) {
+            sendMessage(carName, ACLMessage.INFORM, this.generateReplyId(), conversationIdController, message.asString());
+        }
 
-		//Esperamos una contestación por cada uno de los mensajes enviados
-		for(AgentID carName : carNames) {
-			ACLMessage receive = this.receiveMessage();
-			//Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
-			if(receive.getPerformativeInt() != ACLMessage.INFORM){
-				return false;
-			}
-		}
+        //Esperamos una contestación por cada uno de los mensajes enviados
+        for(AgentID carName : carNames) {
+            ACLMessage receive = this.receiveMessage();
+            //Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
+            if(receive.getPerformativeInt() != ACLMessage.INFORM){
+                return false;
+            }
+        }
 
-		return true;
+        return true;
     }
 }
