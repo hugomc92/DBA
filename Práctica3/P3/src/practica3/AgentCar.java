@@ -446,7 +446,6 @@ public class AgentCar extends Agent {
                         System.out.println("AgentCar " + this.getName() + " en el estado FINALIZE");
                     
                     stateFinalize();
-                    
 					this.finish = true;
 					
                     break;
@@ -503,7 +502,9 @@ public class AgentCar extends Agent {
 			this.goalPositionY = receive.get("goalY").asInt();
 			this.type.setMap(mapWorld);
     
+                        System.out.println("ANTES DE CALCULAR EL CAMINO");
 			this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
+                        System.out.println("DESPUES DE CALCULAR EL CAMINO");
 			
 			if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {
 				//El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
@@ -833,6 +834,9 @@ public class AgentCar extends Agent {
                             goDown = false;
                         }
                         else{   //Hay que explorar la última fila
+                            System.out.println("!!!!!!!!!!!!!!!!!");
+                            System.out.println("MAPA EXPLORADO!!!");
+                            System.out.println("!!!!!!!!!!!!!!!!!");
                             mapExplored = true;
                         }
                     }

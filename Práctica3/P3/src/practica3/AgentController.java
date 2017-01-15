@@ -493,6 +493,7 @@ public class AgentController extends Agent {
 	
         /**
          * Mata a todos los cars, espera su respuesta, y hace cancel
+         * @author Aaron Rodriguez Bueno
          */
         private void killAgents(){
             System.out.println("EN KILL AGENTS");
@@ -570,9 +571,6 @@ public class AgentController extends Agent {
 	 */
 	private void stateRequestPosition() {
 		
-		if(DEBUG)
-			System.out.println("AgentController state: REQUEST_POSITION");
-		
 		JsonObject message = new JsonObject();
 		
 		message.add("givePosition", "ok");
@@ -590,16 +588,7 @@ public class AgentController extends Agent {
 				allOk = false;
 			}
 			else {
-				int row = -1;
-
-				if(receive.getSender() == carNames[0])
-					row = 0;
-				else if(receive.getSender() == carNames[1])
-					row = 1;
-				else if(receive.getSender() == carNames[2])
-					row = 2;
-				else if(receive.getSender() == carNames[3])
-					row = 3;
+				int row = getIndexCar(receive.getSender());
 
 				if(row != -1) {
 					JsonObject response = Json.parse(receive.getContent()).asObject();
@@ -611,6 +600,7 @@ public class AgentController extends Agent {
 					this.carLocalInfo[row][INDEX_POSY] = posY;
 				}
 				else {
+                                    System.out.println("NO PILLO BIEN EL ROW");
 					allOk = false;
 				}
 			}
@@ -751,13 +741,13 @@ public class AgentController extends Agent {
 			
             int row = -1;
 				
-            if(thisAgent == carNames[0])
+            if(thisAgent.getLocalName().equals(carNames[0].getLocalName()))
 				row = 0;
-            else if(thisAgent == carNames[1])
+            else if(thisAgent.getLocalName().equals(carNames[1].getLocalName()))
 				row = 1;
-            else if(thisAgent == carNames[2])
+            else if(thisAgent.getLocalName().equals(carNames[2].getLocalName()))
 				row = 2;
-            else if(thisAgent == carNames[3])
+            else if(thisAgent.getLocalName().equals(carNames[3].getLocalName()))
 				row = 3;
             
             return row;
@@ -769,9 +759,6 @@ public class AgentController extends Agent {
 	 * @author Hugo Maldonado and Bryan Moreno
 	 */
 	private void stateFuelInformation() {
-		
-		if(DEBUG)
-			System.out.println("AgentController state: FUEL_INFORMATION");
 		
 		JsonObject message = new JsonObject();
 		
@@ -1047,7 +1034,9 @@ public class AgentController extends Agent {
 	 * @author Jose David and Hugo Maldonado
     */
     private void stateFinalize() {
-		
+                jframe.setVisible(false);
+                jframe.dispose();
+                
 		//Matamos agentes
                 killAgents();
                 
@@ -1255,9 +1244,9 @@ public class AgentController extends Agent {
 //				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
 
                         if(error)
-				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date +  ".png"));
+				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date + "." + this.conversationIdServer + ".png"));
 			else
-				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date +  ".png"));
+				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date + "." + this.conversationIdServer +  ".png"));
 
 
 			fos.write(data);
