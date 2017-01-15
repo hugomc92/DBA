@@ -154,17 +154,22 @@ public class AgentController extends Agent {
 
         //Leemos el fichero de "mapa" y lo pasamos a JSon
         try {
+            System.out.println("ABRIENDO EL ARCHIVO: "+path);
             FileInputStream fisTargetFile = new FileInputStream(new File(path));
             String fileString = IOUtils.toString(fisTargetFile, "UTF-8");
             this.savedMap = Json.parse(fileString).asObject();
-            boolean completed = savedMap.get("completed").asBoolean();
+            boolean completed;
+            if(savedMap.get("completed").asString().equals("true"))
+                completed = true;
+            else
+                completed = false;;
             mapWorld = new int[this.mapWorldSize][this.mapWorldSize];
 
             int x = 0, y = 0;
             for(JsonValue pos : this.savedMap.get("map").asArray()) {
                 this.mapWorld[y][x] = pos.asInt();
                 x++;
-                if(x == this.mapWorldSize - 1){
+                if(x == this.mapWorldSize){
                     x = 0;
                     y++;
                 }
@@ -172,6 +177,7 @@ public class AgentController extends Agent {
 			
             //Miramos si el estado del mapa guardado es "completo" (ya se conoce todo el mapa)
             if(completed) {
+                System.out.println("MAPA COMPLETO");
                 //Marcamos la bandera en caso afirmativo y pasamos al estado de subscripción al mapa
                 this.mapWorldCompleted = true;
                 this.state = SUBSCRIBE_MAP;
@@ -183,10 +189,11 @@ public class AgentController extends Agent {
                 jframe.setVisible(true);
 
                 //jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
-                jframe.setUndecorated(true);
+                //jframe.setUndecorated(true);
                 jframe.setTitle(this.map);
             }
             else {
+                System.out.println("MAPA INCOMPLETO");
                 //Pasamos al modo exploración y almacenamos la posición desde la que seguimos explorando"
                 this.state = SUBS_MAP_EXPLORE;
                 this.mapWorldPosX = savedMap.get("pos").asObject().get("x").asInt();
@@ -199,12 +206,16 @@ public class AgentController extends Agent {
                 System.out.println("MAP " + map + " IN FILE NOT FOUND");
 
             mapWorld = new int[mapWorldSize][mapWorldSize];
-            this.mapWorldPosX = 0;
-            this.mapWorldPosY = 0;
+            for (int i = 0; i < mapWorldSize; i++){
+                for(int j = 0; j < mapWorldSize; j++){
+                    mapWorld[i][j] = -1;
+                }
+            }
+            this.mapWorldPosX = 5;
+            this.mapWorldPosY = 5;
             this.mapWorldDirection = "right";
             this.state = SUBS_MAP_EXPLORE;
         }
-        System.out.println("final check map");
     }
 	
 	/**
@@ -215,19 +226,17 @@ public class AgentController extends Agent {
 	 */
 	private boolean subscribe() {
             JsonObject obj = Json.object().add("world", map);
-            System.out.println("EN SUBSCRIBE");
             System.out.println(serverName.toString());
             System.out.println(map.toString());
             sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
             ACLMessage receive = this.receiveMessage();
-            System.out.println(receive.getContent());
 	
             if(receive.getPerformativeInt() == ACLMessage.INFORM) {
                 //Si el mensaje que obtenemos es un INFORM almacenamos el conversationID, para su uso posterior
                 if(receive.getContent().contains("trace")){
                     System.out.println("Es la traza y su ide es"+receive.getConversationId());
                     JsonArray trace = Json.parse(receive.getContent()).asObject().get("trace").asArray();
-                    //this.printTrace(trace, true);
+                    this.saveTrace(trace, true);
                 }
                 receive = this.receiveMessage();
                 System.out.println(receive.getContent());
@@ -280,7 +289,7 @@ public class AgentController extends Agent {
 	/**
 	 * Mandarle el conversationId a todos los agentes y empezar la negociación para ver quién va a explorar el mapa
 	 * 
-	 * @author Hugo Maldonado
+	 * @author Hugo Maldonado and Aaron Rodriguez Bueno
 	 */
 	private void stateCheckAgentsExplore() {
         
@@ -296,7 +305,7 @@ public class AgentController extends Agent {
                     
                     sendMessage(carName, ACLMessage.CFP, this.generateReplyId(), this.conversationIdController, message.toString());
 
-                boolean flyingFound = false;
+                /*boolean flyingFound = false;
                 AgentID flyingAgents [] = new AgentID[4];
                 int cont = 0;
 
@@ -331,8 +340,45 @@ public class AgentController extends Agent {
                 }
                 else
                     this.state = RE_RUN;
-            }
-            else 
+            }*/
+                boolean flyingFound = false;
+                AgentID flyingAgent = new AgentID();
+                for (int i = 0; i < carNames.length; i++){
+                    ACLMessage receive = this.receiveMessage();
+                    AgentID thisAgent = receive.getSender();
+                    
+                    if(receive.getPerformativeInt() == ACLMessage.AGREE){
+                        if(!flyingFound){
+                            flyingFound = true;
+                            flyingAgent = thisAgent;
+                        }
+                        else{
+                            sendMessage(thisAgent, ACLMessage.REJECT_PROPOSAL, this.generateReplyId(), conversationIdController, receive.getContent());
+                        }
+                    }
+                }
+                //Damos via libre al agente elegido (mejor al final para que seguro el mensaje siguiente 
+                //que nos manden sea el de lo explorado por el elegido)
+                if(flyingFound){
+                    JsonObject messageAccept = new JsonObject();
+                    
+                    messageAccept.add("startX", this.mapWorldPosX);
+                    messageAccept.add("startY", this.mapWorldPosY);
+                    messageAccept.add("direction", this.mapWorldDirection);
+                    JsonArray myArray = new JsonArray();
+                    for (int i = 0; i < mapWorldSize; i++){
+                        for (int j = 0; j < mapWorldSize; j++){
+                            myArray.add(this.mapWorld[i][j]);
+                        }
+                    }
+                    messageAccept.add("map",myArray);
+                    sendMessage(flyingAgent, ACLMessage.ACCEPT_PROPOSAL, this.generateReplyId(), conversationIdController, messageAccept.toString());
+                    
+                    this.state = EXPLORE_MAP;
+                }
+                else
+                    this.state = RE_RUN;
+            }else 
                 this.state = FINALIZE;
 	}
 	
@@ -343,23 +389,23 @@ public class AgentController extends Agent {
 	 */
 	private void stateExploreMap() {
 		
-		if(DEBUG)
-			System.out.println("AgentController state: EXPLORE_MAP");
-		
 		ACLMessage receive = this.receiveMessage();
-		
+                System.out.println("ME HA LLEGADO EL CONTENIDO: "+receive.getContent());
 		if(receive.getPerformativeInt() == ACLMessage.INFORM) {
 			JsonObject responseObject = Json.parse(receive.getContent()).asObject();
 
 			this.mapWorldPosX = responseObject.get("finalX").asInt();
 			this.mapWorldPosY = responseObject.get("finalY").asInt();
-
-			this.mapWorldCompleted = responseObject.get("completed").asBoolean();
-
+                        this.mapWorldDirection = responseObject.get("direction").asString();
+                        System.out.println("ANTES DEL BOOL");
+			if(responseObject.get("completed").asString().equals("true"))
+                            this.mapWorldCompleted = true;
+                        else
+                            this.mapWorldCompleted = false;
 			int posix = 0, posiy = 0;
-
+                    System.out.println("ANTES DEL FOR");
 			for(JsonValue j : responseObject.get("map").asArray()) {
-				mapWorld[posiy][posix] = j.asInt();
+				mapWorld[posix][posiy] = j.asInt();
 				posix++;
 
 				if(posix % this.mapWorldSize == 0) {
@@ -367,6 +413,8 @@ public class AgentController extends Agent {
 					posiy++;
 				}
 			}
+                        System.out.println("DESPUES DEL FOR");
+                        this.state = SAVE_MAP;
 		}
 		else 
 			this.state = FINALIZE;
@@ -380,12 +428,12 @@ public class AgentController extends Agent {
 	 */
 	private void stateSaveMap() {
 		
-		if(DEBUG)
-			System.out.println("AgentController state: SAVE_MAP");
-		
 		JsonObject mapToSave = new JsonObject();
 		
-		mapToSave.add("completed", this.mapWorldCompleted);
+                if(this.mapWorldCompleted)
+                    mapToSave.add("completed", "true");
+                else
+                    mapToSave.add("completed", "false");
 		
 		JsonObject pos = new JsonObject();
 		
@@ -394,7 +442,10 @@ public class AgentController extends Agent {
 		
 		mapToSave.add("pos", pos);
 		
-		// mapToSave.add("direction", "right");
+                if(this.mapWorldDirection.equals("right"))
+		    mapToSave.add("direction", "right");
+                else
+                    mapToSave.add("direction", "left");
 		
 		JsonArray sendMap = new JsonArray();
 
@@ -413,33 +464,53 @@ public class AgentController extends Agent {
 			
 			fileWriter = new FileWriter(file);
 			
-			fileWriter.write(mapToSave.asString());
+			fileWriter.write(mapToSave.toString());
 			
 			fileWriter.flush();
 			fileWriter.close();
+                        this.state = RE_RUN;
 		} catch(IOException ex) {
 			System.err.println("Error procesing map");
 
 			System.err.println(ex.getMessage());
+                        this.state = FINALIZE;
 		}
 	}
 	
+        /**
+         * Mata a todos los cars, espera su respuesta, y hace cancel
+         */
+        private void killAgents(){
+            System.out.println("EN KILL AGENTS");
+            JsonObject message = new JsonObject();
+            message.add("die", "now");
+
+            for(AgentID carName : carNames)
+                sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
+            
+            ACLMessage receive;
+            for(AgentID carName : carNames){
+                System.out.println("EN EL FOR");
+                receive= this.receiveMessage();
+                if(receive.getPerformativeInt() == ACLMessage.AGREE)
+                    System.out.println("Agent Car :" + receive.getSender().toString() + "die");
+            }
+		
+            // Mandar el CANCEL
+            sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
+        }
+        
 	/**
 	 * Terminar la iteración y volver a empezar otra, pasamos al modo SUBS_MAP_EXPLORE
 	 * 
 	 * @author Bryan Moreno Picamán and Hugo Maldonado
 	 */
 	private void stateReRun() {
+        
+                killAgents();
 		
-        System.out.println("AgentController state: RE_RUN");
         
-		JsonObject message = new JsonObject();
-		message.add("die", "now");
-
-        for(AgentID carName : carNames)
-			sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
-        
-		boolean allOk = true;
+		/*boolean allOk = true;
 		
 		//Esperamos una contestación por cada uno de los mensajes enviados
 		for(AgentID carName : carNames) {
@@ -450,10 +521,10 @@ public class AgentController extends Agent {
 			}
 		}
         
-		if(allOk)
-			this.state = SUBS_MAP_EXPLORE;
-		else
-			this.state = FINALIZE;
+		if(allOk)*/
+			this.state = CHECK_MAP;
+		/*else
+			this.state = FINALIZE;*/
 	}
 	
 	/**
@@ -954,24 +1025,11 @@ public class AgentController extends Agent {
     */
     private void stateFinalize() {
 		
-		// Matar los agentes si es necesario
-		if(this.wakedAgents) {
-			JsonObject message = new JsonObject().add("die", "now");
-			
-			for(AgentID carName : carNames) {
-				sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());    
-			}
-			
-			for(int i=0; i<4; i++) {
-				ACLMessage receive = this.receiveMessage();
-				
-				if(receive.getPerformativeInt() == ACLMessage.AGREE)
-					System.out.println("Agent Car :" + i + "die");
-			}
-		}
-		
-		// Mandar el CANCEL
-		sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
+		//Matamos agentes
+                killAgents();
+                
+                //Recibimos la traza y el agree
+                
 //        
 //        //Recibimos el agree
 //        ACLMessage receive = receiveMessage();
@@ -1153,7 +1211,7 @@ public class AgentController extends Agent {
 	 * 
 	 * @author Hugo Maldonado
 	 */
-	private void printTrace(JsonArray trace, boolean error) {
+	private void saveTrace(JsonArray trace, boolean error) {
         System.out.println(trace);
 
 		try {
@@ -1169,9 +1227,9 @@ public class AgentController extends Agent {
 			String date = df.format(today);
 			
 			if(error)
-				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date +  ".png"));
+				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
 			else
-				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date +  ".png"));
+				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
 
 			fos.write(data);
             System.out.println("WRITE");
@@ -1201,19 +1259,14 @@ public class AgentController extends Agent {
         message.add("conversationID-server", this.conversationIdServer);
         //Por cada uno de los agentCar, mandamos un mensaje
         for(AgentID carName : carNames) {
-            System.out.println("EN EL FOR");
-            System.out.println("AGENTID: "+carName.getLocalName());
             String elReply = super.generateReplyId();
-            System.out.println("REPLY: "+elReply+"; C-ID: "+this.conversationIdController);
 
             sendMessage(carName, ACLMessage.INFORM, elReply, this.conversationIdController, message.toString());
         }
-        System.out.println("Sale del for");
 
         //Esperamos una contestación por cada uno de los mensajes enviados
         for(AgentID carName : carNames) {
             ACLMessage receive = this.receiveMessage();
-            System.out.println(receive.getContent());
             //Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
             if(receive.getPerformativeInt() != ACLMessage.INFORM){
                 return false;

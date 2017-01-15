@@ -26,7 +26,7 @@ public class MyDrawPanel extends javax.swing.JPanel {
 		
 		for(int y = 0; y < mapWorld.length; ++y)
             for(int x = 0; x < mapWorld.length; ++x)
-				paintCoord(mapWorld, x, y);
+				paintCoord(mapWorld[y][x], x, y);
     }
     
 	/**
@@ -39,10 +39,10 @@ public class MyDrawPanel extends javax.swing.JPanel {
 	 * @author Hugo Maldonado and Bryan Moreno
 	 */
     public void updateMap(int[][] updateWorld, int coordX, int coordY) {
-        
-        for(int y = 0; y < updateWorld.length; y++)
-            for(int x = 0; x < updateWorld.length; x++)
-                paintCoord(updateWorld, x+coordX-5, y+coordY-5);
+        for(int y = 0; y < updateWorld.length; ++y)
+            for(int x = 0; x < updateWorld.length; ++x){
+                paintCoord(updateWorld[y][x], x+coordX-(updateWorld.length-1)/2, y+coordY-(updateWorld.length-1)/2);
+            }
     }
     
 	/**
@@ -86,12 +86,11 @@ public class MyDrawPanel extends javax.swing.JPanel {
 	 * @param x
 	 * @param y 
 	 * 
-	 * @author Hugo Maldonado and Bryan Moreno
+	 * @author Hugo Maldonado and Bryan Moreno and Aaron Rodriguez Bueno
 	 */
-	private void paintCoord(int [][] mapWorld, int x, int y) {
+	private void paintCoord(int mapWorld, int x, int y) {
 		Color color;
-		
-		switch(mapWorld[y][x]) {
+		switch(mapWorld) {
 			case -1:
 				color = Color.GRAY;
 
@@ -111,6 +110,12 @@ public class MyDrawPanel extends javax.swing.JPanel {
 				color = Color.RED;
 
 				image.setRGB(x, y, color.getRGB());
+                                break;
+                        case 4:
+				color = Color.GREEN;
+
+				image.setRGB(x, y, color.getRGB());
+                            
 			break;
 		}
 	}

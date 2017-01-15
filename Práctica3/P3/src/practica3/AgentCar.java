@@ -69,7 +69,7 @@ public class AgentCar extends Agent {
 	private JFrame jframe;
     private MyDrawPanel m;
 	
-	private boolean iniDraw;
+	//private boolean iniDraw;
     
     /**
      * Constructor
@@ -116,7 +116,7 @@ public class AgentCar extends Agent {
 			}
 		}
 		
-		iniDraw = false;
+		//iniDraw = false;
         
         System.out.println("AgentCar " + this.getName() + " has just started");
     }
@@ -134,7 +134,6 @@ public class AgentCar extends Agent {
             this.state = FINALIZE;
         }
         else if (messageReceived.getPerformativeInt() == ACLMessage.INFORM){
-            System.out.println("Me ha llegado el inform");
             this.state = GET_CAPABILITIES;
             //Cogemos los dos convID
             JsonObject responseObject = Json.parse(messageReceived.getContent()).asObject();
@@ -329,10 +328,7 @@ public class AgentCar extends Agent {
         //Si es NOT UNDERSTOOD, pasamos al estado NOT_UND_FAILURE_REFUSE
         if(messageReceived.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD){
             state = NOT_UND_FAILURE_REFUSE;
-            if(messageReceived.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD)
-                errorMessage = "NOT_UNDERSTOOD";
-            else
-                errorMessage = "REFUSE";
+            errorMessage = "NOT_UNDERSTOOD";
         }
         
         //Si no, actualizamos las percepciones y guardamos el replyWith
@@ -349,7 +345,7 @@ public class AgentCar extends Agent {
             for(JsonValue j : myJson.get("result").asObject().get("sensor").asArray()){
                 radar[y][x] = j.asInt();
                 x++;
-                if(x == range-1){
+                if(x == range){
                     x = 0;
                     y++;
                 }
@@ -455,13 +451,21 @@ public class AgentCar extends Agent {
                     if (DEBUG)
                         System.out.println("AgentCar " + this.getName() + " en el estado FINALIZE");
                     
+                    stateFinalize();
+                    
 					this.finish = true;
 					
                     break;
             }
         }
     }
-	
+
+    private void stateFinalize(){
+        JsonObject bye = new JsonObject();
+        bye.add("die","ok");
+        this.answerMessage(controllerName,ACLMessage.AGREE,replyWithController,convIDController,bye.toString());
+    }
+    
 	/**
 	  * Método de finalización del agente Controlador.
 	  * 
@@ -690,28 +694,23 @@ public class AgentCar extends Agent {
      * @author Aaron Rodriguez
      */
     private void stateExploreMap() {
-        System.out.println("AgentCar " + this.getName() + " en el estado EXPLORE_MAP");
 		
-		if(!iniDraw) {
-			jframe = new JFrame();
-			m = new MyDrawPanel(this.mapWorld);
-			jframe.add(m);
-			jframe.setSize(this.SIZE_MAP+10, this.SIZE_MAP+50);
-			jframe.setVisible(true);
+        jframe = new JFrame();
+        m = new MyDrawPanel(this.mapWorld);
+        jframe.add(m);
+        jframe.setSize(this.SIZE_MAP+10, this.SIZE_MAP+50);
+        jframe.setVisible(true);
 
-			//jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
-			jframe.setUndecorated(true);
-			jframe.setTitle(this.getName());
-			
-			iniDraw = true;
-		}
+        //jframe.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CL‌​OSE);
+        //jframe.setUndecorated(true);
+        jframe.setTitle(this.getName());
+
         
         //Primero hacemos un requestPerceptions para saber dónde nos encontramos
         requestPerceptions();
 
         //Aquí deberíamos crear la imagen a visualizar y pintarla
         m.updateMap(radar, positionX, positionY);
-
         m.repaint();
         
         //Avanzamos hacia la posición dada por el controller
@@ -742,16 +741,16 @@ public class AgentCar extends Agent {
                     inPosition = true;
                 }
                 else{
-                    //MOVIMIENTO
-                    commandMove(newX,newY);
 
                     //PERCEPCIÓN
                     requestPerceptions();
 
                     //ACTUALIZAR IMAGEN A VISUALIZAR
-					m.updateMap(radar, positionX, positionY);
-		
-					m.repaint();
+                    m.updateMap(radar, positionX, positionY);
+                    m.repaint();
+                    
+                    //MOVIMIENTO
+                    commandMove(newX,newY);
                 }
             }
         }
@@ -765,31 +764,40 @@ public class AgentCar extends Agent {
             goLeft = true;
         
         //Empezamos el zig-zag
+        System.out.println("ZIG ZAG");
         while (!mapExplored && state != NOT_UND_FAILURE_REFUSE){
             //Repostamos si estamos en números rojos
             if(fuelLocal <= fuelRate){
+                System.out.println("REFUEL");
                 commandRefuel();
             }
             else{
+                System.out.println("NO REFUEL");
                 //Si vamos en horizontal
                 if(!goDown){
+                    System.out.println("HORIZONTAL");
                     //Nos movemos en nuestra dirección si no hay pared externa,
                     //en caso contrario apuntamos para bajar
                     if((goLeft && mapWorld[positionX-1][positionY] != 2) ||
                             (!goLeft && mapWorld[positionX+1][positionY] != 2)){
-                        //MOVIMIENTO
-                        if(goLeft)
-                            commandMove(positionX-1,positionY);
-                        else
-                            commandMove(positionX+1,positionY);
-
+                      
                         //PERCEPCIÓN
                         requestPerceptions();
-
+                        
                         //Guardamos la percepción en nuestro mapa
                         updateMapToSend();
-                        
+                                                
                         //ACTUALIZAR IMAGEN A VISUALIZAR
+                        m.updateMap(radar, positionX, positionY);
+                        m.repaint();
+                        
+                        //MOVIMIENTO
+                        if(goLeft){System.out.println("HACIA LA IZQDA");
+                            commandMove(positionX-1,positionY);
+                        }
+                        else{System.out.println("HACIA LA DCHA");
+                            commandMove(positionX+1,positionY);
+                        }
                         
                     }
                     else{   //Hay pared en la dirección horizontal en la que nos movemos
@@ -802,8 +810,6 @@ public class AgentCar extends Agent {
                 //Si vamos en vertical
                 else{
                     if(mapWorld[positionX][positionY+1] != 2 && positionY < depth){
-                        //MOVIMIENTO
-                        commandMove(positionX,positionY+1);
 
                         //PERCEPCIÓN
                         requestPerceptions();
@@ -812,6 +818,11 @@ public class AgentCar extends Agent {
                         updateMapToSend();
 
                         //ACTUALIZAR IMAGEN A VISUALIZAR
+                        m.updateMap(radar, positionX, positionY);
+                        m.repaint();
+                        
+                        //MOVIMIENTO
+                        commandMove(positionX,positionY+1);
                     }
                     else if (mapWorld[positionX][positionY+1] == 2){  //Tocamos la pared de abajo
                         if(depth - positionY <= 1){  //No es necesario explorar horizontalmente
@@ -831,26 +842,37 @@ public class AgentCar extends Agent {
         JsonArray mapArray = new JsonArray();
         for (int j = 0; j < SIZE_MAP; j++){ //Columnas
             for (int i = 0; i < SIZE_MAP; i++){  //Filas
-                mapArray.add(mapWorld[i][j]);
+                mapArray.add(mapWorld[j][i]);
             }
         }
         myJson.add("map",mapArray);
-        myJson.add("finalX", positionX);
-        myJson.add("finalY", positionY);
-        if(mapExplored)
-            myJson.add("completed","true");
-        else
-            myJson.add("completed","false");
+        if(inPosition){
+            myJson.add("finalX", positionX);
+            myJson.add("finalY", positionY);
+        }
+        else{
+            myJson.add("finalX", startExploringX);
+            myJson.add("finalY", startExploringY);
+        }
         if(goLeft)
             myJson.add("direction", "left");
         else
             myJson.add("direction", "right");
+        
+        if(mapExplored)
+            myJson.add("completed","true");
+        else
+            myJson.add("completed","false");
 
         this.answerMessage(controllerName, ACLMessage.INFORM, replyWithController, convIDController, myJson.toString());
         
         
-        if(state != NOT_UND_FAILURE_REFUSE)
+        //if(state != NOT_UND_FAILURE_REFUSE)
             state = READY;
+        
+        //Destruimos la ventana
+        jframe.setVisible(false);
+        jframe.dispose();
     }
 
     /**
@@ -858,12 +880,13 @@ public class AgentCar extends Agent {
      * @author Aaron Rodriguez Bueno
      */
     private void updateMapToSend(){
-        for (int j = positionX-1; j <= positionX+1; j++){   //Columnas
-            for (int i = positionY-1; i <= positionY+1; i++){    //Filas
-                if (radar[i-(positionY-1)][j-(positionX-1)] == 4)   //Tomamos como que los otros vehículos spawnean siempre sobre una casilla vacía
+        for (int i = positionX-1; i <= positionX+1; i++){   //Columnas
+            for (int j = positionY-1; j <= positionY+1; j++){    //Filas
+                if (radar[i-(positionY-1)][j-(positionX-1)] == 4)   //Los otros vehículos spawnean siempre sobre una casilla vacía
                     mapWorld[i][j] = 0;
                 else
                     mapWorld[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
+                System.out.println("mapWorld["+Integer.toString(i)+"]["+Integer.toString(j)+"] = "+Integer.toString(mapWorld[i][j]));
             }
         }
     }
