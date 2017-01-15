@@ -110,12 +110,6 @@ public class AgentCar extends Agent {
         this.inGoal = false;
         this.mapWorld = new int[this.SIZE_MAP][this.SIZE_MAP];
 		
-		for(int y=0; y<SIZE_MAP; y++) {
-			for(int x=0; x<SIZE_MAP; x++) {
-				this.mapWorld[y][x] = -1;
-			}
-		}
-		
 		//iniDraw = false;
         
         System.out.println("AgentCar " + this.getName() + " has just started");
@@ -778,18 +772,9 @@ public class AgentCar extends Agent {
                     System.out.println("HORIZONTAL");
                     //Nos movemos en nuestra dirección si no hay pared externa,
                     //en caso contrario apuntamos para bajar
-                    if((goLeft && mapWorld[positionX-1][positionY] != 2) ||
-                            (!goLeft && mapWorld[positionX+1][positionY] != 2)){
-                      
-                        //PERCEPCIÓN
-                        requestPerceptions();
+                    if((goLeft && mapWorld[positionY][positionX-1] != 2) ||
+                            (!goLeft && mapWorld[positionY][positionX+1] != 2)){
                         
-                        //Guardamos la percepción en nuestro mapa
-                        updateMapToSend();
-                                                
-                        //ACTUALIZAR IMAGEN A VISUALIZAR
-                        m.updateMap(radar, positionX, positionY);
-                        m.repaint();
                         
                         //MOVIMIENTO
                         if(goLeft){System.out.println("HACIA LA IZQDA");
@@ -797,6 +782,19 @@ public class AgentCar extends Agent {
                         }
                         else{System.out.println("HACIA LA DCHA");
                             commandMove(positionX+1,positionY);
+                        }
+                        
+                        if(state != NOT_UND_FAILURE_REFUSE){
+                            
+                            //PERCEPCIÓN
+                            requestPerceptions();
+                            
+                            //Guardamos la percepción en nuestro mapa
+                            updateMapToSend();
+                            
+                            //ACTUALIZAR IMAGEN A VISUALIZAR
+                            m.updateMap(radar, positionX, positionY);
+                            m.repaint();
                         }
                         
                     }
@@ -809,28 +807,37 @@ public class AgentCar extends Agent {
                 }
                 //Si vamos en vertical
                 else{
-                    if(mapWorld[positionX][positionY+1] != 2 && positionY < depth){
+                    System.out.println("EN VERTICAL");
+                    if(mapWorld[positionY+1][positionX] != 2 && positionY < depth){
+                        System.out.println("PODEMOS AVANZAR HACIA ABAJO");
 
-                        //PERCEPCIÓN
-                        requestPerceptions();
-
-                        //Guardamos la percepción en nuestro mapa
-                        updateMapToSend();
-
-                        //ACTUALIZAR IMAGEN A VISUALIZAR
-                        m.updateMap(radar, positionX, positionY);
-                        m.repaint();
-                        
                         //MOVIMIENTO
                         commandMove(positionX,positionY+1);
+                        
+                        if(state != NOT_UND_FAILURE_REFUSE){
+                            
+                            //PERCEPCIÓN
+                            requestPerceptions();
+                            
+                            //Guardamos la percepción en nuestro mapa
+                            updateMapToSend();
+                            
+                            //ACTUALIZAR IMAGEN A VISUALIZAR
+                            m.updateMap(radar, positionX, positionY);
+                            m.repaint();
+                        }
                     }
-                    else if (mapWorld[positionX][positionY+1] == 2){  //Tocamos la pared de abajo
+                    else if (mapWorld[positionY+1][positionX] == 2){  //Tocamos la pared de abajo
+                        System.out.println("CAMBIAMOS A HORIZONTAL");
                         if(depth - positionY <= 1){  //No es necesario explorar horizontalmente
                             goDown = false;
                         }
                         else{   //Hay que explorar la última fila
                             mapExplored = true;
                         }
+                    }
+                    else{   //Hemos llegado al depth
+                        goDown = false;
                     }
                 }
             }
@@ -880,13 +887,12 @@ public class AgentCar extends Agent {
      * @author Aaron Rodriguez Bueno
      */
     private void updateMapToSend(){
-        for (int i = positionX-1; i <= positionX+1; i++){   //Columnas
-            for (int j = positionY-1; j <= positionY+1; j++){    //Filas
+        for (int i = positionY-1; i <= positionY+1; i++){   //Columnas
+            for (int j = positionX-1; j <= positionX+1; j++){    //Filas
                 if (radar[i-(positionY-1)][j-(positionX-1)] == 4)   //Los otros vehículos spawnean siempre sobre una casilla vacía
                     mapWorld[i][j] = 0;
                 else
                     mapWorld[i][j] = radar[i-(positionY-1)][j-(positionX-1)];
-                System.out.println("mapWorld["+Integer.toString(i)+"]["+Integer.toString(j)+"] = "+Integer.toString(mapWorld[i][j]));
             }
         }
     }

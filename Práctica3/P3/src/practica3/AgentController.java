@@ -222,33 +222,47 @@ public class AgentController extends Agent {
 	 * Subscribirse al mapa. Devuelve un booleano true si ha conseguido subscribirse.
      * Es un método aparte porque se va a utilizar en varios estados.
 	 * 
-	 * @author Hugo Maldonado
+	 * @author Hugo Maldonado and Aaron Rodriguez Bueno
 	 */
 	private boolean subscribe() {
             JsonObject obj = Json.object().add("world", map);
             System.out.println(serverName.toString());
             System.out.println(map.toString());
             sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
-            ACLMessage receive = this.receiveMessage();
+            
 	
-            if(receive.getPerformativeInt() == ACLMessage.INFORM) {
-                //Si el mensaje que obtenemos es un INFORM almacenamos el conversationID, para su uso posterior
-                if(receive.getContent().contains("trace")){
+            /*while(true){
+                ACLMessage receive = this.receiveMessage();
+                
+                if(receive.getPerformativeInt() == ACLMessage.FAILURE || receive.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD) {
+                    return false;
+                }
+                else if(receive.getContent().contains("trace")){
                     System.out.println("Es la traza y su ide es"+receive.getConversationId());
                     JsonArray trace = Json.parse(receive.getContent()).asObject().get("trace").asArray();
                     this.saveTrace(trace, true);
                 }
-                receive = this.receiveMessage();
-                System.out.println(receive.getContent());
+                else if(receive.getPerformativeInt() == ACLMessage.INFORM){
+                    receive = this.receiveMessage();
+                    this.conversationIdServer = receive.getConversationId();
+                    if(DEBUG)
+                        System.out.println("SUSCRITO. ConvIDServer:" + conversationIdServer);
+                    return true;
+                }
+            }*/
+            
+            ACLMessage receive;
+            
+            receive = this.receiveMessage();
+            if(receive.getPerformativeInt() == ACLMessage.FAILURE || receive.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD) {
+                return false;
+            }
+            else{
                 this.conversationIdServer = receive.getConversationId();
-			
                 if(DEBUG)
                     System.out.println("SUSCRITO. ConvIDServer:" + conversationIdServer);
-
                 return true;
             }
-            else
-                return false;
 	}
 	
     /**
@@ -405,7 +419,7 @@ public class AgentController extends Agent {
 			int posix = 0, posiy = 0;
                     System.out.println("ANTES DEL FOR");
 			for(JsonValue j : responseObject.get("map").asArray()) {
-				mapWorld[posix][posiy] = j.asInt();
+				mapWorld[posiy][posix] = j.asInt();
 				posix++;
 
 				if(posix % this.mapWorldSize == 0) {
@@ -470,7 +484,7 @@ public class AgentController extends Agent {
 			fileWriter.close();
                         this.state = RE_RUN;
 		} catch(IOException ex) {
-			System.err.println("Error procesing map");
+			System.err.println("Error processing map");
 
 			System.err.println(ex.getMessage());
                         this.state = FINALIZE;
@@ -490,7 +504,6 @@ public class AgentController extends Agent {
             
             ACLMessage receive;
             for(AgentID carName : carNames){
-                System.out.println("EN EL FOR");
                 receive= this.receiveMessage();
                 if(receive.getPerformativeInt() == ACLMessage.AGREE)
                     System.out.println("Agent Car :" + receive.getSender().toString() + "die");
@@ -498,6 +511,16 @@ public class AgentController extends Agent {
 		
             // Mandar el CANCEL
             sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
+            
+            //Espera los dos mensajes
+            for (int i = 0; i < 2; i++){
+                receive = receiveMessage();
+                if(receive.getPerformativeInt() == ACLMessage.INFORM){
+                    JsonArray trace = Json.parse(receive.getContent()).asObject().get("trace").asArray();
+                    this.saveTrace(trace, false);
+                }
+            }
+            
         }
         
 	/**
@@ -1226,13 +1249,19 @@ public class AgentController extends Agent {
 
 			String date = df.format(today);
 			
-			if(error)
-				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
+//			if(error)
+//				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
+//			else
+//				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
+
+                        if(error)
+				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date +  ".png"));
 			else
-				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
+				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date +  ".png"));
+
 
 			fos.write(data);
-            System.out.println("WRITE");
+                        System.out.println("WRITE");
 
 			fos.close();
 
@@ -1240,7 +1269,7 @@ public class AgentController extends Agent {
 				System.out.println("Saved trace");
 
 		} catch(IOException ex) {
-			System.err.println("Error procesing trace");
+			System.err.println("Error processing trace");
 
 			System.err.println(ex.getMessage());
 		}
