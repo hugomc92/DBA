@@ -508,9 +508,9 @@ public class AgentCar extends Agent {
     
         this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
         
-        //INVERTIMOS PARES (CHAPUZA)
+        //INVERTIMOS IMPARES (CHAPUZA)
         for (int i = 0; i < pathToGoal.size(); i++){
-            if(i % 2 == 1){ //INVERTIMOS
+            if(i % 2 == 1 && (i != pathToGoal.size()-1)){ //INVERTIMOS
                 pathToGoal.get(i).setCoordinates(pathToGoal.get(i).getyPosition(), pathToGoal.get(i).getxPosition());
             }
         }
@@ -645,61 +645,79 @@ public class AgentCar extends Agent {
 	 * @author Bryan Moreno and Hugo Maldonado
 	 */
     private void stateMoveToGoal() {
-            
         
 		for(Node node : pathToGoal) {
-			System.out.println("AGENTE "+this.getName()+"fuel to goal: "+fuelToGoal);
-			System.out.println("AGENTE "+this.getName()+"fuel rate: "+fuelRate);
-			System.out.println("AGENTE "+this.getName()+"fuel local: "+fuelLocal);
+			if(this.state != NOT_UND_FAILURE_REFUSE) {
+				if(this.fuelLocal <= fuelToGoal) {
+					this.commandRefuel();
+				}
+				
+				this.commandMove(node.getxPosition(), node.getyPosition());
+				
+				JsonObject message = new JsonObject();
 			
-			if(this.fuelLocal <= fuelToGoal) {
-				this.commandRefuel();
-			}
-			
-			this.commandMove(node.getxPosition(), node.getyPosition());
-			
-			JsonObject message = new JsonObject();
-			
-			message.add("x", positionX);
-			message.add("y", positionY);
-			
-			this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, message.toString());
-			
-			this.requestPerceptions();
-			
-			boolean otherAgentFound = false;
-			JsonArray otherAgentsPosition = new JsonArray();
-			
-			for(int y=0; y<range; y++) {
-				for(int x=0; x<range; x++) {
-					if(radar[y][x] == 4 && !(x+this.positionX-(range-1)/2 == positionX && y+this.positionY-(range-1)/2 == positionY)) {
-						otherAgentFound = true;
-						
-                        System.out.println("AGENTE "+this.getName()+" HA ENCONTRADO A OTRO AGENTE EN LA POS: ("+(y+this.positionY-(range-1)/2)+","+(x+this.positionX-(range-1)/2)+")");
-						otherAgentsPosition.add(x+this.positionX-(range-1)/2);
-						otherAgentsPosition.add(y+this.positionY-(range-1)/2);
+				message.add("x", positionX);
+				message.add("y", positionY);
+
+				this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, message.toString());
+
+				this.requestPerceptions();
+
+				boolean otherAgentFound = false;
+				JsonArray otherAgentsPosition = new JsonArray();
+
+				for(int y=0; y<range; y++) {
+					for(int x=0; x<range; x++) {
+						if(radar[y][x] == 4 && !(x+this.positionX-(range-1)/2 == positionX && y+this.positionY-(range-1)/2 == positionY)) {
+							otherAgentFound = true;
+
+							System.out.println("AGENTE "+this.getName()+" HA ENCONTRADO A OTRO AGENTE EN LA POS: ("+(y+this.positionY-(range-1)/2)+","+(x+this.positionX-(range-1)/2)+")");
+							otherAgentsPosition.add(x+this.positionX-(range-1)/2);
+							otherAgentsPosition.add(y+this.positionY-(range-1)/2);
+						}
 					}
 				}
-			}
-			
-			if(otherAgentFound) {
-				JsonObject messageCanMove = new JsonObject();
-				
-				messageCanMove.add("canMove", "OK");
-				messageCanMove.add("otherAgents", otherAgentsPosition);
-			
-				this.sendMessage(controllerName, ACLMessage.QUERY_IF, this.generateReplyId(), convIDController, messageCanMove.toString());
-				
-				ACLMessage inbox = this.receiveMessage();
-				
-				if(inbox.getPerformativeInt() == ACLMessage.DISCONFIRM) {
-					inbox = this.receiveMessage();
-					
-					if(inbox.getPerformativeInt() != ACLMessage.INFORM)
+
+				if(otherAgentFound) {
+					JsonObject messageCanMove = new JsonObject();
+
+					messageCanMove.add("canMove", "OK");
+					messageCanMove.add("otherAgents", otherAgentsPosition);
+
+					this.sendMessage(controllerName, ACLMessage.QUERY_IF, this.generateReplyId(), convIDController, messageCanMove.toString());
+
+					ACLMessage inbox = this.receiveMessage();
+
+					if(inbox.getPerformativeInt() == ACLMessage.DISCONFIRM) {
+						inbox = this.receiveMessage();
+
+						if(inbox.getPerformativeInt() != ACLMessage.INFORM)
+							this.state = NOT_UND_FAILURE_REFUSE;
+					}
+					else if(inbox.getPerformativeInt() != ACLMessage.CONFIRM)
 						this.state = NOT_UND_FAILURE_REFUSE;
 				}
-				else if(inbox.getPerformativeInt() != ACLMessage.CONFIRM)
-					this.state = NOT_UND_FAILURE_REFUSE;
+			}
+		}
+		
+		if(DEBUG) {
+			
+			System.out.println(this.getName() + "positionX: " + positionX);
+			System.out.println(this.getName() + "goalPositionX: " + goalPositionX);
+			System.out.println(this.getName() + "positionY: " + positionY);
+			System.out.println(this.getName() + "goalPositionY: " + goalPositionY);
+
+			System.out.println("nodeX: " + this.pathToGoal.get(this.pathToGoal.size()-1).getxPosition());
+			System.out.println("nodeY: " + this.pathToGoal.get(this.pathToGoal.size()-1).getyPosition());
+
+			if(this.positionX != this.goalPositionX || this.positionY != this.goalPositionY) {
+				System.out.println("HEMOS TERMINADO LOS NODOS PERO NO ESTAMOS EN OBJETIVO");
+				
+				JsonObject message = new JsonObject();
+				
+				message.add("reason", "Not In Objetive But No More Path");
+				
+				this.sendMessage(controllerName, ACLMessage.FAILURE, this.generateReplyId(), convIDController, message.toString());
 			}
 		}
 		

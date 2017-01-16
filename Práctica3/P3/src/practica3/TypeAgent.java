@@ -22,9 +22,9 @@ public abstract class TypeAgent {
     public void setMap(int [][] mapWorld){
                 this.mapWorld = new int [mapWorld.length][mapWorld.length];
         
-		for(int i=0; i<mapWorld.length; i++)
-			for(int j=0; j<mapWorld[i].length; j++)
-				this.mapWorld[i][j] = mapWorld[i][j];
+		for(int y=0; y<mapWorld.length; y++)
+			for(int x=0; x<mapWorld.length; x++)
+				this.mapWorld[y][x] = mapWorld[y][x];
     }
 
     abstract  List<Node> calculatePath(int posX, int posY, int x,int y);

@@ -713,10 +713,10 @@ public class AgentController extends Agent {
 			carLocalInfo[i][INDEX_OBJY] = objY;
 		}
 		
-                if(DEBUG)
-                    for (int k = 0; k < carNames.length; k++) {
-                        System.out.println("Pos car "+carNames[k].getLocalName()+": ("+carLocalInfo[k][INDEX_POSY]+","+carLocalInfo[k][INDEX_POSX]+"); Pos goal: ("+carLocalInfo[k][INDEX_OBJY]+","+carLocalInfo[k][INDEX_OBJX]+")");
-                    }
+		if(DEBUG)
+			for (int k = 0; k < carNames.length; k++) {
+				System.out.println("Pos car "+carNames[k].getLocalName()+": ("+carLocalInfo[k][INDEX_POSY]+","+carLocalInfo[k][INDEX_POSX]+"); Pos goal: ("+carLocalInfo[k][INDEX_OBJY]+","+carLocalInfo[k][INDEX_OBJX]+")");
+			}
                 
 		for(int k=0; k<carNames.length; k++) {
 			// Mandar el mapa con una pequeña modificación a cada uno, para hacer que los objetivos de los otros agentes sean muros
@@ -727,7 +727,7 @@ public class AgentController extends Agent {
 				}
 			}
 			
-                        System.out.println("GOALS METIDOS COMO OBSTACULOS INSALVABLES PARA AGENTE: "+carNames[k].getLocalName());
+			System.out.println("GOALS METIDOS COMO OBSTACULOS INSALVABLES PARA AGENTE: "+carNames[k].getLocalName());
 			for(int i=0; i<carNames.length; i++) {
 				if(i != k) {
 					mapAux[carLocalInfo[i][INDEX_OBJY]][carLocalInfo[i][INDEX_OBJX]] = 2;
@@ -875,27 +875,31 @@ public class AgentController extends Agent {
 	private void stateChooseAgents() {
 		int [] fuelNeeded = new int [4];
 		int contador = 0;
+		
 		for (int i = 0; i < 4; i++){
-                        if(carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL] < 0)
-                            fuelNeeded[i] = 0;
-                        else
-                            fuelNeeded[i] = carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL];
+			if(carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL] < 0)
+				fuelNeeded[i] = 0;
+			else
+				fuelNeeded[i] = carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL];
+			
 			contador+=fuelNeeded[i];
 		}
-                if(DEBUG){
-                    System.out.println("contador: "+contador);
-                    System.out.println("globalFuel: "+globalFuel);
-                    System.out.println("FUEL NEEDED");
-                    for(int i=0;i<fuelNeeded.length;i++){
-			System.out.println(fuelNeeded[i]);
-                    }
-                }
+		if(DEBUG){
+			System.out.println("contador: "+contador);
+			System.out.println("globalFuel: "+globalFuel);
+			System.out.println("FUEL NEEDED");
+			
+			for(int i=0;i<fuelNeeded.length;i++){
+				System.out.println(fuelNeeded[i]);
+            }
+        }
+		
 		ArrayList <Integer> chosenList = new ArrayList <Integer>();
 
 		int maxIndex;
                 
 		while(contador>this.globalFuel){
-                    System.out.println("HAY QUE ELIMINAR UNO");
+			System.out.println("HAY QUE ELIMINAR UNO");
 			maxIndex=this.calculateMaxIndex(fuelNeeded);
 			contador-=fuelNeeded[maxIndex];
 			fuelNeeded[maxIndex]=-1;
@@ -965,7 +969,7 @@ public class AgentController extends Agent {
                 JsonObject content = Json.parse(receive.getContent()).asObject();
                 
 				//Si es un move
-				switch (receive.getPerformativeInt()) {
+				switch(receive.getPerformativeInt()) {
 					case ACLMessage.INFORM:
 						
 						//Actualizamos su posición y pasos al objetivo
@@ -987,7 +991,7 @@ public class AgentController extends Agent {
 									//Mensaje de puede moverse
 									JsonObject message = new JsonObject();
 									message.add("canMove","OK");
-									answerMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.toString());
+									answerMessage(carNames[i],ACLMessage.INFORM,this.replyWithAgents[rowAgent],this.conversationIdController,message.toString());
 									
 									//Liberamos bloquedCars[i]
 									bloquedCars[i] = -1;
@@ -1016,9 +1020,15 @@ public class AgentController extends Agent {
 						}	
 						break;
 					case ACLMessage.QUERY_IF:
+						
+						System.out.println("bloquedCars");
+						for(int i=0; i<bloquedCars.length; i++) {
+							System.out.println("bloqued[" + i + "]: " + bloquedCars[i]);
+						}
+						System.out.println("");
+						
 						//Mirar si hay que bloquear a este car si alguno de los otros tiene prioridad y no está ya en el goal
 						//Recorrer el array mandado en el mensaje. Para cada car visto:
-						JsonObject anAgentPosition;
 						boolean bloqued = false;
 						
 						int cont = 0;
@@ -1053,7 +1063,7 @@ public class AgentController extends Agent {
 								System.out.println("posFound: " + posFound);
 
 								//Si los steps del car que ha mandado el mensaje son mayores que el de ese car Y ese car no está ya en el goal
-								if((carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL] > carLocalInfo[posFound][INDEX_STEPS_TO_GOAL]) && (carLocalInfo[posFound][INDEX_STEPS_TO_GOAL] > 0)) {   //Bloqueamos
+								if((posFound != -1) && (carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL] > carLocalInfo[posFound][INDEX_STEPS_TO_GOAL]) && (carLocalInfo[posFound][INDEX_STEPS_TO_GOAL] > 0)) {   //Bloqueamos
 									bloqued = true;
 
 									//Metes al otro car en bloquedCars[rowAgent]

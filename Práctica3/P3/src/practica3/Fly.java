@@ -40,6 +40,6 @@ public class Fly extends TypeAgent{
 		
         System.out.println("Calculating Path to Goal");
 		
-        return myMap.findPath(posX, posY, goalX, goalY);
+		return myMap.findPath(posX, posY, goalX, goalY);
     }
 }
