@@ -719,7 +719,7 @@ public class AgentController extends Agent {
 			
 			for(int i=0; i<carNames.length; i++) {
 				if(i != k) {
-					mapAux[carLocalInfo[i][INDEX_OBJX]][carLocalInfo[i][INDEX_OBJY]] = 2;
+					mapAux[carLocalInfo[i][INDEX_OBJY]][carLocalInfo[i][INDEX_OBJX]] = 2;
 				}
 			}
 			
@@ -863,12 +863,19 @@ public class AgentController extends Agent {
 		int [] fuelNeeded = new int [4];
 		int contador = 0;
 		for (int i = 0; i < 4; i++){
-			fuelNeeded[i] = carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL];
+                        if(carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL] < 0)
+                            fuelNeeded[i] = 0;
+                        else
+                            fuelNeeded[i] = carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL];
 			contador+=fuelNeeded[i];
 		}
                 if(DEBUG){
                     System.out.println("contador: "+contador);
                     System.out.println("globalFuel: "+globalFuel);
+                    System.out.println("FUEL NEEDED");
+                    for(int i=0;i<fuelNeeded.length;i++){
+			System.out.println(fuelNeeded[i]);
+                    }
                 }
 		ArrayList <Integer> chosenList = new ArrayList <Integer>();
 
@@ -977,6 +984,8 @@ public class AgentController extends Agent {
                     //nº de pasos del coche hasta el goal
                     if(carLocalInfo[rowAgent][INDEX_POSX] == carLocalInfo[rowAgent][INDEX_OBJX] &&
                         carLocalInfo[rowAgent][INDEX_POSY] == carLocalInfo[rowAgent][INDEX_OBJY]){
+                        if (DEBUG)
+                            System.out.println("AGENT CAR "+carNames[rowAgent].getLocalName()+" HA LLEGADO A SU GOAL");
                         carsInGoal++;
                         numCars--;
                         
@@ -1009,6 +1018,7 @@ public class AgentController extends Agent {
                         boolean founded = false;
                         int posFounded = -1;
                         
+                        //Miramos qué car es el que se ha detectado y guardamos su indice
                         for (int i = 0; i < carLocalInfo.length && !founded; i++){
                             if(carLocalInfo[i][INDEX_POSX] == xOtherAgent &&
                                 carLocalInfo[i][INDEX_POSY] == yOtherAgent){

@@ -520,7 +520,7 @@ public class AgentCar extends Agent {
 	 * 
      * Manda el fuel calculado para llegar al goal al controlador y espera su decisión. 
      * El controlador puede decidir si el agente va al goal o muere.
-     * @author Bryan Moreno and Hugo Maldonado
+     * @author Bryan Moreno and Hugo Maldonado and Aaron Rodriguez Bueno and Jose David Torres
 	 */
     private void stateSendNecessaryFuel() {
         //Recibimos el mensaje
@@ -540,7 +540,7 @@ public class AgentCar extends Agent {
             this.answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
             
             ACLMessage actionReceived = receiveMessage();
-			if(actionReceived.getPerformativeInt() == ACLMessage.REQUEST && messageReceived.getContent().contains("go-to-goal") ){
+			if(actionReceived.getPerformativeInt() == ACLMessage.REQUEST && actionReceived.getContent().contains("go-to-goal") ){
 				this.state = MOVE_TO_GOAL;
 			}
 			else
@@ -624,7 +624,7 @@ public class AgentCar extends Agent {
     private void stateMoveToGoal() {
         
 		for(Node node : pathToGoal) {
-			if(this.fuelLocal < fuelToGoal) {
+			if(this.fuelLocal <= fuelToGoal) {
 				this.commandRefuel();
 			}
 			
@@ -644,13 +644,15 @@ public class AgentCar extends Agent {
 			
 			for(int y=0; y<range; y++)
 				for(int x=0; x<range; x++)
-					if(radar[y][x] == 4) {
+					if(radar[y][x] == 4 && !(x+this.positionX-(range-1)/2 == positionX && 
+                                                                y+this.positionY-(range-1)/2 == positionY)    ) {
 						otherAgentFound = true;
 						
 						JsonObject position = new JsonObject();
-						position.add("x", x);
-						position.add("y", y);
+						position.add("x", x+this.positionX-(range-1)/2);
+						position.add("y", y+this.positionY-(range-1)/2);
 						
+                                            System.out.println("AGENTE ENCONTRADO: ("+(x+this.positionX-(range-1)/2)+","+(y+this.positionY-(range-1)/2)+")");
 						otherAgentsPosition.add(position);
 					}
 			
