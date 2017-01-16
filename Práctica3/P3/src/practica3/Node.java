@@ -33,7 +33,7 @@ public class Node {
     /** costs to move sideways from one square to another. */
     protected static final int BASICMOVEMENTCOST = 10;
     /** costs to move diagonally from one square to another. */
-    protected static final int DIAGONALMOVEMENTCOST = 11;
+    protected static final int DIAGONALMOVEMENTCOST = 20;
 
     private int xPosition;
     private int yPosition;

@@ -667,7 +667,7 @@ public class AgentCar extends Agent {
 			
 			this.requestPerceptions();
 			
-			/*boolean otherAgentFound = false;
+			boolean otherAgentFound = false;
 			JsonArray otherAgentsPosition = new JsonArray();
 			
 			for(int y=0; y<range; y++) {
@@ -700,7 +700,7 @@ public class AgentCar extends Agent {
 				}
 				else if(inbox.getPerformativeInt() != ACLMessage.CONFIRM)
 					this.state = NOT_UND_FAILURE_REFUSE;
-			}*/
+			}
 		}
 		
 		this.state = READY;
