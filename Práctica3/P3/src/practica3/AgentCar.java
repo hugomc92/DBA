@@ -648,9 +648,10 @@ public class AgentCar extends Agent {
             
         
 		for(Node node : pathToGoal) {
-                    System.out.println("AGENTE "+this.getName()+"fuel to goal: "+fuelToGoal);
-                    System.out.println("AGENTE "+this.getName()+"fuel rate: "+fuelRate);
-                    System.out.println("AGENTE "+this.getName()+"fuel local: "+fuelLocal);
+			System.out.println("AGENTE "+this.getName()+"fuel to goal: "+fuelToGoal);
+			System.out.println("AGENTE "+this.getName()+"fuel rate: "+fuelRate);
+			System.out.println("AGENTE "+this.getName()+"fuel local: "+fuelLocal);
+			
 			if(this.fuelLocal <= fuelToGoal) {
 				this.commandRefuel();
 			}
@@ -666,22 +667,20 @@ public class AgentCar extends Agent {
 			
 			this.requestPerceptions();
 			
-			boolean otherAgentFound = false;
+			/*boolean otherAgentFound = false;
 			JsonArray otherAgentsPosition = new JsonArray();
 			
-			for(int y=0; y<range; y++)
-				for(int x=0; x<range; x++)
-					if(radar[y][x] == 4 && !(x+this.positionX-(range-1)/2 == positionX && 
-                                                                y+this.positionY-(range-1)/2 == positionY)    ) {
+			for(int y=0; y<range; y++) {
+				for(int x=0; x<range; x++) {
+					if(radar[y][x] == 4 && !(x+this.positionX-(range-1)/2 == positionX && y+this.positionY-(range-1)/2 == positionY)) {
 						otherAgentFound = true;
 						
-						JsonObject position = new JsonObject();
-						position.add("x", x+this.positionX-(range-1)/2);
-						position.add("y", y+this.positionY-(range-1)/2);
-						
-                                            System.out.println("AGENTE "+this.getName()+" HA ENCONTRADO A OTRO AGENTE EN LA POS: ("+(y+this.positionY-(range-1)/2)+","+(x+this.positionX-(range-1)/2)+")");
-						otherAgentsPosition.add(position);
+                        System.out.println("AGENTE "+this.getName()+" HA ENCONTRADO A OTRO AGENTE EN LA POS: ("+(y+this.positionY-(range-1)/2)+","+(x+this.positionX-(range-1)/2)+")");
+						otherAgentsPosition.add(x+this.positionX-(range-1)/2);
+						otherAgentsPosition.add(y+this.positionY-(range-1)/2);
 					}
+				}
+			}
 			
 			if(otherAgentFound) {
 				JsonObject messageCanMove = new JsonObject();
@@ -701,8 +700,12 @@ public class AgentCar extends Agent {
 				}
 				else if(inbox.getPerformativeInt() != ACLMessage.CONFIRM)
 					this.state = NOT_UND_FAILURE_REFUSE;
-			}
+			}*/
 		}
+		
+		this.state = READY;
+		
+		System.out.println("AGENTE "+this.getName()+" HA TERMINADO LOS NODOS DEL PATH");
     }
     
     /**

@@ -504,7 +504,8 @@ public class AgentController extends Agent {
          * Mata a todos los cars, espera su respuesta, y hace cancel
          * @author Aaron Rodriguez Bueno
          */
-        private void killAgents(){
+        private void killAgents() {
+			
             System.out.println("EN KILL AGENTS");
             JsonObject message = new JsonObject();
             message.add("die", "now");
@@ -1019,33 +1020,48 @@ public class AgentController extends Agent {
 						//Recorrer el array mandado en el mensaje. Para cada car visto:
 						JsonObject anAgentPosition;
 						boolean bloqued = false;
-						for (JsonValue j : content.get("otherAgents").asArray()){
-							anAgentPosition = Json.parse(j.asString()).asObject();
-							//Buscamos quién es el car de esa posición
-							int xOtherAgent = anAgentPosition.get("x").asInt();
-							int yOtherAgent = anAgentPosition.get("y").asInt();
-							boolean found = false;
-							int posFound = -1;
+						
+						int cont = 0;
+						int xOtherAgent = -1, yOtherAgent = -1;
+						
+						JsonArray otherAgents = content.get("otherAgents").asArray();
+						
+						System.out.println("otherAgents " + otherAgents);
+						
+						for(JsonValue j : otherAgents) {
+							if(cont % 2 == 0) {
+								xOtherAgent = j.asInt();
+							}
+							else {
+								yOtherAgent = j.asInt();
+								
+								System.out.println("xOtherAgent " + xOtherAgent);
+								System.out.println("yOtherAgent " + yOtherAgent);
 							
-							System.out.println("carLocalInfo length: " + carLocalInfo.length);
-							
-							//Miramos qué car es el que se ha detectado y guardamos su indice
-							for (int i = 0; i < carLocalInfo.length && !found; i++){
-								if(carLocalInfo[i][INDEX_POSX] == xOtherAgent && carLocalInfo[i][INDEX_POSY] == yOtherAgent) {
-									found = true;
-									posFound = i;
+								//Buscamos quién es el car de esa posición
+								boolean found = false;
+								int posFound = -1;
+
+								//Miramos qué car es el que se ha detectado y guardamos su indice
+								for (int i = 0; i < carLocalInfo.length && !found; i++){
+									if(carLocalInfo[i][INDEX_POSX] == xOtherAgent && carLocalInfo[i][INDEX_POSY] == yOtherAgent) {
+										found = true;
+										posFound = i;
+									}
+								}
+
+								System.out.println("posFound: " + posFound);
+
+								//Si los steps del car que ha mandado el mensaje son mayores que el de ese car Y ese car no está ya en el goal
+								if((carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL] > carLocalInfo[posFound][INDEX_STEPS_TO_GOAL]) && (carLocalInfo[posFound][INDEX_STEPS_TO_GOAL] > 0)) {   //Bloqueamos
+									bloqued = true;
+
+									//Metes al otro car en bloquedCars[rowAgent]
+									bloquedCars[rowAgent] = posFound;
 								}
 							}
 							
-							System.out.println("posFound: " + posFound);
-							
-							//Si los steps del car que ha mandado el mensaje son mayores que el de ese car Y ese car no está ya en el goal
-							if((carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL] > carLocalInfo[posFound][INDEX_STEPS_TO_GOAL]) && (carLocalInfo[posFound][INDEX_STEPS_TO_GOAL] > 0)) {   //Bloqueamos
-								bloqued = true;
-								
-								//Metes al otro car en bloquedCars[rowAgent]
-								bloquedCars[rowAgent] = posFound;
-							}
+							cont++;
 						}
 						
 						if(bloqued){
@@ -1059,7 +1075,7 @@ public class AgentController extends Agent {
 							JsonObject answer = new JsonObject();
 							answer.add("canMove", "OK");
 							answerMessage(carNames[rowAgent], ACLMessage.CONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.toString());
-						}	
+						}
 						break;
 					default:
 						numCars--;
