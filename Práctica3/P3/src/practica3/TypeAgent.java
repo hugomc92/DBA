@@ -20,6 +20,7 @@ public abstract class TypeAgent {
 	 * @author Bryan Moreno and Hugo Maldonado
      */
     public void setMap(int [][] mapWorld){
+                this.mapWorld = new int [mapWorld.length][mapWorld.length];
         
 		for(int i=0; i<mapWorld.length; i++)
 			for(int j=0; j<mapWorld[i].length; j++)

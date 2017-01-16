@@ -195,10 +195,6 @@ public class AgentCar extends Agent {
                 //Solo hay 1 CPF. No hace falta chequearlo
                 state = ACCEPT_REFUSE_PROP;
                 break;
-            case ACLMessage.QUERY_REF:
-                //Solo hay 1 QUERY_REF
-                state = CALCULATE_PATH;
-                break;
             case ACLMessage.REQUEST:
                 //Comprobamos mensaje
                 if(messageReceived.getContent().contains("die")){
@@ -210,6 +206,30 @@ public class AgentCar extends Agent {
                 else{
                     System.out.println("La has liado, cebollón");
                 }   
+                break;
+            case ACLMessage.INFORM:
+                JsonObject receive = Json.parse(messageReceived.getContent()).asObject();
+			
+                JsonArray mapArray = receive.get("map").asArray();
+
+                // Pasar el mapa a la matriz
+                int cont = 0;
+
+                this.mapWorld = new int[SIZE_MAP][SIZE_MAP];
+
+                
+                for(int y=0; y<SIZE_MAP; y++) {
+                        for(int x=0; x<SIZE_MAP; x++) {
+                                this.mapWorld[y][x] = mapArray.get(cont).asInt();
+                                cont++;
+                        }
+                }
+                this.goalPositionX = receive.get("goalX").asInt();
+                this.goalPositionY = receive.get("goalY").asInt();
+                
+                this.type.setMap(mapWorld);
+                
+                state = CALCULATE_PATH;
                 break;
         }
     }
@@ -478,47 +498,20 @@ public class AgentCar extends Agent {
      * @author Bryan Moreno and Hugo Maldonado
 	 */
     private void stateCalculatePath() {
-		
-		ACLMessage inbox = this.receiveMessage();
-		
-		if(inbox.getPerformativeInt() == ACLMessage.INFORM) {
-			JsonObject receive = Json.parse(inbox.getContent()).asObject();
 			
-			JsonArray mapArray = receive.get("map").asArray();
-			
-			// Pasar el mapa a la matriz
-			int cont = 0;
-			
-			this.mapWorld = new int[SIZE_MAP][SIZE_MAP];
-			
-			for(int y=0; y<SIZE_MAP; y++) {
-				for(int x=0; x<SIZE_MAP; x++) {
-					this.mapWorld[y][x] = mapArray.get(cont).asInt();
-					cont++;
-				}
-			}
-			
-			this.goalPositionX = receive.get("goalX").asInt();
-			this.goalPositionY = receive.get("goalY").asInt();
-			this.type.setMap(mapWorld);
     
-                        System.out.println("ANTES DE CALCULAR EL CAMINO");
-			this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
-                        System.out.println("DESPUES DE CALCULAR EL CAMINO");
-			
-			if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {
-				//El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
-				this.fuelToGoal = this.pathToGoal.size() * this.fuelRate;
-			}
-			else {
-				this.fuelToGoal = -1;
-			}
-			
-				
-			this.state = SEND_NECESSARY_FUEL;
-		}
-		else
-			this.state = NOT_UND_FAILURE_REFUSE;
+        this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
+
+        if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {
+                //El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
+                this.fuelToGoal = this.pathToGoal.size() * this.fuelRate;
+        }
+        else {
+                this.fuelToGoal = -1;
+        }
+
+
+        this.state = SEND_NECESSARY_FUEL;
     }
     
 	/**
@@ -532,9 +525,10 @@ public class AgentCar extends Agent {
     private void stateSendNecessaryFuel() {
         //Recibimos el mensaje
         ACLMessage messageReceived = receiveMessage();
+        
         //Si es una petición de información continuamos
         if (messageReceived.getPerformativeInt() == ACLMessage.QUERY_REF && messageReceived.getContent().contains("agent-info")){
-            //Avisamos al servidor de el fuel global, el actual y el necesario hasta el goal.
+            //Avisamos al servidor del fuel global, el actual y el necesario hasta el goal.
             JsonObject myJson = new JsonObject();
             myJson.add("global-fuel",this.fuelGlobal);
             myJson.add("actual-fuel",this.fuelLocal);

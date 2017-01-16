@@ -629,22 +629,27 @@ public class AgentController extends Agent {
 	 */
 	private void stateSendMap() {
 		
-		if(DEBUG)
-			System.out.println("AgentController state: SEND_MAP");
-		
 		JsonObject message = new JsonObject();
 		
 		// Recorrer el mapa buscando todas las posiciones que sean objetivos
 		ArrayList<Integer> posObj = new ArrayList<>();
 		
-		for(int y=0; y<this.mapWorldSize; y++) {
-			for(int x=0; x<this.mapWorldSize; x++) {
-				if(this.mapWorld[y][x] == 3) {
-					posObj.add(x);
-					posObj.add(y);
-				}
-			}
-		}
+                if(DEBUG){
+                    System.out.println("AÑADIMOS TODAS LAS POSICIONES GOAL");
+                    for(int y=0; y<this.mapWorldSize; y++) {
+                            for(int x=0; x<this.mapWorldSize; x++) {
+                                    if(this.mapWorld[y][x] == 3) {
+                                            posObj.add(x);
+                                            posObj.add(y);
+                                    }
+                            }
+                    }
+                }
+                
+                /*System.out.println("GOALS EXISTENTES:");
+                for(int i = 0; i < posObj.size(); i+=2){
+                    System.out.println("("+Integer.toString(posObj.get(i+1))+","+Integer.toString(posObj.get(i))+")");
+                }*/
 		
 		// Calcular el X y el Y de los objetivos de cada uno de los agentes
 		for(int i=0; i<carNames.length; i++) {
@@ -687,6 +692,8 @@ public class AgentController extends Agent {
 
 							objX = objPosX;
 							objY = objPosY;
+                                                        if(DEBUG)    
+                                                            System.out.println("GOAL ELEGIDO PARA "+carNames[j]+": ("+objX+","+objY+")");
 						}
 					}
 				}
@@ -696,6 +703,11 @@ public class AgentController extends Agent {
 			carLocalInfo[i][INDEX_OBJY] = objY;
 		}
 		
+                if(DEBUG)
+                    for (int k = 0; k < carNames.length; k++) {
+                        System.out.println("Pos car "+carNames[k]+": ("+carLocalInfo[k][INDEX_POSY]+","+carLocalInfo[k][INDEX_POSX]+"); Pos goal: ("+carLocalInfo[k][INDEX_OBJY]+","+carLocalInfo[k][INDEX_OBJX]+")");
+                    }
+                
 		for(int k=0; k<carNames.length; k++) {
 			// Mandar el mapa con una pequeña modificación a cada uno, para hacer que los objetivos de los otros agentes sean muros
 			int mapAux[][] = new int[this.mapWorldSize][this.mapWorldSize];
@@ -854,19 +866,26 @@ public class AgentController extends Agent {
 			fuelNeeded[i] = carLocalInfo[i][INDEX_FUEL_TO_GOAL] - carLocalInfo[i][INDEX_ACTUAL_FUEL];
 			contador+=fuelNeeded[i];
 		}
-
+                if(DEBUG){
+                    System.out.println("contador: "+contador);
+                    System.out.println("globalFuel: "+globalFuel);
+                }
 		ArrayList <Integer> chosenList = new ArrayList <Integer>();
 
 		int maxIndex;
-		do{
+                
+		while(contador>this.globalFuel){
+                    System.out.println("HAY QUE ELIMINAR UNO");
 			maxIndex=this.calculateMaxIndex(fuelNeeded);
 			contador-=fuelNeeded[maxIndex];
 			fuelNeeded[maxIndex]=-1;
-		}while(contador>this.globalFuel);
+		}
 
 		for(int i=0;i<fuelNeeded.length;i++){
-			if(fuelNeeded[i]>=0)
+			if(fuelNeeded[i]>=0){
 				chosenList.add(i);
+                                System.out.println(chosenList.get(chosenList.size()-1));
+                        }
 		}
 		this.numSentCars = chosenList.size();
 
@@ -881,6 +900,7 @@ public class AgentController extends Agent {
 	*/
    private void sendCars(ArrayList<Integer> chosenList){
 	   for(Integer i : chosenList){ 
+               System.out.println("AVISANDO AL CAR: "+carNames[i]);
 		   JsonObject message = new JsonObject();
 		   message.add("go-to-goal", "OK");
 		   this.sendMessage(carNames[i], ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
