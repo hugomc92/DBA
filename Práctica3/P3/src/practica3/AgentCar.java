@@ -501,6 +501,21 @@ public class AgentCar extends Agent {
 			
     
         this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
+        
+        //INVERTIMOS PARES (CHAPUZA)
+        for (int i = 0; i < pathToGoal.size(); i++){
+            if(i % 2 == 1){ //INVERTIMOS
+                pathToGoal.get(i).setCoordinates(pathToGoal.get(i).getyPosition(), pathToGoal.get(i).getxPosition());
+            }
+        }
+        
+        if(DEBUG){
+            System.out.println("CAMINO ELEGIDO POR EL CALCULATE PATH PARA EL AGENTE: "+this.getName());
+            for (Node n : pathToGoal){
+                System.out.println("("+n.getyPosition()+","+n.getxPosition()+")");
+            }
+        }
+            
 
         if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {
                 //El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
@@ -622,8 +637,12 @@ public class AgentCar extends Agent {
 	 * @author Bryan Moreno and Hugo Maldonado
 	 */
     private void stateMoveToGoal() {
+            
         
 		for(Node node : pathToGoal) {
+                    System.out.println("AGENTE "+this.getName()+"fuel to goal: "+fuelToGoal);
+                    System.out.println("AGENTE "+this.getName()+"fuel rate: "+fuelRate);
+                    System.out.println("AGENTE "+this.getName()+"fuel local: "+fuelLocal);
 			if(this.fuelLocal <= fuelToGoal) {
 				this.commandRefuel();
 			}
@@ -652,7 +671,7 @@ public class AgentCar extends Agent {
 						position.add("x", x+this.positionX-(range-1)/2);
 						position.add("y", y+this.positionY-(range-1)/2);
 						
-                                            System.out.println("AGENTE ENCONTRADO: ("+(x+this.positionX-(range-1)/2)+","+(y+this.positionY-(range-1)/2)+")");
+                                            System.out.println("AGENTE "+this.getName()+" HA ENCONTRADO A OTRO AGENTE EN LA POS: ("+(y+this.positionY-(range-1)/2)+","+(x+this.positionX-(range-1)/2)+")");
 						otherAgentsPosition.add(position);
 					}
 			

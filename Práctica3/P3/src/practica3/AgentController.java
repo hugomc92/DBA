@@ -692,8 +692,8 @@ public class AgentController extends Agent {
 
 							objX = objPosX;
 							objY = objPosY;
-                                                        if(DEBUG)    
-                                                            System.out.println("GOAL ELEGIDO PARA "+carNames[j]+": ("+objX+","+objY+")");
+                                                        /*if(DEBUG)    
+                                                            System.out.println("GOAL ELEGIDO PARA "+carNames[j]+": ("+objX+","+objY+")");*/
 						}
 					}
 				}
@@ -705,7 +705,7 @@ public class AgentController extends Agent {
 		
                 if(DEBUG)
                     for (int k = 0; k < carNames.length; k++) {
-                        System.out.println("Pos car "+carNames[k]+": ("+carLocalInfo[k][INDEX_POSY]+","+carLocalInfo[k][INDEX_POSX]+"); Pos goal: ("+carLocalInfo[k][INDEX_OBJY]+","+carLocalInfo[k][INDEX_OBJX]+")");
+                        System.out.println("Pos car "+carNames[k].getLocalName()+": ("+carLocalInfo[k][INDEX_POSY]+","+carLocalInfo[k][INDEX_POSX]+"); Pos goal: ("+carLocalInfo[k][INDEX_OBJY]+","+carLocalInfo[k][INDEX_OBJX]+")");
                     }
                 
 		for(int k=0; k<carNames.length; k++) {
@@ -717,9 +717,12 @@ public class AgentController extends Agent {
 				}
 			}
 			
+                        System.out.println("GOALS METIDOS COMO OBSTACULOS INSALVABLES PARA AGENTE: "+carNames[k].getLocalName());
 			for(int i=0; i<carNames.length; i++) {
 				if(i != k) {
 					mapAux[carLocalInfo[i][INDEX_OBJY]][carLocalInfo[i][INDEX_OBJX]] = 2;
+                                        System.out.println("("+carLocalInfo[i][INDEX_OBJY]+","+carLocalInfo[i][INDEX_OBJX]+")");
+                                        
 				}
 			}
 			
