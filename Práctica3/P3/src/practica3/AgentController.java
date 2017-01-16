@@ -257,10 +257,19 @@ public class AgentController extends Agent {
             if(receive.getPerformativeInt() == ACLMessage.FAILURE || receive.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD) {
                 return false;
             }
-            else{
+			else {
+				if(receive.getContent().contains("trace")) {
+					JsonArray trace = Json.parse(receive.getContent()).asObject().get("trace").asArray();
+					this.saveTrace(trace, true);
+					
+					receive = this.receiveMessage();
+				}
+				
                 this.conversationIdServer = receive.getConversationId();
+				
                 if(DEBUG)
                     System.out.println("SUSCRITO. ConvIDServer:" + conversationIdServer);
+				
                 return true;
             }
 	}
@@ -531,7 +540,7 @@ public class AgentController extends Agent {
 	 */
 	private void stateReRun() {
         
-                killAgents();
+		killAgents();
 		
         
 		/*boolean allOk = true;
@@ -954,108 +963,108 @@ public class AgentController extends Agent {
                 this.replyWithAgents[rowAgent] = receive.getReplyWith();
                 JsonObject content = Json.parse(receive.getContent()).asObject();
                 
-                //Si es un move
-                if(receive.getPerformativeInt() == ACLMessage.INFORM){
-                    //Actualizamos su posición
-                    carLocalInfo[rowAgent][INDEX_POSX]=content.get("x").asInt();
-                    carLocalInfo[rowAgent][INDEX_POSY]=content.get("y").asInt();
-                    carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL] --;
-                    
-                    //Actualizamos el mapa
-                    m.updatePos(carLocalInfo[rowAgent][INDEX_POSX], carLocalInfo[rowAgent][INDEX_POSY], rowAgent);
-                    m.repaint();
-                    
-                    //Si tenemos a otro car bloqueado y hay una distancia mínima
-                    //entre dicho coche y el que había avistado, avisarlo
-                    for (int i = 0; i < bloquedCars.length; i++){
-                        if(bloquedCars[i] == rowAgent){  //Está bloqueando al car de índice i
-                            if(Math.max(Math.abs(carLocalInfo[rowAgent][INDEX_POSX]-carLocalInfo[i][INDEX_POSX])    //Cogemos la mayor diferencia de X o de Y entre los dos cars
-                                        ,Math.abs(carLocalInfo[rowAgent][INDEX_POSY]-carLocalInfo[i][INDEX_POSY])) 
-                                    >= 7){
-                                //Mensaje de puede moverse
-                                JsonObject message = new JsonObject();
-                                message.add("canMove","OK");
-                                answerMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.toString());
-                                
-                                //Liberamos bloquedCars[i]
-                                bloquedCars[i] = -1;
-                            }
-                        }  
-                    }
-                    
-                    //Si ha llegado a su goal, bajar numCars, subir carsInGoal y bajar el
-                    //nº de pasos del coche hasta el goal
-                    if(carLocalInfo[rowAgent][INDEX_POSX] == carLocalInfo[rowAgent][INDEX_OBJX] &&
-                        carLocalInfo[rowAgent][INDEX_POSY] == carLocalInfo[rowAgent][INDEX_OBJY]){
-                        if (DEBUG)
-                            System.out.println("AGENT CAR "+carNames[rowAgent].getLocalName()+" HA LLEGADO A SU GOAL");
-                        carsInGoal++;
-                        numCars--;
-                        
-                        //Desbloqueamos los que estuvieran bloqueados por este coche
-                        for (int i = 0; i < bloquedCars.length; i++){
-                            if (bloquedCars[i] == rowAgent){
-                                //Mensaje de puede moverse
-                                JsonObject message = new JsonObject();
-                                message.add("canMove","OK");
-                                sendMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.toString());
-                                
-                                //Liberamos bloquedCars[i]
-                                bloquedCars[i] = -1;
-                            }
-                        }
-                    }
-                    
-                }
-                //Ha visto a otro car
-                else if (receive.getPerformativeInt() == ACLMessage.QUERY_IF){
-                    //Mirar si hay que bloquear a este car si alguno de los otros tiene prioridad y no está ya en el goal
-                    //Recorrer el array mandado en el mensaje. Para cada car visto:
-                    JsonObject anAgentPosition;
-                    boolean bloqued = false;
-                    for (JsonValue j : content.get("otherAgents").asArray()){
-                        anAgentPosition = Json.parse(j.asString()).asObject();
-                        //Buscamos quién es el car de esa posición
-                        int xOtherAgent = anAgentPosition.get("x").asInt();
-                        int yOtherAgent = anAgentPosition.get("y").asInt();
-                        boolean founded = false;
-                        int posFounded = -1;
-                        
-                        //Miramos qué car es el que se ha detectado y guardamos su indice
-                        for (int i = 0; i < carLocalInfo.length && !founded; i++){
-                            if(carLocalInfo[i][INDEX_POSX] == xOtherAgent &&
-                                carLocalInfo[i][INDEX_POSY] == yOtherAgent){
-                                founded = true;
-                                posFounded = i;
-                            }
-                        }
-                        
-                        //Si los steps del car que ha mandado el mensaje son mayores que el de ese car Y ese car no está ya en el goal
-                        if(carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL] > 
-                            carLocalInfo[posFounded][INDEX_STEPS_TO_GOAL]){   //Bloqueamos
-                            bloqued = true;
-                            
-                            //Metes al otro car en bloquedCars[rowAgent]
-                            bloquedCars[rowAgent] = posFounded;
-                        }
-                    }
-                    if(bloqued){
-                        //Avisas por mensaje que está bloqueado
-                        JsonObject answer = new JsonObject();
-                        answer.add("canMove", "notOK");
-                        answerMessage(carNames[rowAgent], ACLMessage.DISCONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.toString());
-                    }        
-                    else{   //Si no está bloqueado
-                        //Mandarle mensaje diciendole que continue
-                        JsonObject answer = new JsonObject();
-                        answer.add("canMove", "OK");
-                        answerMessage(carNames[rowAgent], ACLMessage.CONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.toString()); 
-                    }
-                }
-                //Algo malo ha pasado
-                else{
-                    numCars--;
-                }
+				//Si es un move
+				switch (receive.getPerformativeInt()) {
+					case ACLMessage.INFORM:
+						
+						//Actualizamos su posición y pasos al objetivo
+						carLocalInfo[rowAgent][INDEX_POSX] = content.get("x").asInt();
+						carLocalInfo[rowAgent][INDEX_POSY] = content.get("y").asInt();
+						carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL]--;
+						
+						//Actualizamos el mapa
+						m.updatePos(carLocalInfo[rowAgent][INDEX_POSX], carLocalInfo[rowAgent][INDEX_POSY], rowAgent);
+						m.repaint();
+						
+						//Si tenemos a otro car bloqueado y hay una distancia mínima
+						//entre dicho coche y el que había avistado, avisarlo
+						for (int i = 0; i < bloquedCars.length; i++){
+							if(bloquedCars[i] == rowAgent){  //Está bloqueando al car de índice i
+								if(Math.max(Math.abs(carLocalInfo[rowAgent][INDEX_POSX]-carLocalInfo[i][INDEX_POSX])    //Cogemos la mayor diferencia de X o de Y entre los dos cars
+									,Math.abs(carLocalInfo[rowAgent][INDEX_POSY]-carLocalInfo[i][INDEX_POSY]))
+									>= 7){
+									//Mensaje de puede moverse
+									JsonObject message = new JsonObject();
+									message.add("canMove","OK");
+									answerMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.toString());
+									
+									//Liberamos bloquedCars[i]
+									bloquedCars[i] = -1;
+								}
+							}
+						}	//Si ha llegado a su goal, bajar numCars, subir carsInGoal y bajar el
+						//nº de pasos del coche hasta el goal
+						if(carLocalInfo[rowAgent][INDEX_POSX] == carLocalInfo[rowAgent][INDEX_OBJX] && carLocalInfo[rowAgent][INDEX_POSY] == carLocalInfo[rowAgent][INDEX_OBJY]){
+							if (DEBUG)
+								System.out.println("AGENT CAR "+carNames[rowAgent].getLocalName()+" HA LLEGADO A SU GOAL");
+							carsInGoal++;
+							numCars--;
+							
+							//Desbloqueamos los que estuvieran bloqueados por este coche
+							for (int i = 0; i < bloquedCars.length; i++){
+								if (bloquedCars[i] == rowAgent){
+									//Mensaje de puede moverse
+									JsonObject message = new JsonObject();
+									message.add("canMove","OK");
+									sendMessage(carNames[i],ACLMessage.INFORM,this.generateReplyId(),this.conversationIdController,message.toString());
+									
+									//Liberamos bloquedCars[i]
+									bloquedCars[i] = -1;
+								}
+							}
+						}	
+						break;
+					case ACLMessage.QUERY_IF:
+						//Mirar si hay que bloquear a este car si alguno de los otros tiene prioridad y no está ya en el goal
+						//Recorrer el array mandado en el mensaje. Para cada car visto:
+						JsonObject anAgentPosition;
+						boolean bloqued = false;
+						for (JsonValue j : content.get("otherAgents").asArray()){
+							anAgentPosition = Json.parse(j.asString()).asObject();
+							//Buscamos quién es el car de esa posición
+							int xOtherAgent = anAgentPosition.get("x").asInt();
+							int yOtherAgent = anAgentPosition.get("y").asInt();
+							boolean found = false;
+							int posFound = -1;
+							
+							System.out.println("carLocalInfo length: " + carLocalInfo.length);
+							
+							//Miramos qué car es el que se ha detectado y guardamos su indice
+							for (int i = 0; i < carLocalInfo.length && !found; i++){
+								if(carLocalInfo[i][INDEX_POSX] == xOtherAgent && carLocalInfo[i][INDEX_POSY] == yOtherAgent) {
+									found = true;
+									posFound = i;
+								}
+							}
+							
+							System.out.println("posFound: " + posFound);
+							
+							//Si los steps del car que ha mandado el mensaje son mayores que el de ese car Y ese car no está ya en el goal
+							if((carLocalInfo[rowAgent][INDEX_STEPS_TO_GOAL] > carLocalInfo[posFound][INDEX_STEPS_TO_GOAL]) && (carLocalInfo[posFound][INDEX_STEPS_TO_GOAL] > 0)) {   //Bloqueamos
+								bloqued = true;
+								
+								//Metes al otro car en bloquedCars[rowAgent]
+								bloquedCars[rowAgent] = posFound;
+							}
+						}
+						
+						if(bloqued){
+							//Avisas por mensaje que está bloqueado
+							JsonObject answer = new JsonObject();
+							answer.add("canMove", "notOK");
+							answerMessage(carNames[rowAgent], ACLMessage.DISCONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.toString());
+						}
+						else{   //Si no está bloqueado
+							//Mandarle mensaje diciendole que continue
+							JsonObject answer = new JsonObject();
+							answer.add("canMove", "OK");
+							answerMessage(carNames[rowAgent], ACLMessage.CONFIRM, this.replyWithAgents[rowAgent], conversationIdController, answer.toString());
+						}	
+						break;
+					default:
+						numCars--;
+						break;
+				}
             }
 		
             state = FINALIZE;
@@ -1244,6 +1253,8 @@ public class AgentController extends Agent {
 		
 		System.out.println("AgentController has just finished!");
 		
+		this.jframe.setTitle("Agent Controller Finished");
+		
 		super.finalize();
 	}
 	
@@ -1276,14 +1287,15 @@ public class AgentController extends Agent {
 //			else
 //				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
 
-                        if(error)
+			if(error)
 				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date + "." + this.conversationIdServer + ".png"));
 			else
 				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date + "." + this.conversationIdServer +  ".png"));
 
 
 			fos.write(data);
-                        System.out.println("WRITE");
+			
+			System.out.println("WRITE");
 
 			fos.close();
 

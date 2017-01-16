@@ -245,31 +245,32 @@ public class AgentCar extends Agent {
         String movement;
         //Calculamos el movimiento que queremos hacer, traduciendo la x y la y
         if(newX == positionX-1) {		//Se mueve hacia el Oeste
-            if(newY == positionY-1)	//Se mueve hacia Norte
-		movement = "moveNW";
+            if(newY == positionY-1)		//Se mueve hacia Norte
+				movement = "moveNW";
             else if(newY == positionY)
-		movement = "moveW";
+				movement = "moveW";
             else
-		movement = "moveSW";
+				movement = "moveSW";
         }
         else if(newX == positionX) {
             if(newY == positionY-1)
-		movement = "moveN";
+				movement = "moveN";
             else
-                    movement = "moveS";
+				movement = "moveS";
         }
         else {
             if(newY == positionY-1)
-                    movement = "moveNE";
+				movement = "moveNE";
             else if(newY == positionY)
-                    movement = "moveE";
+				movement = "moveE";
             else
-                    movement = "moveSE";
+				movement = "moveSE";
         }
         
         //Se lo enviamos al Server
         JsonObject myJson = new JsonObject();
         myJson.add("command",movement);
+		
         answerMessage(serverName,ACLMessage.REQUEST,replyWithServer,convIDServer,myJson.toString());       
         
         //Esperamos respuesta del server
@@ -348,13 +349,18 @@ public class AgentCar extends Agent {
         //Si no, actualizamos las percepciones y guardamos el replyWith
         else{
             replyWithServer = messageReceived.getReplyWith();
+			
             String message = messageReceived.getContent();
             JsonObject myJson = Json.parse(message).asObject();
-            positionX = myJson.get("result").asObject().get("x").asInt()+5;
-            positionY = myJson.get("result").asObject().get("y").asInt()+5;
+            
+			positionX = myJson.get("result").asObject().get("x").asInt() + 5;
+            positionY = myJson.get("result").asObject().get("y").asInt() + 5;
+			
             fuelLocal = myJson.get("result").asObject().get("battery").asInt();
             fuelGlobal = myJson.get("result").asObject().get("energy").asInt();
+			
             inGoal = myJson.get("result").asObject().get("goal").asBoolean();
+			
             int x = 0,y = 0;
             for(JsonValue j : myJson.get("result").asObject().get("sensor").asArray()){
                 radar[y][x] = j.asInt();
@@ -548,10 +554,12 @@ public class AgentCar extends Agent {
             myJson.add("global-fuel",this.fuelGlobal);
             myJson.add("actual-fuel",this.fuelLocal);
             myJson.add("fuel-to-goal",this.fuelToGoal);
+			
 			if(fuelGlobal != -1)
 				myJson.add("num-steps",this.pathToGoal.size());
 			else
 				myJson.add("num-steps",-1);
+			
             this.answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
             
             ACLMessage actionReceived = receiveMessage();
