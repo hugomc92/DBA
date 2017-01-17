@@ -662,14 +662,14 @@ public class AgentCar extends Agent {
 				
 				this.commandMove(node.getxPosition(), node.getyPosition());
 				
+				this.requestPerceptions();
+				
 				JsonObject message = new JsonObject();
 			
 				message.add("x", positionX);
 				message.add("y", positionY);
 
 				this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, message.toString());
-
-				this.requestPerceptions();
 
 				boolean otherAgentFound = false;
 				JsonArray otherAgentsPosition = new JsonArray();
