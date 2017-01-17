@@ -29,10 +29,15 @@ public class NotFly extends TypeAgent{
 		
 		for(int y=0; y<mapWorld.length; y++) {
 			for(int x=0; x<mapWorld.length; x++) {
-				if(mapWorld[y][x] != 2 || mapWorld[y][x] != 1)
-					nodes[y][x] = new Node(x, y, true);
-				else
-					nodes[y][x] = new Node(x, y, false);
+				//System.out.println("mapWorld["+y+"]["+x+"]: " + mapWorld[y][x]);
+				if(mapWorld[y][x] == 1 || mapWorld[y][x] == 2 || mapWorld[y][x] == -1) {
+					//System.out.println("if");
+					nodes[y][x] = new Node(y, x, false);
+				}
+				else {
+					//System.out.println("else");
+					nodes[y][x] = new Node(y, x, true);
+				}
 			}
 		}
 		

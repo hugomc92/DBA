@@ -69,7 +69,7 @@ public class Node {
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.walkable = walkable;
-        this.movementPanelty = 0;
+        //this.movementPanelty = 0;
     }
 
     /**
@@ -122,13 +122,6 @@ public class Node {
      */
     public boolean isWalkable() {
         return walkable;
-    }
-
-    /**
-     * @param walkable the walkable to set
-     */
-    public void setWalkable(boolean walkable) {
-        this.walkable = walkable;
     }
 
     /**

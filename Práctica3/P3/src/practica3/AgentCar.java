@@ -12,7 +12,7 @@ import javax.swing.JFrame;
 /**
  * Clase que define cada uno de los agentes
  * 
- * @author Aaron Rodriguez and Bryan Moreno
+ * @author Aaron Rodriguez and Bryan Moreno and Hugo Maldonado
  */
 public class AgentCar extends Agent {
     
@@ -219,10 +219,10 @@ public class AgentCar extends Agent {
 
                 
                 for(int y=0; y<SIZE_MAP; y++) {
-                        for(int x=0; x<SIZE_MAP; x++) {
-                                this.mapWorld[y][x] = mapArray.get(cont).asInt();
-                                cont++;
-                        }
+					for(int x=0; x<SIZE_MAP; x++) {
+						this.mapWorld[y][x] = mapArray.get(cont).asInt();
+						cont++;
+					}
                 }
                 this.goalPositionX = receive.get("goalX").asInt();
                 this.goalPositionY = receive.get("goalY").asInt();
@@ -239,6 +239,7 @@ public class AgentCar extends Agent {
      * y respuesta de éste.
      * @param newX Coordenada x hacia la que queremos movernos.
      * @param newY Coordenada y hacia la que queremos movernos.
+	 * 
      * @author Aarón Rodríguez
      */
     private void commandMove(int newX, int newY){
@@ -299,6 +300,7 @@ public class AgentCar extends Agent {
     
     /**
      * Petición al server de repostar, y respuesta de éste.
+	 * 
      * @author Aarón Rodríguez
      */
     private void commandRefuel(){
@@ -331,7 +333,7 @@ public class AgentCar extends Agent {
 	/**
 	 * Petición al servidor y respuesta de éste sobre las percepciones.
 	 *
-	 * @author Aaron Rodríguez
+	 * @author Aaron Rodríguez and Bryan Moreno and Hugo Maldonado
 	 */
 	private void requestPerceptions(){
         //Mandamos la petición de las percepciones al server
@@ -378,6 +380,7 @@ public class AgentCar extends Agent {
      * al Controller si no hay fallo y volvemos al estado READY.
 	 * 
      * Si hubiera fallo, pasaríamos a NOT_UND_REFUSE_FAILURE.
+	 * 
      * @author Aaron Rodriguez and Hugo Maldonado
      */
     private void statePositionRequesting(){
@@ -398,7 +401,7 @@ public class AgentCar extends Agent {
     /**
      * Ejecución del controlador
      * 
-     * @author Aaron Rodriguez and Bryan Moreno Picamán
+     * @author Aaron Rodriguez and Bryan Moreno Picamán and Hugo Maldonado
      */
     @Override
     public void execute() {
@@ -472,18 +475,26 @@ public class AgentCar extends Agent {
                         System.out.println("AgentCar " + this.getName() + " en el estado FINALIZE");
                     
                     stateFinalize();
-					this.finish = true;
 					
                     break;
             }
         }
     }
 
-    private void stateFinalize(){
+	/**
+	  * Método del estao que finaliza al agente Controlador.
+	  * 
+	  * @author Hugo Maldonado
+	  */
+    private void stateFinalize() {
+		
         JsonObject bye = new JsonObject();
         bye.add("die","ok");
-        this.answerMessage(controllerName,ACLMessage.AGREE,replyWithController,convIDController,bye.toString());
-    }
+        
+		this.answerMessage(controllerName,ACLMessage.AGREE,replyWithController,convIDController,bye.toString());
+		
+		this.finish = true;
+	}
     
 	/**
 	  * Método de finalización del agente Controlador.
@@ -509,19 +520,18 @@ public class AgentCar extends Agent {
         this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
         
         //INVERTIMOS IMPARES (CHAPUZA)
-        for (int i = 0; i < pathToGoal.size(); i++){
+        /*for (int i = 0; i < pathToGoal.size(); i++){
             if(i % 2 == 1 && (i != pathToGoal.size()-1)){ //INVERTIMOS
                 pathToGoal.get(i).setCoordinates(pathToGoal.get(i).getyPosition(), pathToGoal.get(i).getxPosition());
             }
-        }
+        }*/
         
         if(DEBUG){
             System.out.println("CAMINO ELEGIDO POR EL CALCULATE PATH PARA EL AGENTE: "+this.getName());
             for (Node n : pathToGoal){
-                System.out.println("("+n.getyPosition()+","+n.getxPosition()+")");
+                System.out.println("("+n.getyPosition()+","+n.getxPosition()+")"+"("+n.isWalkable()+")");
             }
         }
-            
 
         if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {
                 //El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
@@ -541,6 +551,7 @@ public class AgentCar extends Agent {
 	 * 
      * Manda el fuel calculado para llegar al goal al controlador y espera su decisión. 
      * El controlador puede decidir si el agente va al goal o muere.
+	 * 
      * @author Bryan Moreno and Hugo Maldonado and Aaron Rodriguez Bueno and Jose David Torres
 	 */
     private void stateSendNecessaryFuel() {
@@ -588,9 +599,6 @@ public class AgentCar extends Agent {
         //Esperamos la recepción del mensaje con la petición de muerte.
         ACLMessage messageReceived = receiveMessage();
         if (messageReceived.getPerformativeInt() == ACLMessage.REQUEST && messageReceived.getContent().contains("die")){
-            myJson = new JsonObject();
-            myJson.add("die","ok");
-            this.answerMessage(controllerName,ACLMessage.AGREE,replyWithController,convIDController,myJson.toString());
             this.state=FINALIZE;
         }
     }
@@ -613,22 +621,22 @@ public class AgentCar extends Agent {
 			
 			if(receiveAccept.getPerformativeInt() == ACLMessage.ACCEPT_PROPOSAL){
 				this.state = EXPLORE_MAP;
-                                replyWithController = receiveAccept.getReplyWith();
-                                JsonObject responseObject = Json.parse(receiveAccept.getContent()).asObject();
-                                this.startExploringX = responseObject.get("startX").asInt();
-                                this.startExploringY = responseObject.get("startY").asInt();
-                                this.mapDirection = responseObject.get("direction").asString();
-                                
-                                int x = 0, y = 0;
-                                for (JsonValue j : responseObject.get("map").asArray()){
-                                    mapWorld[y][x]=j.asInt();
-                                    x++;
-                                    if(x % SIZE_MAP == 0){
-                                        x = 0;
-                                        y++;
-                                    }
-                                }
-                        }
+				replyWithController = receiveAccept.getReplyWith();
+				JsonObject responseObject = Json.parse(receiveAccept.getContent()).asObject();
+				this.startExploringX = responseObject.get("startX").asInt();
+				this.startExploringY = responseObject.get("startY").asInt();
+				this.mapDirection = responseObject.get("direction").asString();
+
+				int x = 0, y = 0;
+				for (JsonValue j : responseObject.get("map").asArray()){
+					mapWorld[y][x]=j.asInt();
+					x++;
+					if(x % SIZE_MAP == 0){
+						x = 0;
+						y++;
+					}
+				}
+			}
 			else
 				this.state = READY;
 		}
@@ -642,7 +650,7 @@ public class AgentCar extends Agent {
 	/**
 	 * Estado para moverse al objetivo
 	 * 
-	 * @author Bryan Moreno and Hugo Maldonado
+	 * @author Bryan Moreno and Hugo Maldonado and Aarón Rodríguez
 	 */
     private void stateMoveToGoal() {
         
@@ -691,11 +699,15 @@ public class AgentCar extends Agent {
 					if(inbox.getPerformativeInt() == ACLMessage.DISCONFIRM) {
 						inbox = this.receiveMessage();
 
-						if(inbox.getPerformativeInt() != ACLMessage.INFORM)
+						if(inbox.getPerformativeInt() != ACLMessage.INFORM) {
+							System.out.println("RECIBIDO NO INFORM");
 							this.state = NOT_UND_FAILURE_REFUSE;
+						}
 					}
-					else if(inbox.getPerformativeInt() != ACLMessage.CONFIRM)
+					else if(inbox.getPerformativeInt() != ACLMessage.CONFIRM) {
+						System.out.println("RECIBIDO NO CONFIRM NI DISCONFIRM");
 						this.state = NOT_UND_FAILURE_REFUSE;
+					}
 				}
 			}
 		}
@@ -706,6 +718,8 @@ public class AgentCar extends Agent {
 			System.out.println(this.getName() + "goalPositionX: " + goalPositionX);
 			System.out.println(this.getName() + "positionY: " + positionY);
 			System.out.println(this.getName() + "goalPositionY: " + goalPositionY);
+			
+			System.out.println("mapWorld["+positionY+"]["+positionX+"]: " + mapWorld[positionY][positionX]);
 
 			System.out.println("nodeX: " + this.pathToGoal.get(this.pathToGoal.size()-1).getxPosition());
 			System.out.println("nodeY: " + this.pathToGoal.get(this.pathToGoal.size()-1).getyPosition());
@@ -944,5 +958,4 @@ public class AgentCar extends Agent {
             }
         }
     }
-    
 }

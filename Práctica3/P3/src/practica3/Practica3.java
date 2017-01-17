@@ -17,7 +17,7 @@ public class Practica3 {
 	// Generamos los nombres de los agentes de forma aleatoria y única en cada ejecución para evitar la duplicidad de nombres con otros agentes en la plataforma
 	// Son constantes durante toda la ejecución.
 	private static final AgentID CONTROLLER_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5) + "_CONTROLLER");
-	private static final String MAP = "map200";
+	private static final String MAP = "map300";
 	private static final AgentID CAR1_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5) + "_CAR0");
 	private static final AgentID CAR2_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5) + "_CAR1");
 	private static final AgentID CAR3_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5) + "_CAR2");
@@ -46,10 +46,10 @@ public class Practica3 {
 			//Se muestra información cobre el mapa y los coches.
 			System.out.println("\nINFORMATION:");
 			System.out.println("MAP: " + MAP);
-			System.out.println("CAR 1: " + CAR1_NAME.getLocalName());
-			System.out.println("CAR 2: " + CAR2_NAME.getLocalName());
-			System.out.println("CAR 3: " + CAR3_NAME.getLocalName());
-			System.out.println("CAR 4: " + CAR4_NAME.getLocalName());
+			System.out.println("CAR 0: " + CAR1_NAME.getLocalName());
+			System.out.println("CAR 1: " + CAR2_NAME.getLocalName());
+			System.out.println("CAR 2: " + CAR3_NAME.getLocalName());
+			System.out.println("CAR 3: " + CAR4_NAME.getLocalName());
 		} catch(Exception ex) {
 			System.err.println("Error starting controller");
 

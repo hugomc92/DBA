@@ -55,8 +55,8 @@ public class AgentController extends Agent {
 	private static final int INDEX_STEPS_TO_GOAL = 6;
 	
     private final AgentID serverName;
-    private AgentID carNames[] = new AgentID[4];
-    private String replyWithAgents [] = new String[4];
+    private final AgentID carNames[] = new AgentID[4];
+    private final String replyWithAgents [] = new String[4];
     private final String map;
     
     private int [][] mapWorld;
@@ -227,7 +227,7 @@ public class AgentController extends Agent {
 	private boolean subscribe() {
             JsonObject obj = Json.object().add("world", map);
             System.out.println(serverName.toString());
-            System.out.println(map.toString());
+            System.out.println(map);
             sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
             
 	
@@ -453,10 +453,10 @@ public class AgentController extends Agent {
 		
 		JsonObject mapToSave = new JsonObject();
 		
-                if(this.mapWorldCompleted)
-                    mapToSave.add("completed", "true");
-                else
-                    mapToSave.add("completed", "false");
+		if(this.mapWorldCompleted)
+			mapToSave.add("completed", "true");
+		else
+			mapToSave.add("completed", "false");
 		
 		JsonObject pos = new JsonObject();
 		
@@ -502,6 +502,7 @@ public class AgentController extends Agent {
 	
         /**
          * Mata a todos los cars, espera su respuesta, y hace cancel
+		 * 
          * @author Aaron Rodriguez Bueno
          */
         private void killAgents() {
@@ -514,7 +515,7 @@ public class AgentController extends Agent {
                 sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
             
             ACLMessage receive;
-            for(AgentID carName : carNames){
+            for(int i=0; i<4; i++) {
                 receive= this.receiveMessage();
                 if(receive.getPerformativeInt() == ACLMessage.AGREE)
                     System.out.println("Agent Car :" + receive.getSender().toString() + "die");
@@ -524,11 +525,13 @@ public class AgentController extends Agent {
             sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
             
             //Espera los dos mensajes
-            for (int i = 0; i < 2; i++){
+			boolean received = false;
+            while(!received){
                 receive = receiveMessage();
-                if(receive.getPerformativeInt() == ACLMessage.INFORM){
+                if(receive.getPerformativeInt() == ACLMessage.INFORM && receive.getContent().contains("trace")) {
                     JsonArray trace = Json.parse(receive.getContent()).asObject().get("trace").asArray();
                     this.saveTrace(trace, false);
+					received = true;
                 }
             }
             
@@ -647,12 +650,12 @@ public class AgentController extends Agent {
                 if(DEBUG){
                     System.out.println("AÑADIMOS TODAS LAS POSICIONES GOAL");
                     for(int y=0; y<this.mapWorldSize; y++) {
-                            for(int x=0; x<this.mapWorldSize; x++) {
-                                    if(this.mapWorld[y][x] == 3) {
-                                            posObj.add(x);
-                                            posObj.add(y);
-                                    }
-                            }
+						for(int x=0; x<this.mapWorldSize; x++) {
+							if(this.mapWorld[y][x] == 3) {
+								posObj.add(x);
+								posObj.add(y);
+							}
+						}
                     }
                 }
                 
@@ -731,8 +734,7 @@ public class AgentController extends Agent {
 			for(int i=0; i<carNames.length; i++) {
 				if(i != k) {
 					mapAux[carLocalInfo[i][INDEX_OBJY]][carLocalInfo[i][INDEX_OBJX]] = 2;
-                                        System.out.println("("+carLocalInfo[i][INDEX_OBJY]+","+carLocalInfo[i][INDEX_OBJX]+")");
-                                        
+					System.out.println("("+carLocalInfo[i][INDEX_OBJY]+","+carLocalInfo[i][INDEX_OBJX]+")");         
 				}
 			}
 			
@@ -920,6 +922,7 @@ public class AgentController extends Agent {
 	/**
 	* Enviar una confirmación de moverse al goal a los agentes elegidos
 	* @param chosenList Lista de agentes elegidos
+	* 
 	* @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
 	*/
    private void sendCars(ArrayList<Integer> chosenList){
@@ -937,7 +940,8 @@ public class AgentController extends Agent {
 	 * Calcula el índice del mayor elemento de una lista de enteros
 	 * @param array Lista de valores enteros
 	 * @return El índice del mayor valor
- * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
+	 * 
+	 * @author Bryan Moreno Picamán and Aarón Rodríguez Bueno
 	 */
 	private int calculateMaxIndex(int [] array){               
 		int maxIndex = 0;
@@ -953,7 +957,7 @@ public class AgentController extends Agent {
 	/**
 	 * Obtener información de los agentes durante su movimiento para evitar colisiones entre ellos
 	 * 
-	 * @author Aaron Rodriguez Bueno and Jose David Torres de las Morenas
+	 * @author Aaron Rodriguez Bueno and Jose David Torres and Hugo Maldonado and Bryan Moreno
 	 */
 	private void stateControlAgents() {
             int [] bloquedCars = new int [4];
@@ -1099,17 +1103,17 @@ public class AgentController extends Agent {
 	/**
      * Si se han levantado los agentes, matarlos y hacer el CANCEL de la subscripción
 	 * 
-	 * @author Jose David and Hugo Maldonado
+	 * @author Hugo Maldonado and Aaron Rodríguez
     */
     private void stateFinalize() {
-                jframe.setVisible(false);
-                jframe.dispose();
+		//jframe.setVisible(false);
+		//jframe.dispose();
                 
 		//Matamos agentes
-                killAgents();
-                
-                //Recibimos la traza y el agree
-                
+		killAgents();
+
+		//Recibimos la traza y el agree
+
 //        
 //        //Recibimos el agree
 //        ACLMessage receive = receiveMessage();

@@ -19,13 +19,14 @@ public abstract class TypeAgent {
 	 * 
 	 * @author Bryan Moreno and Hugo Maldonado
      */
-    public void setMap(int [][] mapWorld){
-                this.mapWorld = new int [mapWorld.length][mapWorld.length];
+    public void setMap(int [][] mapWorld) {
+        
+		this.mapWorld = new int [mapWorld.length][mapWorld.length];
         
 		for(int y=0; y<mapWorld.length; y++)
 			for(int x=0; x<mapWorld.length; x++)
 				this.mapWorld[y][x] = mapWorld[y][x];
     }
 
-    abstract  List<Node> calculatePath(int posX, int posY, int x,int y);
+    abstract List<Node> calculatePath(int posX, int posY, int x,int y);
 }

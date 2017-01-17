@@ -34,7 +34,7 @@ public class Map<T extends Node> {
     protected static boolean CANMOVEDIAGONALY = true;
 
     /** holds nodes. first dim represents x-, second y-axis. */
-    private T[][] nodes;
+    private final T[][] nodes;
 
     /** width + 1 is size of first dimension of nodes. */
     protected int width;
@@ -53,23 +53,9 @@ public class Map<T extends Node> {
     public Map(int width, int higth, T[][] nodes) {
 
         this.nodes = nodes;
-        this.width = width - 1;
-        this.higth = higth - 1;
+        this.width = width;
+        this.higth = higth;
 		
-    }
-
-    /**
-     * sets nodes walkable field at given coordinates to given value.
-     * <p>
-     * x/y must be bigger or equal to 0 and smaller or equal to width/hight.
-     *
-     * @param x
-     * @param y
-     * @param bool
-     */
-    public void setWalkable(int x, int y, boolean bool) {
-        // TODO check parameter.
-        nodes[x][y].setWalkable(bool);
     }
 
     /**
@@ -169,8 +155,7 @@ public class Map<T extends Node> {
             closedList.add(current); // add current node to closed list
             openList.remove(current); // delete current node from open list
 
-            if ((current.getxPosition() == newX)
-                    && (current.getyPosition() == newY)) { // found goal
+            if ((current.getxPosition() == newX) && (current.getyPosition() == newY)) { // found goal
                 return calcPath(nodes[oldX][oldY], current);
             }
 
