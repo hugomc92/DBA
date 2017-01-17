@@ -720,6 +720,7 @@ public class AgentCar extends Agent {
 			System.out.println(this.getName() + "goalPositionY: " + goalPositionY);
 			
 			System.out.println("mapWorld["+positionY+"]["+positionX+"]: " + mapWorld[positionY][positionX]);
+			System.out.println("mapWorld["+goalPositionY+"]["+goalPositionX+"]: " + mapWorld[goalPositionY][goalPositionX]);
 
 			System.out.println("nodeX: " + this.pathToGoal.get(this.pathToGoal.size()-1).getxPosition());
 			System.out.println("nodeY: " + this.pathToGoal.get(this.pathToGoal.size()-1).getyPosition());
