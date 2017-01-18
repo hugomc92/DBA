@@ -1,0 +1,18 @@
+INFO MAP:
+
+"Capabilities 10a8d_CAR0:    Range: 11    fuelRate: 4    fly: false"
+
+"Capabilities 5070d_CAR1:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities 39486_CAR2:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities a29ff_CAR3:    Range: 5    fuelRate: 1    fly: false"
+
+Car 10a8d_CAR0pasos al objetivo: 56
+Car 10a8d_CAR0pasos*fuelToGoal: 12544
+Car 5070d_CAR1pasos al objetivo: 45
+Car 5070d_CAR1pasos*fuelToGoal: 4050
+Car 39486_CAR2pasos al objetivo: 45
+Car 39486_CAR2pasos*fuelToGoal: 4050
+Car a29ff_CAR3pasos al objetivo: 71
+Car a29ff_CAR3pasos*fuelToGoal: 5041

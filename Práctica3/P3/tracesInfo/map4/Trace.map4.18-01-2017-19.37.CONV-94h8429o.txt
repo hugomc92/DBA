@@ -1,0 +1,10 @@
+INFO MAP:
+
+"Capabilities 8fd6c_CAR0:\n\tRange: 5\n\tfuelRate: 1\n\tfly: false\n\n""Capabilities 2cb1b_CAR1:\n\tRange: 3\n\tfuelRate: 2\n\tfly: true\n\n""Capabilities d86d4_CAR2:\n\tRange: 11\n\tfuelRate: 4\n\tfly: false\n\n""Capabilities 8a30b_CAR3:\n\tRange: 3\n\tfuelRate: 2\n\tfly: true\n\n"Car 8fd6c_CAR0pasos al objetivo: 75
+Car 8fd6c_CAR0pasos*fuelToGoal: 5625
+Car 2cb1b_CAR1pasos al objetivo: 45
+Car 2cb1b_CAR1pasos*fuelToGoal: 4050
+Car d86d4_CAR2pasos al objetivo: 68
+Car d86d4_CAR2pasos*fuelToGoal: 18496
+Car 8a30b_CAR3pasos al objetivo: 50
+Car 8a30b_CAR3pasos*fuelToGoal: 5000

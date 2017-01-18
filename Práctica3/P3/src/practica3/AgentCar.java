@@ -144,18 +144,21 @@ public class AgentCar extends Agent {
 	 * 
      * @author Aaron Rodriguez and Bryan Moreno Picamán and Hugo Maldonado
      */
-    private void stateGetCapabilities(){
+    private void stateGetCapabilities() {
+		
         //Mandamos el checkin
         JsonObject myJson = new JsonObject();
         myJson.add("command","checkin");
+		
         sendMessage(serverName,ACLMessage.REQUEST,"",convIDServer,myJson.toString());
     
         //Esperamos las capabilities
         ACLMessage messageReceived = receiveMessage();
+		
         if(messageReceived.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD){
             state = NOT_UND_FAILURE_REFUSE;
         }
-        else{
+		else {
             replyWithServer = messageReceived.getReplyWith();
             //Guardamos las capabilities
             myJson = Json.parse(messageReceived.getContent()).asObject();
@@ -164,18 +167,20 @@ public class AgentCar extends Agent {
             this.fuelRate = myJson.get("capabilities").asObject().get("fuelrate").asInt();
             this.fuelLocal = 100; //EL fuel inicial es 100?
             if(myJson.get("capabilities").asObject().get("fly").asBoolean() == true)
-                type = new Fly();
+                type = new Fly(this.getName());
             else
-                type = new NotFly();
+                type = new NotFly(this.getName());
 			
-			System.out.println("Car " + this.getName() + " Capacidades");
-			System.out.println("Car " + this.getName() + "\tRange: " + range);
-			System.out.println("Car " + this.getName() + "\tfuelRate: " + fuelRate);
-			System.out.println("Car " + this.getName() + "\tfly: " + myJson.get("capabilities").asObject().get("fly").asBoolean());
-            
+			String capabilities = "Capabilities " + this.getName() + ":";
+			capabilities += "    Range: " + range;
+			capabilities += "    fuelRate: " + fuelRate;
+			capabilities += "    fly: " + myJson.get("capabilities").asObject().get("fly").asBoolean();
+			
             //Avisamos al server de que las hemos obtenido
             myJson = new JsonObject();
-            myJson.add("capabilites","received");
+            //myJson.add("capabilites","received");
+			myJson.add("capabilites",capabilities);
+			
             this.answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
             
             this.state = READY;
@@ -763,6 +768,8 @@ public class AgentCar extends Agent {
      */
     private void stateExploreMap() {
 		
+		System.out.println("EXPLORANDO EL MAPA...");
+		
         jframe = new JFrame();
         m = new MyDrawPanel(this.mapWorld);
         jframe.add(m);
@@ -832,18 +839,14 @@ public class AgentCar extends Agent {
             goLeft = true;
         
         //Empezamos el zig-zag
-        System.out.println("ZIG ZAG");
         while (!mapExplored && state != NOT_UND_FAILURE_REFUSE){
             //Repostamos si estamos en números rojos
             if(fuelLocal <= fuelRate){
-                System.out.println("REFUEL");
                 commandRefuel();
             }
             else{
-                System.out.println("NO REFUEL");
                 //Si vamos en horizontal
                 if(!goDown){
-                    System.out.println("HORIZONTAL");
                     //Nos movemos en nuestra dirección si no hay pared externa,
                     //en caso contrario apuntamos para bajar
                     if((goLeft && mapWorld[positionY][positionX-1] != 2) ||
@@ -851,10 +854,10 @@ public class AgentCar extends Agent {
                         
                         
                         //MOVIMIENTO
-                        if(goLeft){System.out.println("HACIA LA IZQDA");
+                        if(goLeft){
                             commandMove(positionX-1,positionY);
                         }
-                        else{System.out.println("HACIA LA DCHA");
+                        else{
                             commandMove(positionX+1,positionY);
                         }
                         
@@ -881,10 +884,7 @@ public class AgentCar extends Agent {
                 }
                 //Si vamos en vertical
                 else{
-                    System.out.println("EN VERTICAL");
                     if(mapWorld[positionY+1][positionX] != 2 && positionY < depth){
-                        System.out.println("PODEMOS AVANZAR HACIA ABAJO");
-
                         //MOVIMIENTO
                         commandMove(positionX,positionY+1);
                         
@@ -902,7 +902,6 @@ public class AgentCar extends Agent {
                         }
                     }
                     else if (mapWorld[positionY+1][positionX] == 2){  //Tocamos la pared de abajo
-                        System.out.println("CAMBIAMOS A HORIZONTAL");
                         if(depth - positionY <= 1){  //No es necesario explorar horizontalmente
                             goDown = false;
                         }

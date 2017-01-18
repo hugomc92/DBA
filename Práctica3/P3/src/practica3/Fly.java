@@ -13,9 +13,11 @@ public class Fly extends TypeAgent{
      * Constructor por defecto para los agentes de tipo Fly
 	 * 
      * @author Bryan Moreno and Hugo Maldonado
+	 * @param name El nombre del agente
      */
-    public Fly(){
+    public Fly(String name) {
 		
+		this.name = name;
     }
     
     /**
@@ -55,7 +57,7 @@ public class Fly extends TypeAgent{
 		
 		Map myMap = new Map(mapWorld.length, mapWorld.length, nodes);
 		
-        System.out.println("Calculating Path to Goal");
+        System.out.println(this.getName() + " Calculating Path to Goal");
 		
 		return myMap.findPath(posX, posY, goalX, goalY);
     }

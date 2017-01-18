@@ -82,6 +82,9 @@ public class AgentController extends Agent {
 	
 	private JFrame jframe;
     private MyDrawPanel m;
+	
+	private String infoMap;
+	private int totalStepFuel;
 
     /**
      * Constructor 
@@ -138,7 +141,11 @@ public class AgentController extends Agent {
 		this.numSentCars = 0;
 		this.carsInGoal = 0;
 		
-		System.out.println("AgetnController has just started");
+		this.infoMap = String.format("%s\n\n", "INFO MAP (" + map + "):");
+		
+		totalStepFuel = 0;
+		
+		System.out.println("AgentController has just started");
 	}
 	
 	/**
@@ -149,7 +156,7 @@ public class AgentController extends Agent {
     private void stateCheckMap() {
 		
         if(DEBUG)
-                System.out.println("AgentController state: CHECK_MAP"); 
+			System.out.println("AgentController state: CHECK_MAP"); 
         
         String path = "maps/" + this.map + ".json";
 
@@ -227,8 +234,9 @@ public class AgentController extends Agent {
 	 */
 	private boolean subscribe() {
             JsonObject obj = Json.object().add("world", map);
-            System.out.println(serverName.toString());
-            System.out.println(map);
+			
+            System.out.println("SUBSCRIBE MAP: " + map);
+			
             sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
             
 	
@@ -414,7 +422,6 @@ public class AgentController extends Agent {
 	private void stateExploreMap() {
 		
 		ACLMessage receive = this.receiveMessage();
-        System.out.println("ME HA LLEGADO EL CONTENIDO: "+receive.getContent());
 				
 		if(receive.getPerformativeInt() == ACLMessage.INFORM) {
 			JsonObject responseObject = Json.parse(receive.getContent()).asObject();
@@ -422,7 +429,6 @@ public class AgentController extends Agent {
 			this.mapWorldPosX = responseObject.get("finalX").asInt();
 			this.mapWorldPosY = responseObject.get("finalY").asInt();
 			this.mapWorldDirection = responseObject.get("direction").asString();
-			System.out.println("ANTES DEL BOOL");
 						
 			if(responseObject.get("completed").asString().equals("true"))
 				this.mapWorldCompleted = true;
@@ -441,7 +447,6 @@ public class AgentController extends Agent {
 				}
 			}
 			
-			System.out.println("DESPUES DEL FOR");
 			this.state = SAVE_MAP;
 		}
 		else 
@@ -502,7 +507,7 @@ public class AgentController extends Agent {
 			System.err.println("Error processing map");
 
 			System.err.println(ex.getMessage());
-                        this.state = FINALIZE;
+			this.state = FINALIZE;
 		}
 	}
 	
@@ -523,6 +528,7 @@ public class AgentController extends Agent {
             ACLMessage receive;
             for(int i=0; i<4; i++) {
                 receive= this.receiveMessage();
+				
                 if(receive.getPerformativeInt() == ACLMessage.AGREE)
                     System.out.println("Agent Car :" + receive.getSender().getLocalName() + "die");
             }
@@ -530,7 +536,7 @@ public class AgentController extends Agent {
             // Mandar el CANCEL
             sendMessage(serverName, ACLMessage.CANCEL, "", "", "");
             
-            //Espera los dos mensajes
+            //Espera los mensajes hasta guardar la traza
 			boolean received = false;
             while(!received){
                 receive = receiveMessage();
@@ -551,7 +557,6 @@ public class AgentController extends Agent {
 	private void stateReRun() {
         
 		killAgents();
-		
         
 		/*boolean allOk = true;
 		
@@ -619,7 +624,7 @@ public class AgentController extends Agent {
 					this.carLocalInfo[row][INDEX_POSY] = posY;
 				}
 				else {
-                                    System.out.println("NO PILLO BIEN EL ROW");
+                    System.out.println("NO PILLO BIEN EL ROW");
 					allOk = false;
 				}
 			}
@@ -700,49 +705,15 @@ public class AgentController extends Agent {
 			posObj.remove(cont+1);
 			posObj.remove(cont);
 			
-			// Comprobar que los objetivos de los siguientes agentes (1, 2 y 3) no coinciden con ninguno de los anteriores. Si coinciden volver a calcular las posiciones objetivo 
-			/*for(int j=0; j<i; j++) {
-				System.out.println("j: " + j + ": carLocalInfo[j][INDEX_OBJX]: " + carLocalInfo[j][INDEX_OBJX]);
-				System.out.println("j: " + j + ": carLocalInfo[j][INDEX_OBJY]: " + carLocalInfo[j][INDEX_OBJY]);
-				
-				while(objX == carLocalInfo[j][INDEX_OBJX] && objY == carLocalInfo[j][INDEX_OBJY]) {
-					System.out.println("COINCIDEN");
-					
-					// Coinciden,luego recalcular el proceso
-					minDist = 99999999;
-			
-					// Recorrer todas las posiciones del objetivo para sacar la distancia euclídea mínima
-					for(int k=0; k<posObj.size(); k+=2) {
-						int objPosX = posObj.get(k);
-						int objPosY = posObj.get(k+1);
-
-						double dist = euclideanDist(carLocalInfo[i][INDEX_POSX], carLocalInfo[i][INDEX_POSY], objPosX, objPosY);
-						
-						System.out.println("j: " + j + ": objPosX: " + objPosX);
-						System.out.println("j: " + j + ": objPosY: " + objPosY);
-						
-						System.out.println("dist: " + dist);
-						System.out.println("minDist: " + minDist);
-
-						if(dist < minDist && objPosX != carLocalInfo[j][INDEX_OBJX] && objPosY != carLocalInfo[j][INDEX_OBJY]) {
-							System.out.println("if");
-							minDist = dist;
-
-							objX = objPosX;
-							objY = objPosY;
-						}
-					}
-				}
-			}*/
-			
 			carLocalInfo[i][INDEX_OBJX] = objX;
 			carLocalInfo[i][INDEX_OBJY] = objY;
 		}
 		
-		if(DEBUG)
+		if(DEBUG) {
 			for (int k = 0; k < carNames.length; k++) {
 				System.out.println("Pos car "+carNames[k].getLocalName()+": ("+carLocalInfo[k][INDEX_POSY]+","+carLocalInfo[k][INDEX_POSX]+"); Pos goal: ("+carLocalInfo[k][INDEX_OBJY]+","+carLocalInfo[k][INDEX_OBJX]+")");
 			}
+		}
                 
 		for(int k=0; k<carNames.length; k++) {
 			// Mandar el mapa con una pequeña modificación a cada uno, para hacer que los objetivos de los otros agentes sean muros
@@ -779,28 +750,28 @@ public class AgentController extends Agent {
 		this.state = FUEL_INFORMATION;
 	}
 
-        /**
-         * Devuelve el índice de un AgentID dado
-         * @param thisAgent AgentID del agente a buscar su índice
-         * @return Índice del AgentID dado
-		 * 
-         * @author Aaron Rodriguez Bueno and Jose David Torres de las Morenas
-         */
-        int getIndexCar(AgentID thisAgent){
-			
-            int row = -1;
-				
-            if(thisAgent.getLocalName().equals(carNames[0].getLocalName()))
-				row = 0;
-            else if(thisAgent.getLocalName().equals(carNames[1].getLocalName()))
-				row = 1;
-            else if(thisAgent.getLocalName().equals(carNames[2].getLocalName()))
-				row = 2;
-            else if(thisAgent.getLocalName().equals(carNames[3].getLocalName()))
-				row = 3;
-            
-            return row;
-        }
+	/**
+	 * Devuelve el índice de un AgentID dado
+	 * @param thisAgent AgentID del agente a buscar su índice
+	 * @return Índice del AgentID dado
+	 * 
+	 * @author Aaron Rodriguez Bueno and Jose David Torres
+	 */
+	int getIndexCar(AgentID thisAgent){
+
+		int row = -1;
+
+		if(thisAgent.getLocalName().equals(carNames[0].getLocalName()))
+			row = 0;
+		else if(thisAgent.getLocalName().equals(carNames[1].getLocalName()))
+			row = 1;
+		else if(thisAgent.getLocalName().equals(carNames[2].getLocalName()))
+			row = 2;
+		else if(thisAgent.getLocalName().equals(carNames[3].getLocalName()))
+			row = 3;
+
+		return row;
+	}
         
 	/**
 	 * Obtener la información de la batería de los agentes
@@ -837,26 +808,19 @@ public class AgentController extends Agent {
 					int actualFuel = response.get("actual-fuel").asInt();
 					int fuelToGoal = response.get("fuel-to-goal").asInt();
 					int steps = response.get("num-steps").asInt();
+					
+					// Añadirlo al mapa de la información
+					this.infoMap += String.format("%s\n", "Car " + inbox.getSender().getLocalName() + " pasos al objetivo: " + steps);
+					this.infoMap += String.format("%s\n\n", "Car " + inbox.getSender().getLocalName() + " pasos*fuelToGoal: " + steps*fuelToGoal);
+					
+					totalStepFuel += steps*fuelToGoal;
 
 					this.carLocalInfo[row][INDEX_ACTUAL_FUEL] = actualFuel;
 					this.carLocalInfo[row][INDEX_FUEL_TO_GOAL] = fuelToGoal;
 					this.carLocalInfo[row][INDEX_STEPS_TO_GOAL] = steps;
 					
 					if(fuelToGoal == -1) {
-						
 						this.carLocalInfo[row][INDEX_STEPS_TO_GOAL] = -1;
-						/*message = new JsonObject();
-						
-						message.add("die", "now");
-						
-						this.sendMessage(carName, ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
-						
-						inbox = this.receiveMessage();
-						
-						if(inbox.getPerformativeInt() == ACLMessage.AGREE) {
-							carNamesRemoved[cont] = carName;
-							cont++;
-						}*/
 					}
 				}
 				else {
@@ -864,22 +828,6 @@ public class AgentController extends Agent {
 				}
 			}
 		}
-		
-		/*AgentID newCarNames [] = new AgentID[carNames.length - cont];
-		int cont2 = 0;
-		
-		for(AgentID carName : carNames) {
-			boolean added = false;
-			for(AgentID carNameRemove : carNamesRemoved) {
-				if(carName != carNameRemove && !added) {
-					newCarNames[cont2] = carName;
-					cont2++;
-					added = true;
-				}
-			}
-		}
-		
-		this.carNames = newCarNames;*/
 		
 		if(allOk)
 			this.state = CHOOSE_AGENTS;
@@ -905,6 +853,7 @@ public class AgentController extends Agent {
 			
 			contador+=fuelNeeded[i];
 		}
+		
 		if(DEBUG){
 			System.out.println("contador: "+contador);
 			System.out.println("globalFuel: "+globalFuel);
@@ -920,18 +869,23 @@ public class AgentController extends Agent {
 		int maxIndex;
                 
 		while(contador>this.globalFuel){
-			System.out.println("HAY QUE ELIMINAR UNO");
+			if(DEBUG)
+				System.out.println("SE NECESITA MÁS FUEL PARA TODOS DEL QUE HAY DISPONIBLE. TENEMOS QUE ELEGIR QUIÉNES VAN AL OBJETIVO Y QUIENES NO");
+			
 			maxIndex=this.calculateMaxIndex(fuelNeeded);
+			
 			contador-=fuelNeeded[maxIndex];
+			
 			fuelNeeded[maxIndex]=-1;
 		}
 
 		for(int i=0;i<fuelNeeded.length;i++){
 			if(fuelNeeded[i]>=0){
 				chosenList.add(i);
-                                System.out.println(chosenList.get(chosenList.size()-1));
-                        }
+				System.out.println(chosenList.get(chosenList.size()-1));
+			}
 		}
+		
 		this.numSentCars = chosenList.size();
 
 		this.sendCars(chosenList);
@@ -964,12 +918,15 @@ public class AgentController extends Agent {
 	 */
 	private int calculateMaxIndex(int [] array){               
 		int maxIndex = 0;
+		
 		for (int i = 1; i < array.length; i++){
 			int newnumber = array[i];
+			
 			if ((newnumber > array[maxIndex])){
 				maxIndex = i;
 			}
 		}
+		
 		return maxIndex;
 	}
         
@@ -979,9 +936,12 @@ public class AgentController extends Agent {
 	 * @author Aaron Rodriguez Bueno and Jose David Torres and Hugo Maldonado and Bryan Moreno
 	 */
 	private void stateControlAgents() {
+		
             int [] bloquedCars = new int [4];
+			
             for (int i = 0; i < bloquedCars.length; i++)
                 bloquedCars[i] = -1;
+			
             int numCars = this.numSentCars;
             int rowAgent;
             
@@ -1020,8 +980,9 @@ public class AgentController extends Agent {
 									bloquedCars[i] = -1;
 								}
 							}
-						}	//Si ha llegado a su goal, bajar numCars, subir carsInGoal y bajar el
-						//nº de pasos del coche hasta el goal
+						}
+						
+						//Si ha llegado a su goal, bajar numCars, subir carsInGoal y bajar el nº de pasos del coche hasta el goal
 						if(carLocalInfo[rowAgent][INDEX_POSX] == carLocalInfo[rowAgent][INDEX_OBJX] && carLocalInfo[rowAgent][INDEX_POSY] == carLocalInfo[rowAgent][INDEX_OBJY]){
 							if (DEBUG)
 								System.out.println("AGENT CAR "+carNames[rowAgent].getLocalName()+" HA LLEGADO A SU GOAL");
@@ -1045,9 +1006,11 @@ public class AgentController extends Agent {
 					case ACLMessage.QUERY_IF:
 						
 						System.out.println("bloquedCars");
+						
 						for(int i=0; i<bloquedCars.length; i++) {
 							System.out.println("bloqued[" + i + "]: " + bloquedCars[i]);
 						}
+						
 						System.out.println("");
 						
 						//Mirar si hay que bloquear a este car si alguno de los otros tiene prioridad y no está ya en el goal
@@ -1130,21 +1093,6 @@ public class AgentController extends Agent {
                 
 		//Matamos agentes
 		killAgents();
-
-		//Recibimos la traza y el agree
-
-//        
-//        //Recibimos el agree
-//        ACLMessage receive = receiveMessage();
-//        if(receive.getPerformativeInt()==ACLMessage.AGREE)
-//            System.out.println("Trace Agree ");
-//
-//        // Guardar la traza si es necesario
-//        receive = receiveMessage();
-//        if(receive.getPerformativeInt()==ACLMessage.INFORM)
-//            System.out.println("Trace Inform");
-//
-//        //HABRIA QUE GUARDAR LA TRAZA
         
 		// Terminar la ejecución
 		this.finish = true;
@@ -1356,12 +1304,34 @@ public class AgentController extends Agent {
 			else
 				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date + "." + this.conversationIdServer +  ".png"));
 
-
 			fos.write(data);
 			
 			System.out.println("WRITE");
 
 			fos.close();
+			
+			if(!error && Integer.parseInt(map.substring(3)) % 100 != 0) {
+				try {
+					System.out.println("GUARDANDO INFORMACIÓN DE LA EJECUCIÓN");
+
+					File file = new File("tracesInfo/" + map + "/Trace." + map + "." + date + "." + this.conversationIdServer +  ".txt");
+
+					FileWriter fileWriter;
+
+					fileWriter = new FileWriter(file);
+					
+					this.infoMap += String.format("\n%s", "TOTAL STEPS*FUEL: " + totalStepFuel);
+
+					fileWriter.write(this.infoMap);
+
+					fileWriter.flush();
+					fileWriter.close();
+				} catch(IOException ex) {
+					System.err.println("Error processing map info");
+
+					System.err.println(ex.getMessage());
+				}
+			}
 
 			if(DEBUG)
 				System.out.println("Saved trace");
@@ -1381,9 +1351,11 @@ public class AgentController extends Agent {
 	 * @author Bryan Moreno and Hugo Maldonado
 	 */
     private boolean requestCheckIn() {
+		
         //Creamos el mensaje con la conversationID
         JsonObject message = new JsonObject();
         message.add("conversationID-server", this.conversationIdServer);
+		
         //Por cada uno de los agentCar, mandamos un mensaje
         for(AgentID carName : carNames) {
             String elReply = super.generateReplyId();
@@ -1398,6 +1370,13 @@ public class AgentController extends Agent {
             if(receive.getPerformativeInt() != ACLMessage.INFORM){
                 return false;
             }
+			else {
+				String cap = Json.parse(receive.getContent()).asObject().get("capabilites").toString();
+				
+				System.out.println("cap: " + cap);
+				
+				this.infoMap += String.format("%s\n\n", cap);
+			}
         }
 
         return true;

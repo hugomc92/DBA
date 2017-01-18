@@ -10,11 +10,14 @@ import java.util.List;
 public class NotFly extends TypeAgent{
 	
     /**
-     * Constructor por defecto para los agentes de tipo NoFly
+     * Constructor por defecto para los agentes de tipo NotFly
 	 * 
-     * @author Bryan Moreno 
+     * @author Bryan Moreno and Hugo Maldonado
+	 * @param name El nombre del agente
      */
-    public NotFly(){
+    public NotFly(String name) {
+		
+		this.name = name;
     }
     
     /**
@@ -61,7 +64,7 @@ public class NotFly extends TypeAgent{
 		
 		//myMap.drawMap();
 		
-        System.out.println("Calculating Path to Goal");
+        System.out.println(this.getName() + " Calculating Path to Goal");
 		
 		List<Node> path = myMap.findPath(posX, posY, goalX, goalY);
 		

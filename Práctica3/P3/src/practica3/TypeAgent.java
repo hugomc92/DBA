@@ -11,6 +11,7 @@ public abstract class TypeAgent {
 	
     protected int [][] mapWorld;
     protected Node[][] nodes;
+	protected String name;
 	
      /**
      * Recibe el mapa completo del entorno
@@ -29,6 +30,11 @@ public abstract class TypeAgent {
 		
 		//drawMap();
     }
+	
+	protected String getName() {
+		
+		return name;
+	}
 	
 	public void drawMap() {
 		System.out.println("Drawing Map");

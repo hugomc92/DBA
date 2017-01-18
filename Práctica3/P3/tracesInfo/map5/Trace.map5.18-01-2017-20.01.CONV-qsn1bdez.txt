@@ -1,0 +1,24 @@
+INFO MAP (map5):
+
+"Capabilities c3746_CAR0:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities d5cea_CAR1:    Range: 11    fuelRate: 4    fly: false"
+
+"Capabilities ecec5_CAR2:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities 05004_CAR3:    Range: 11    fuelRate: 4    fly: false"
+
+Car c3746_CAR0 pasos al objetivo: 85
+Car c3746_CAR0 pasos*fuelToGoal: 14450
+
+Car d5cea_CAR1 pasos al objetivo: 57
+Car d5cea_CAR1 pasos*fuelToGoal: 12996
+
+Car ecec5_CAR2 pasos al objetivo: 85
+Car ecec5_CAR2 pasos*fuelToGoal: 14450
+
+Car 05004_CAR3 pasos al objetivo: 115
+Car 05004_CAR3 pasos*fuelToGoal: 52900
+
+
+TOTAL STEPS*FUEL: 94796
