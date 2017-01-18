@@ -16,7 +16,7 @@ import javax.swing.JFrame;
  */
 public class AgentCar extends Agent {
     
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     
     private static final int IDLE = 0;
     private static final int GET_CAPABILITIES = 1;
@@ -167,6 +167,11 @@ public class AgentCar extends Agent {
                 type = new Fly();
             else
                 type = new NotFly();
+			
+			System.out.println("Car " + this.getName() + "Capacidades");
+			System.out.println("Car " + this.getName() + "Range: " + range);
+			System.out.println("Car " + this.getName() + "fuelRate: " + fuelRate);
+			System.out.println("Car " + this.getName() + "fly: " + myJson.get("capabilities").asObject().get("fly").asBoolean());
             
             //Avisamos al server de que las hemos obtenido
             myJson = new JsonObject();
@@ -267,6 +272,11 @@ public class AgentCar extends Agent {
             else
 				movement = "moveSE";
         }
+		
+		System.out.println("");
+		System.out.println("Car " + this.getName() + " POSICIÓN (" + positionY + ", " + positionX + "): " + mapWorld[positionY][positionX]);
+		System.out.println("Car " + this.getName() + "movement: " + movement);
+		System.out.println("");
         
         //Se lo enviamos al Server
         JsonObject myJson = new JsonObject();
@@ -526,12 +536,12 @@ public class AgentCar extends Agent {
             }
         }*/
         
-        if(DEBUG){
+        //if(DEBUG){
             System.out.println("CAMINO ELEGIDO POR EL CALCULATE PATH PARA EL AGENTE: "+this.getName());
             for (Node n : pathToGoal){
                 System.out.println("("+n.getyPosition()+","+n.getxPosition()+")"+"("+n.isWalkable()+")");
             }
-        }
+        //}
 
         if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {
                 //El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
@@ -662,6 +672,8 @@ public class AgentCar extends Agent {
 				
 				this.commandMove(node.getxPosition(), node.getyPosition());
 				
+				System.out.println("Car " + this.getName() + " Nodo: (" + node.getyPosition() + ", " + node.getxPosition() + "): " + mapWorld[node.getyPosition()][node.getxPosition()]);
+				
 				this.requestPerceptions();
 				
 				JsonObject message = new JsonObject();
@@ -712,7 +724,7 @@ public class AgentCar extends Agent {
 			}
 		}
 		
-		if(DEBUG) {
+		//if(DEBUG) {
 			
 			System.out.println(this.getName() + "positionX: " + positionX);
 			System.out.println(this.getName() + "goalPositionX: " + goalPositionX);
@@ -734,7 +746,7 @@ public class AgentCar extends Agent {
 				
 				this.sendMessage(controllerName, ACLMessage.FAILURE, this.generateReplyId(), convIDController, message.toString());
 			}
-		}
+		//}
 		
 		this.state = READY;
 		

@@ -28,13 +28,13 @@ import java.util.List;
  * 
  * @author Got it from internet, some modifications by Hugo Maldonado
  */
-public class Map<T extends Node> {
+public class Map {
 
     /** weather or not it is possible to walk diagonally on the map in general. */
     protected static boolean CANMOVEDIAGONALY = true;
 
     /** holds nodes. first dim represents x-, second y-axis. */
-    private final T[][] nodes;
+    private final Node[][] nodes;
 
     /** width + 1 is size of first dimension of nodes. */
     protected int width;
@@ -50,9 +50,15 @@ public class Map<T extends Node> {
      * @param higth
      * @param nodes 
      */
-    public Map(int width, int higth, T[][] nodes) {
+    public Map(int width, int higth, Node[][] nodes) {
 
-        this.nodes = nodes;
+        //this.nodes = nodes;
+		this.nodes = new Node[width][higth];
+		
+		for(int y=0; y<higth; y++)
+			for(int x=0; x<width; x++)
+				this.nodes[y][x] = nodes[y][x];
+				
         this.width = width;
         this.higth = higth;
 		
@@ -67,9 +73,13 @@ public class Map<T extends Node> {
      * @param y
      * @return node
      */
-    public final T getNode(int x, int y) {
+    public final Node getNode(int x, int y) {
         // TODO check parameter.
-        return nodes[x][y];
+        //return nodes[x][y];
+		if(nodes[x][y] != null)
+			return nodes[x][y];
+		else
+			return null;
     }
 
     /**
@@ -115,9 +125,9 @@ public class Map<T extends Node> {
     // variables needed for path finding
 
     /** list containing nodes not visited but adjacent to visited nodes. */
-    private List<T> openList;
+    private List<Node> openList;
     /** list containing nodes already visited/taken care of. */
-    private List<T> closedList;
+    private List<Node> closedList;
     /** done finding path? */
     private boolean done = false;
 
@@ -142,14 +152,14 @@ public class Map<T extends Node> {
      * @param newY
      * @return
      */
-    public final List<T> findPath(int oldX, int oldY, int newX, int newY) {
+    public final List<Node> findPath(int oldX, int oldY, int newX, int newY) {
         // TODO check input
-        openList = new LinkedList<T>();
-        closedList = new LinkedList<T>();
+        openList = new LinkedList<Node>();
+        closedList = new LinkedList<Node>();
         openList.add(nodes[oldX][oldY]); // add starting node to open list
 
         done = false;
-        T current;
+        Node current;
         while (!done) {
             current = lowestFInOpen(); // get node with lowest fCosts from openList
             closedList.add(current); // add current node to closed list
@@ -160,9 +170,9 @@ public class Map<T extends Node> {
             }
 
             // for all adjacent nodes:
-            List<T> adjacentNodes = getAdjacent(current);
+            List<Node> adjacentNodes = getAdjacent(current);
             for (int i = 0; i < adjacentNodes.size(); i++) {
-                T currentAdj = adjacentNodes.get(i);
+                Node currentAdj = adjacentNodes.get(i);
                 if (!openList.contains(currentAdj)) { // node is not in openList
                     currentAdj.setPrevious(current); // set current node as previous for this node
                     currentAdj.sethCosts(nodes[newX][newY]); // set h costs of this node (estimated costs to goal)
@@ -177,7 +187,7 @@ public class Map<T extends Node> {
             }
 
             if (openList.isEmpty()) { // no path exists
-                return new LinkedList<T>(); // return empty list
+                return new LinkedList<Node>(); // return empty list
             }
         }
         return null; // unreachable
@@ -191,16 +201,16 @@ public class Map<T extends Node> {
      * @param goal
      * @return
      */
-    private List<T> calcPath(T start, T goal) {
+    private List<Node> calcPath(Node start, Node goal) {
      // TODO if invalid nodes are given (eg cannot find from
      // goal to start, this method will result in an infinite loop!)
-        LinkedList<T> path = new LinkedList<T>();
+        LinkedList<Node> path = new LinkedList<Node>();
 
-        T curr = goal;
+        Node curr = goal;
         boolean done = false;
         while (!done) {
             path.addFirst(curr);
-            curr = (T) curr.getPrevious();
+            curr = (Node) curr.getPrevious();
 
             if (curr.equals(start)) {
                 done = true;
@@ -214,9 +224,9 @@ public class Map<T extends Node> {
      *
      * @return
      */
-    private T lowestFInOpen() {
+    private Node lowestFInOpen() {
         // TODO currently, this is done by going through the whole openList!
-        T cheapest = openList.get(0);
+        Node cheapest = openList.get(0);
         for (int i = 0; i < openList.size(); i++) {
             if (openList.get(i).getfCosts() < cheapest.getfCosts()) {
                 cheapest = openList.get(i);
@@ -229,16 +239,16 @@ public class Map<T extends Node> {
      * returns a LinkedList with nodes adjacent to the given node.
      * if those exist, are walkable and are not already in the closedList!
      */
-    private List<T> getAdjacent(T node) {
+    private List<Node> getAdjacent(Node node) {
         // TODO make loop
         int x = node.getxPosition();
         int y = node.getyPosition();
-        List<T> adj = new LinkedList<T>();
+        List<Node> adj = new LinkedList<Node>();
 
-        T temp;
+        Node temp;
         if (x > 0) {
             temp = this.getNode((x - 1), y);
-            if (temp.isWalkable() && !closedList.contains(temp)) {
+            if (temp != null && temp.isWalkable() && !closedList.contains(temp)) {
                 temp.setIsDiagonaly(false);
                 adj.add(temp);
             }
@@ -246,7 +256,7 @@ public class Map<T extends Node> {
 
         if (x < width) {
             temp = this.getNode((x + 1), y);
-            if (temp.isWalkable() && !closedList.contains(temp)) {
+            if (temp != null && temp.isWalkable() && !closedList.contains(temp)) {
                 temp.setIsDiagonaly(false);
                 adj.add(temp);
             }
@@ -254,7 +264,7 @@ public class Map<T extends Node> {
 
         if (y > 0) {
             temp = this.getNode(x, (y - 1));
-            if (temp.isWalkable() && !closedList.contains(temp)) {
+            if (temp != null && temp.isWalkable() && !closedList.contains(temp)) {
                 temp.setIsDiagonaly(false);
                 adj.add(temp);
             }
@@ -262,7 +272,7 @@ public class Map<T extends Node> {
 
         if (y < higth) {
             temp = this.getNode(x, (y + 1));
-            if (temp.isWalkable() && !closedList.contains(temp)) {
+            if (temp != null && temp.isWalkable() && !closedList.contains(temp)) {
                 temp.setIsDiagonaly(false);
                 adj.add(temp);
             }
@@ -273,7 +283,7 @@ public class Map<T extends Node> {
         if (CANMOVEDIAGONALY) {
             if (x < width && y < higth) {
                 temp = this.getNode((x + 1), (y + 1));
-                if (temp.isWalkable() && !closedList.contains(temp)) {
+                if (temp != null && temp.isWalkable() && !closedList.contains(temp)) {
                     temp.setIsDiagonaly(true);
                     adj.add(temp);
                 }
@@ -281,7 +291,7 @@ public class Map<T extends Node> {
 
             if (x > 0 && y > 0) {
                 temp = this.getNode((x - 1), (y - 1));
-                if (temp.isWalkable() && !closedList.contains(temp)) {
+                if (temp != null && temp.isWalkable() && !closedList.contains(temp)) {
                     temp.setIsDiagonaly(true);
                     adj.add(temp);
                 }
@@ -289,7 +299,7 @@ public class Map<T extends Node> {
 
             if (x > 0 && y < higth) {
                 temp = this.getNode((x - 1), (y + 1));
-                if (temp.isWalkable() && !closedList.contains(temp)) {
+                if (temp != null && temp.isWalkable() && !closedList.contains(temp)) {
                     temp.setIsDiagonaly(true);
                     adj.add(temp);
                 }
@@ -297,12 +307,17 @@ public class Map<T extends Node> {
 
             if (x < width && y > 0) {
                 temp = this.getNode((x + 1), (y - 1));
-                if (temp.isWalkable() && !closedList.contains(temp)) {
+                if (temp != null && temp.isWalkable() && !closedList.contains(temp)) {
                     temp.setIsDiagonaly(true);
                     adj.add(temp);
                 }
             }
         }
+		
+		if(adj.isEmpty()) {
+			System.out.println("ADYACENDTES VACÍO");
+		}
+		
         return adj;
     }
 

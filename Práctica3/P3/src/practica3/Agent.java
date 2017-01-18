@@ -98,6 +98,9 @@ public class Agent extends SingleAgent {
            
 			if(DEBUG)
 				System.out.println(this.getName() + " <----- " + inbox.getSender().getLocalName() + " (" + inbox.getPerformative() + "): " + inbox.getContent());
+			
+			if(inbox.getPerformativeInt() == ACLMessage.FAILURE || inbox.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD)
+				System.out.println(this.getName() + " <----- " + inbox.getSender().getLocalName() + " (" + inbox.getPerformative() + "): " + inbox.getContent());
             
             return inbox;
         } catch (InterruptedException ex) {

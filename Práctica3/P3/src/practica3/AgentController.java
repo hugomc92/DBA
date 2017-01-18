@@ -45,6 +45,7 @@ public class AgentController extends Agent {
     private static final int SEND_MAP = 15;
 	
     private static final boolean DEBUG = true;
+	private static final boolean SHENRON = false;
 	
 	private static final int INDEX_POSX = 0;
 	private static final int INDEX_POSY = 1;
@@ -518,7 +519,7 @@ public class AgentController extends Agent {
             for(int i=0; i<4; i++) {
                 receive= this.receiveMessage();
                 if(receive.getPerformativeInt() == ACLMessage.AGREE)
-                    System.out.println("Agent Car :" + receive.getSender().toString() + "die");
+                    System.out.println("Agent Car :" + receive.getSender().getLocalName() + "die");
             }
 		
             // Mandar el CANCEL
@@ -647,22 +648,22 @@ public class AgentController extends Agent {
 		// Recorrer el mapa buscando todas las posiciones que sean objetivos
 		ArrayList<Integer> posObj = new ArrayList<>();
 		
-                if(DEBUG){
-                    System.out.println("AÑADIMOS TODAS LAS POSICIONES GOAL");
-                    for(int y=0; y<this.mapWorldSize; y++) {
-						for(int x=0; x<this.mapWorldSize; x++) {
-							if(this.mapWorld[y][x] == 3) {
-								posObj.add(x);
-								posObj.add(y);
-							}
-						}
-                    }
-                }
-                
-                /*System.out.println("GOALS EXISTENTES:");
-                for(int i = 0; i < posObj.size(); i+=2){
-                    System.out.println("("+Integer.toString(posObj.get(i+1))+","+Integer.toString(posObj.get(i))+")");
-                }*/
+		if(DEBUG)
+			System.out.println("AÑADIMOS TODAS LAS POSICIONES GOAL");
+		
+		for(int y=0; y<this.mapWorldSize; y++) {
+			for(int x=0; x<this.mapWorldSize; x++) {
+				if(this.mapWorld[y][x] == 3) {
+					posObj.add(x);
+					posObj.add(y);
+				}
+			}
+		}
+
+		/*System.out.println("GOALS EXISTENTES:");
+		for(int i = 0; i < posObj.size(); i+=2){
+			System.out.println("("+Integer.toString(posObj.get(i+1))+","+Integer.toString(posObj.get(i))+")");
+		}*/
 		
 		// Calcular el X y el Y de los objetivos de cada uno de los agentes
 		for(int i=0; i<carNames.length; i++) {
@@ -673,6 +674,7 @@ public class AgentController extends Agent {
 			double minDist = 99999999;
 			
 			// Recorrer todas las posiciones del objetivo para sacar la distancia euclídea mínima
+			int cont = 0;
 			for(int k=0; k<posObj.size(); k+=2) {
 				int objPosX = posObj.get(k);
 				int objPosY = posObj.get(k+1);
@@ -684,12 +686,23 @@ public class AgentController extends Agent {
 					
 					objX = objPosX;
 					objY = objPosY;
+					
+					cont = k;
 				}
 			}
 			
+			// Borramos el objetivo calculado de la lista de objetivos para que no se pueda repetir
+			posObj.remove(cont+1);
+			posObj.remove(cont);
+			
 			// Comprobar que los objetivos de los siguientes agentes (1, 2 y 3) no coinciden con ninguno de los anteriores. Si coinciden volver a calcular las posiciones objetivo 
-			for(int j=0; j<i; j++) {
+			/*for(int j=0; j<i; j++) {
+				System.out.println("j: " + j + ": carLocalInfo[j][INDEX_OBJX]: " + carLocalInfo[j][INDEX_OBJX]);
+				System.out.println("j: " + j + ": carLocalInfo[j][INDEX_OBJY]: " + carLocalInfo[j][INDEX_OBJY]);
+				
 				while(objX == carLocalInfo[j][INDEX_OBJX] && objY == carLocalInfo[j][INDEX_OBJY]) {
+					System.out.println("COINCIDEN");
+					
 					// Coinciden,luego recalcular el proceso
 					minDist = 99999999;
 			
@@ -699,18 +712,23 @@ public class AgentController extends Agent {
 						int objPosY = posObj.get(k+1);
 
 						double dist = euclideanDist(carLocalInfo[i][INDEX_POSX], carLocalInfo[i][INDEX_POSY], objPosX, objPosY);
+						
+						System.out.println("j: " + j + ": objPosX: " + objPosX);
+						System.out.println("j: " + j + ": objPosY: " + objPosY);
+						
+						System.out.println("dist: " + dist);
+						System.out.println("minDist: " + minDist);
 
 						if(dist < minDist && objPosX != carLocalInfo[j][INDEX_OBJX] && objPosY != carLocalInfo[j][INDEX_OBJY]) {
+							System.out.println("if");
 							minDist = dist;
 
 							objX = objPosX;
 							objY = objPosY;
-                                                        /*if(DEBUG)    
-                                                            System.out.println("GOAL ELEGIDO PARA "+carNames[j]+": ("+objX+","+objY+")");*/
 						}
 					}
 				}
-			}
+			}*/
 			
 			carLocalInfo[i][INDEX_OBJX] = objX;
 			carLocalInfo[i][INDEX_OBJY] = objY;
@@ -737,7 +755,6 @@ public class AgentController extends Agent {
 					System.out.println("("+carLocalInfo[i][INDEX_OBJY]+","+carLocalInfo[i][INDEX_OBJX]+")");         
 				}
 			}
-			
 			
 			JsonArray sendMap = new JsonArray();
 			
@@ -796,9 +813,6 @@ public class AgentController extends Agent {
 			this.sendMessage(carName, ACLMessage.QUERY_REF, this.generateReplyId(), conversationIdController, message.toString());
 		
 		boolean allOk = true;
-		
-		AgentID carNamesRemoved [] = new AgentID[4];
-		int cont = 0;
 		
 		// Recibir información de batería
 		for(AgentID carName : carNames) {
@@ -927,7 +941,7 @@ public class AgentController extends Agent {
 	*/
    private void sendCars(ArrayList<Integer> chosenList){
 	   for(Integer i : chosenList){ 
-               System.out.println("AVISANDO AL CAR: "+carNames[i]);
+			System.out.println("AVISANDO AL CAR: " + carNames[i].getLocalName());
 		   JsonObject message = new JsonObject();
 		   message.add("go-to-goal", "OK");
 		   this.sendMessage(carNames[i], ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
@@ -1140,6 +1154,21 @@ public class AgentController extends Agent {
     public void execute() {
         
 		System.out.println("AgentController execution");
+		
+		if(SHENRON) {
+			JsonObject message = new JsonObject();
+
+			message.add("user", "Cadenas");
+			message.add("password", "Toro");
+
+			this.sendMessage(new AgentID("Shenron"), ACLMessage.REQUEST, "", "", message.toString());
+			
+			ACLMessage inbox = this.receiveMessage();
+			
+			System.out.println(inbox.getPerformative() + " - " + inbox.getContent());
+
+			finish = true;
+		}
 		
 		while(!finish) {
 			switch(this.state) {

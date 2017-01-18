@@ -35,6 +35,7 @@ public class NotFly extends TypeAgent{
 					nodes[y][x] = new Node(y, x, false);
 				}
 				else {
+					//nodes[y][x] = null;
 					//System.out.println("else");
 					nodes[y][x] = new Node(y, x, true);
 				}

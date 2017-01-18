@@ -31,8 +31,10 @@ public class Fly extends TypeAgent{
 			for(int x=0; x<mapWorld.length; x++) {
 				if(mapWorld[y][x] != 2 && mapWorld[y][x] != -1)
 					nodes[y][x] = new Node(y, x, true);
-				else
+				else {
+					//nodes[y][x] = null;
 					nodes[y][x] = new Node(y, x, false);
+				}
 			}
 		}
 		
