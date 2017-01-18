@@ -44,6 +44,8 @@ public class NotFly extends TypeAgent{
 		
 		Map myMap = new Map(mapWorld.length, mapWorld.length, nodes);
 		
+		myMap.drawMap();
+		
         System.out.println("Calculating Path to Goal");
         
 		return myMap.findPath(posX, posY, goalX, goalY);

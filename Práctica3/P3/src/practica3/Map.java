@@ -89,16 +89,17 @@ public class Map {
      * Movement penalty will not be displayed.
      */
     public void drawMap() {
-        for (int i = 0; i <= width; i++) {
+		System.out.println("Drawing Map");
+        for (int i = 0; i < width; i++) {
                 print(" _"); // boarder of map
         }
         print("\n");
 
-        for (int j = higth; j >= 0; j--) {
+        for (int j = 0; j < higth; j++) {
             print("|"); // boarder of map
-            for (int i = 0; i <= width; i++) {
-                if (nodes[i][j].isWalkable()) {
-                    print("  ");
+            for (int i = 0; i < width; i++) {
+                if (nodes[j][i].isWalkable()) {
+                    print("   ");
                 } else {
                     print(" #"); // draw unwakable
                 }
@@ -106,7 +107,7 @@ public class Map {
             print("|\n"); // boarder of map
         }
 
-        for (int i = 0; i <= width; i++) {
+        for (int i = 0; i < width; i++) {
                 print(" _"); // boarder of map
         }
     }
@@ -243,6 +244,7 @@ public class Map {
         // TODO make loop
         int x = node.getxPosition();
         int y = node.getyPosition();
+		
         List<Node> adj = new LinkedList<Node>();
 
         Node temp;

@@ -414,20 +414,23 @@ public class AgentController extends Agent {
 	private void stateExploreMap() {
 		
 		ACLMessage receive = this.receiveMessage();
-                System.out.println("ME HA LLEGADO EL CONTENIDO: "+receive.getContent());
+        System.out.println("ME HA LLEGADO EL CONTENIDO: "+receive.getContent());
+				
 		if(receive.getPerformativeInt() == ACLMessage.INFORM) {
 			JsonObject responseObject = Json.parse(receive.getContent()).asObject();
 
 			this.mapWorldPosX = responseObject.get("finalX").asInt();
 			this.mapWorldPosY = responseObject.get("finalY").asInt();
-                        this.mapWorldDirection = responseObject.get("direction").asString();
-                        System.out.println("ANTES DEL BOOL");
+			this.mapWorldDirection = responseObject.get("direction").asString();
+			System.out.println("ANTES DEL BOOL");
+						
 			if(responseObject.get("completed").asString().equals("true"))
-                            this.mapWorldCompleted = true;
-                        else
-                            this.mapWorldCompleted = false;
+				this.mapWorldCompleted = true;
+			else
+				this.mapWorldCompleted = false;
+			
 			int posix = 0, posiy = 0;
-                    System.out.println("ANTES DEL FOR");
+			
 			for(JsonValue j : responseObject.get("map").asArray()) {
 				mapWorld[posiy][posix] = j.asInt();
 				posix++;
@@ -437,8 +440,9 @@ public class AgentController extends Agent {
 					posiy++;
 				}
 			}
-                        System.out.println("DESPUES DEL FOR");
-                        this.state = SAVE_MAP;
+			
+			System.out.println("DESPUES DEL FOR");
+			this.state = SAVE_MAP;
 		}
 		else 
 			this.state = FINALIZE;
@@ -466,15 +470,15 @@ public class AgentController extends Agent {
 		
 		mapToSave.add("pos", pos);
 		
-                if(this.mapWorldDirection.equals("right"))
+        if(this.mapWorldDirection.equals("right"))
 		    mapToSave.add("direction", "right");
-                else
-                    mapToSave.add("direction", "left");
+        else
+            mapToSave.add("direction", "left");
 		
 		JsonArray sendMap = new JsonArray();
 
 		for(int [] i : this.mapWorld){
-			for(int j : i){
+			for(int j : i) {
 				sendMap.add(j);
 			}
 		}
@@ -492,7 +496,8 @@ public class AgentController extends Agent {
 			
 			fileWriter.flush();
 			fileWriter.close();
-                        this.state = RE_RUN;
+            
+			this.state = RE_RUN;
 		} catch(IOException ex) {
 			System.err.println("Error processing map");
 
@@ -691,7 +696,7 @@ public class AgentController extends Agent {
 				}
 			}
 			
-			// Borramos el objetivo calculado de la lista de objetivos para que no se pueda repetir
+			// Borramos el objetivo calculado de la lista de objetivos para que no se pueda repetir el mismo objetivo por otro agente
 			posObj.remove(cont+1);
 			posObj.remove(cont);
 			

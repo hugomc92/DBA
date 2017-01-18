@@ -35,9 +35,9 @@ public class Node {
     /** costs to move diagonally from one square to another. */
     protected static final int DIAGONALMOVEMENTCOST = 20;
 
-    private int xPosition;
-    private int yPosition;
-    private boolean walkable;
+    private final int xPosition;
+    private final int yPosition;
+    private final boolean walkable;
 
     // for pathfinding:
 
@@ -98,10 +98,10 @@ public class Node {
      * @param x
      * @param y
      */
-    public void setCoordinates(int x, int y) {
+    /*public void setCoordinates(int x, int y) {
         this.xPosition = x;
         this.yPosition = y;
-    }
+    }*/
 
     /**
      * @return the xPosition
@@ -157,7 +157,10 @@ public class Node {
      * @return the fCosts
      */
     public int getfCosts() {
-        return gCosts + hCosts;
+		if(walkable)
+			return gCosts + hCosts;
+		else
+			return 999999999;
     }
 
     /**
@@ -269,9 +272,14 @@ public class Node {
      * @param endNode
      */
     public void sethCosts(Node endNode) {
-		this.hCosts = ((absolute(this.getxPosition() - endNode.getxPosition())
-                    + absolute(this.getyPosition() - endNode.getyPosition()))
-                    * BASICMOVEMENTCOST);
+		if(this.walkable) {
+			this.hCosts = ((absolute(this.getxPosition() - endNode.getxPosition())
+						+ absolute(this.getyPosition() - endNode.getyPosition()))
+						* BASICMOVEMENTCOST);
+		}
+		else {
+			this.hCosts = 999999999;
+		}
 	}
 	
 	private int absolute(int a) {
