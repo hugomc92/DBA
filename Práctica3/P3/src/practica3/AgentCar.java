@@ -674,58 +674,60 @@ public class AgentCar extends Agent {
 				
 				System.out.println("Car " + this.getName() + " Nodo: (" + node.getyPosition() + ", " + node.getxPosition() + "): " + mapWorld[node.getyPosition()][node.getxPosition()]);
 				
-				this.requestPerceptions();
-				
-				JsonObject message = new JsonObject();
-			
-				message.add("x", positionX);
-				message.add("y", positionY);
+				// Si se ha chocado o ha ido mal en el movimiento, no seguir haciendo nada
+				if(this.state != NOT_UND_FAILURE_REFUSE) {
+					this.requestPerceptions();
 
-				this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, message.toString());
+					JsonObject message = new JsonObject();
 
-				boolean otherAgentFound = false;
-				JsonArray otherAgentsPosition = new JsonArray();
+					message.add("x", positionX);
+					message.add("y", positionY);
 
-				for(int y=0; y<range; y++) {
-					for(int x=0; x<range; x++) {
-						if(radar[y][x] == 4 && !(x+this.positionX-(range-1)/2 == positionX && y+this.positionY-(range-1)/2 == positionY)) {
-							otherAgentFound = true;
+					this.sendMessage(controllerName, ACLMessage.INFORM, this.generateReplyId(), convIDController, message.toString());
 
-							System.out.println("AGENTE "+this.getName()+" HA ENCONTRADO A OTRO AGENTE EN LA POS: ("+(y+this.positionY-(range-1)/2)+","+(x+this.positionX-(range-1)/2)+")");
-							otherAgentsPosition.add(x+this.positionX-(range-1)/2);
-							otherAgentsPosition.add(y+this.positionY-(range-1)/2);
+					boolean otherAgentFound = false;
+					JsonArray otherAgentsPosition = new JsonArray();
+
+					for(int y=0; y<range; y++) {
+						for(int x=0; x<range; x++) {
+							if(radar[y][x] == 4 && !(x+this.positionX-(range-1)/2 == positionX && y+this.positionY-(range-1)/2 == positionY)) {
+								otherAgentFound = true;
+
+								System.out.println("AGENTE "+this.getName()+" HA ENCONTRADO A OTRO AGENTE EN LA POS: ("+(y+this.positionY-(range-1)/2)+","+(x+this.positionX-(range-1)/2)+")");
+								otherAgentsPosition.add(x+this.positionX-(range-1)/2);
+								otherAgentsPosition.add(y+this.positionY-(range-1)/2);
+							}
 						}
 					}
-				}
 
-				if(otherAgentFound) {
-					JsonObject messageCanMove = new JsonObject();
+					if(otherAgentFound) {
+						JsonObject messageCanMove = new JsonObject();
 
-					messageCanMove.add("canMove", "OK");
-					messageCanMove.add("otherAgents", otherAgentsPosition);
+						messageCanMove.add("canMove", "OK");
+						messageCanMove.add("otherAgents", otherAgentsPosition);
 
-					this.sendMessage(controllerName, ACLMessage.QUERY_IF, this.generateReplyId(), convIDController, messageCanMove.toString());
+						this.sendMessage(controllerName, ACLMessage.QUERY_IF, this.generateReplyId(), convIDController, messageCanMove.toString());
 
-					ACLMessage inbox = this.receiveMessage();
+						ACLMessage inbox = this.receiveMessage();
 
-					if(inbox.getPerformativeInt() == ACLMessage.DISCONFIRM) {
-						inbox = this.receiveMessage();
+						if(inbox.getPerformativeInt() == ACLMessage.DISCONFIRM) {
+							inbox = this.receiveMessage();
 
-						if(inbox.getPerformativeInt() != ACLMessage.INFORM) {
-							System.out.println("RECIBIDO NO INFORM");
+							if(inbox.getPerformativeInt() != ACLMessage.INFORM) {
+								System.out.println("RECIBIDO NO INFORM");
+								this.state = NOT_UND_FAILURE_REFUSE;
+							}
+						}
+						else if(inbox.getPerformativeInt() != ACLMessage.CONFIRM) {
+							System.out.println("RECIBIDO NO CONFIRM NI DISCONFIRM");
 							this.state = NOT_UND_FAILURE_REFUSE;
 						}
-					}
-					else if(inbox.getPerformativeInt() != ACLMessage.CONFIRM) {
-						System.out.println("RECIBIDO NO CONFIRM NI DISCONFIRM");
-						this.state = NOT_UND_FAILURE_REFUSE;
 					}
 				}
 			}
 		}
 		
-		//if(DEBUG) {
-			
+		if(DEBUG) {
 			System.out.println(this.getName() + "positionX: " + positionX);
 			System.out.println(this.getName() + "goalPositionX: " + goalPositionX);
 			System.out.println(this.getName() + "positionY: " + positionY);
@@ -736,21 +738,21 @@ public class AgentCar extends Agent {
 
 			System.out.println("nodeX: " + this.pathToGoal.get(this.pathToGoal.size()-1).getxPosition());
 			System.out.println("nodeY: " + this.pathToGoal.get(this.pathToGoal.size()-1).getyPosition());
+		}
+		
+		if(this.positionX != this.goalPositionX || this.positionY != this.goalPositionY) {
+			System.out.println("HEMOS TERMINADO LOS NODOS PERO NO ESTAMOS EN OBJETIVO");
 
-			if(this.positionX != this.goalPositionX || this.positionY != this.goalPositionY) {
-				System.out.println("HEMOS TERMINADO LOS NODOS PERO NO ESTAMOS EN OBJETIVO");
-				
-				JsonObject message = new JsonObject();
-				
-				message.add("reason", "Not In Objetive But No More Path");
-				
-				this.sendMessage(controllerName, ACLMessage.FAILURE, this.generateReplyId(), convIDController, message.toString());
-			}
-		//}
+			JsonObject message = new JsonObject();
+
+			message.add("reason", "Not In Objetive But No More Path");
+
+			this.sendMessage(controllerName, ACLMessage.FAILURE, this.generateReplyId(), convIDController, message.toString());
+		}
 		
 		this.state = READY;
 		
-		System.out.println("AGENTE "+this.getName()+" HA TERMINADO LOS NODOS DEL PATH");
+		System.out.println("AGENTE " + this.getName() + " HA TERMINADO LOS NODOS DEL PATH");
     }
     
     /**
