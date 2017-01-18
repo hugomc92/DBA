@@ -1,0 +1,114 @@
+ant -f "/Users/hugomaldonado/Documents/MEGA/UGR/2016-2017/1º Cuatrimestre/DBA/Prácticas/GitHub/DBA/Práctica3/P3" -Dnb.internal.action.name=run run
+init:
+Deleting: /Users/hugomaldonado/Documents/MEGA/UGR/2016-2017/1º Cuatrimestre/DBA/Prácticas/GitHub/DBA/Práctica3/P3/build/built-jar.properties
+deps-jar:
+Updating property file: /Users/hugomaldonado/Documents/MEGA/UGR/2016-2017/1º Cuatrimestre/DBA/Prácticas/GitHub/DBA/Práctica3/P3/build/built-jar.properties
+Compiling 1 source file to /Users/hugomaldonado/Documents/MEGA/UGR/2016-2017/1º Cuatrimestre/DBA/Prácticas/GitHub/DBA/Práctica3/P3/build/classes
+compile:
+run:
+log4j:WARN Continuable parsing error 23 and column 69
+log4j:WARN Document root element "log4j:configuration", must match DOCTYPE root "null".
+log4j:WARN Continuable parsing error 23 and column 69
+log4j:WARN Document is invalid: no grammar found.
+java.io.FileNotFoundException: configuration/Settings.xml (No such file or directory)Nombre: qpid://115fd_CAR0@localhost:8080 115fd_CAR0
+
+INFORMATION:
+MAP: map2
+CAR 0: 115fd_CAR0
+CAR 1: 8b310_CAR1
+CAR 2: fbb27_CAR2
+CAR 3: 0eeca_CAR3
+AgetnController has just started
+AgentController execution
+ABRIENDO EL ARCHIVO: maps/map2.json
+MAPA COMPLETO
+qpid://Izar@localhost:8080
+map2
+[-119,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,110,0,0,0,110,8,2,0,0,0,73,57,-79,-84,0,0,0,-16,73,68,65,84,120,-38,-19,-35,61,14,-125,48,12,-128,81,-33,-1,84,-116,-66,-107,-23,-49,-46,2,18,8,-95,-42,17,-17,27,-78,17,89,79,40,25,19,-109,46,42,16,-96,68,57,-70,-41,119,125,41,55,71,68,121,-90,-86,-118,-116,-57,-38,-106,-78,94,69,-26,115,-11,87,94,50,97,119,-54,-2,-67,5,81,-70,-63,81,-94,20,74,-108,40,-123,18,37,74,-108,66,-119,18,-91,80,-94,68,-119,82,40,81,-94,20,74,-108,40,81,10,37,74,-108,66,-119,18,37,74,-95,68,-119,18,-91,80,-94,68,41,-108,40,81,-94,20,74,-108,40,-123,18,37,74,-108,66,-119,18,-91,80,-94,68,-119,82,40,81,-94,20,74,-108,40,81,10,37,74,-108,66,-119,18,37,74,-95,68,-119,82,40,81,-94,68,41,-108,40,81,10,37,74,-108,40,-123,18,37,74,-108,66,-119,18,-27,86,-75,-41,-47,57,86,125,110,-46,-7,65,-31,-63,40,59,63,115,61,0,-27,66,19,37,74,-108,127,-89,-116,-56,115,-108,-117,-81,-14,-122,103,101,-20,-11,-29,125,80,-94,68,-119,18,101,-21,102,114,107,44,-40,-27,1,44,51,0,0,0,0,73,69,78,68,-82,66,96,-126]
+WRITE
+AgentCar 115fd_CAR0 has just started
+AgentCar 115fd_CAR0 execution
+AgentCar 8b310_CAR1 has just started
+AgentCar 8b310_CAR1 execution
+AgentCar fbb27_CAR2 has just started
+AgentCar fbb27_CAR2 execution
+AgentCar 0eeca_CAR3 has just started
+AgentCar 0eeca_CAR3 execution
+Car 115fd_CAR0Capacidades
+Car 115fd_CAR0Range: 11
+Car 115fd_CAR0fuelRate: 4
+Car 115fd_CAR0fly: false
+Car 8b310_CAR1Capacidades
+Car 8b310_CAR1Range: 3
+Car 8b310_CAR1fuelRate: 2
+Car 8b310_CAR1fly: true
+Car fbb27_CAR2Capacidades
+Car fbb27_CAR2Range: 5
+Car fbb27_CAR2fuelRate: 1
+Car fbb27_CAR2fly: false
+Car 0eeca_CAR3Capacidades
+Car 0eeca_CAR3Range: 3
+Car 0eeca_CAR3fuelRate: 2
+Car 0eeca_CAR3fly: true
+Calculating Path to Goal
+Calculating Path to Goal
+Calculating Path to Goal
+Calculating Path to Goal
+0
+1
+2
+3
+AVISANDO AL CAR: 115fd_CAR0
+AVISANDO AL CAR: 8b310_CAR1
+AVISANDO AL CAR: fbb27_CAR2
+AVISANDO AL CAR: 0eeca_CAR3
+AGENTE 8b310_CAR1 HA ENCONTRADO A OTRO AGENTE EN LA POS: (6,98)
+AGENTE 115fd_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (6,99)
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [98,6]
+xOtherAgent 98
+yOtherAgent 6
+posFound: -1
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [99,6]
+xOtherAgent 99
+yOtherAgent 6
+posFound: 1
+AGENTE 8b310_CAR1 HA ENCONTRADO A OTRO AGENTE EN LA POS: (6,98)
+bloquedCars
+bloqued[0]: 1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [98,6]
+xOtherAgent 98
+yOtherAgent 6
+posFound: 0
+AGENTE 8b310_CAR1 HA TERMINADO LOS NODOS DEL PATH
+AGENTE 0eeca_CAR3 HA TERMINADO LOS NODOS DEL PATH
+AGENTE fbb27_CAR2 HA TERMINADO LOS NODOS DEL PATH
+AGENTE 115fd_CAR0 HA TERMINADO LOS NODOS DEL PATH
+EN KILL AGENTS
+AgentCar 115fd_CAR0 has just finished
+AgentCar fbb27_CAR2 has just finished
+AgentCar 8b310_CAR1 has just finished
+AgentCar 0eeca_CAR3 has just finished
+Agent Car :115fd_CAR0die
+Agent Car :8b310_CAR1die
+Agent Car :fbb27_CAR2die
+Agent Car :0eeca_CAR3die
+[-119,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,110,0,0,0,110,8,2,0,0,0,73,57,-79,-84,0,0,2,95,73,68,65,84,120,-38,-19,-35,81,-78,-126,48,12,-123,97,-10,-65,42,31,-39,21,-41,43,-120,32,-75,20,8,13,-100,-4,-111,7,-57,25,-122,-103,-49,-48,38,69,-95,121,16,-87,104,-42,34,-79,11,106,80,66,9,37,-108,80,-18,-116,110,30,77,-45,62,95,-45,79,-96,-36,70,-7,-52,-66,47,74,-78,-46,50,43,-95,-124,-110,-79,18,74,34,-31,56,82,-114,-77,16,-108,-91,21,101,-102,-14,29,80,110,-85,-52,103,-114,-1,-116,-19,56,-31,64,-71,-71,-61,25,29,-5,-84,-4,-54,83,40,55,-12,-120,-93,35,-108,-121,123,-19,-33,-114,80,110,115,28,18,51,-27,8,-27,54,-57,-2,93,-9,35,-96,-76,113,-124,-14,83,-127,103,29,-37,126,-21,-78,1,-27,99,82,117,-89,29,-69,-126,72,103,122,-40,78,-58,-42,49,22,-27,119,-19,109,-22,24,-120,114,-39,-58,44,-5,-62,84,-21,-67,-78,-124,17,-114,50,-39,17,-26,29,-105,-69,-84,31,37,96,-35,-109,119,92,-67,-78,24,-108,-78,-102,-93,56,101,77,71,101,-54,29,-29,99,-2,-38,108,80,-54,41,74,-7,124,93,56,83,7,-94,-52,24,77,29,127,89,-17,63,15,2,58,102,-50,-3,67,67,74,40,-57,-52,68,116,-48,81,-118,-46,-41,81,-121,-46,-35,81,-124,-46,113,124,-108,-94,76,-2,2,32,89,-9,-40,-50,-41,106,-108,-27,-114,-122,-11,-93,32,101,97,-3,88,-57,-15,-58,-108,87,115,-68,43,-27,5,29,-43,40,29,29,-91,40,125,29,117,40,-35,29,69,40,-81,-32,120,91,-54,103,57,-7,-34,46,-30,-88,64,57,108,-34,-114,-6,-108,85,91,47,97,-54,-38,93,-84,42,-91,-61,-126,-128,36,-91,-49,-38,-54,-83,87,-122,-106,-108,-98,-53,84,119,-89,124,-43,66,-83,123,74,-34,-97,-78,-21,-38,-31,95,33,45,39,-72,13,-27,21,52,117,40,-35,53,-91,40,125,53,-43,40,29,53,69,40,31,-13,-27,34,23,77,29,74,119,77,41,74,95,77,53,74,71,77,65,74,47,77,77,74,23,77,89,-54,-6,-102,-54,-108,-107,53,-59,41,107,106,-22,83,86,-45,12,65,89,71,51,10,101,5,-51,64,-108,103,107,-58,-94,60,85,51,28,-27,121,-102,17,41,79,-46,12,74,121,-122,102,92,74,115,-51,-48,-108,-74,-102,-47,41,13,53,-95,52,-45,-124,-46,76,19,74,51,77,40,-51,52,-95,52,-45,-124,-46,76,19,-54,109,-102,80,-102,105,66,121,84,19,74,51,77,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,-78,38,101,-2,38,-33,80,-106,82,-82,-34,50,-3,-34,-108,-3,109,-122,42,83,126,30,77,56,103,37,43,-117,40,-105,-102,80,-18,-89,28,52,-33,-101,26,-27,-111,71,62,-20,56,-54,50,116,40,-21,127,103,80,86,-31,-122,0,-54,-53,-59,31,22,72,-123,107,-29,-42,-38,-12,0,0,0,0,73,69,78,68,-82,66,96,-126]
+WRITE
+AgentController has just finished!
+BUILD STOPPED (total time: 51 seconds)

@@ -65,7 +65,7 @@ public class NotFly extends TypeAgent{
 		
 		List<Node> path = myMap.findPath(posX, posY, goalX, goalY);
 		
-		System.out.println("CAMINO");
+		/*System.out.println("CAMINO");
 		for (Node n : path){
 			System.out.print("("+n.getyPosition()+","+n.getxPosition()+")"+"("+n.isWalkable()+")");
 			
@@ -74,7 +74,7 @@ public class NotFly extends TypeAgent{
 			System.out.print("\t("+n2.getyPosition()+","+n2.getxPosition()+")"+"("+n2.isWalkable()+")");
 			
 			System.out.println("");
-		}
+		}*/
         
 		return path;
     }

@@ -16,7 +16,7 @@ import javax.swing.JFrame;
  */
 public class AgentCar extends Agent {
     
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     
     private static final int IDLE = 0;
     private static final int GET_CAPABILITIES = 1;
@@ -168,10 +168,10 @@ public class AgentCar extends Agent {
             else
                 type = new NotFly();
 			
-			System.out.println("Car " + this.getName() + "Capacidades");
-			System.out.println("Car " + this.getName() + "Range: " + range);
-			System.out.println("Car " + this.getName() + "fuelRate: " + fuelRate);
-			System.out.println("Car " + this.getName() + "fly: " + myJson.get("capabilities").asObject().get("fly").asBoolean());
+			System.out.println("Car " + this.getName() + " Capacidades");
+			System.out.println("Car " + this.getName() + "\tRange: " + range);
+			System.out.println("Car " + this.getName() + "\tfuelRate: " + fuelRate);
+			System.out.println("Car " + this.getName() + "\tfly: " + myJson.get("capabilities").asObject().get("fly").asBoolean());
             
             //Avisamos al server de que las hemos obtenido
             myJson = new JsonObject();
@@ -273,10 +273,10 @@ public class AgentCar extends Agent {
 				movement = "moveSE";
         }
 		
-		System.out.println("");
+		/*System.out.println("");
 		System.out.println("Car " + this.getName() + " POSICIÓN (" + positionY + ", " + positionX + "): " + mapWorld[positionY][positionX]);
 		System.out.println("Car " + this.getName() + "movement: " + movement);
-		System.out.println("");
+		System.out.println("");*/
         
         //Se lo enviamos al Server
         JsonObject myJson = new JsonObject();
@@ -544,11 +544,11 @@ public class AgentCar extends Agent {
         //}
 
         if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {
-                //El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
-                this.fuelToGoal = this.pathToGoal.size() * this.fuelRate;
+			//El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
+			this.fuelToGoal = this.pathToGoal.size() * this.fuelRate;
         }
         else {
-                this.fuelToGoal = -1;
+            this.fuelToGoal = -1;
         }
 
 
@@ -672,7 +672,7 @@ public class AgentCar extends Agent {
 				
 				this.commandMove(node.getxPosition(), node.getyPosition());
 				
-				System.out.println("Car " + this.getName() + " Nodo: (" + node.getyPosition() + ", " + node.getxPosition() + "): " + mapWorld[node.getyPosition()][node.getxPosition()]);
+				//System.out.println("Car " + this.getName() + " Nodo: (" + node.getyPosition() + ", " + node.getxPosition() + "): " + mapWorld[node.getyPosition()][node.getxPosition()]);
 				
 				// Si se ha chocado o ha ido mal en el movimiento, no seguir haciendo nada
 				if(this.state != NOT_UND_FAILURE_REFUSE) {

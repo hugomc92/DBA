@@ -44,7 +44,7 @@ public class AgentController extends Agent {
 	private static final int REQUEST_POSITION = 14;
     private static final int SEND_MAP = 15;
 	
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 	private static final boolean SHENRON = false;
 	
 	private static final int INDEX_POSX = 0;
@@ -679,7 +679,7 @@ public class AgentController extends Agent {
 			double minDist = 99999999;
 			
 			// Recorrer todas las posiciones del objetivo para sacar la distancia euclídea mínima
-			int cont = 0;
+			int cont = -1;
 			for(int k=0; k<posObj.size(); k+=2) {
 				int objPosX = posObj.get(k);
 				int objPosY = posObj.get(k+1);
@@ -753,11 +753,11 @@ public class AgentController extends Agent {
 				}
 			}
 			
-			System.out.println("GOALS METIDOS COMO OBSTACULOS INSALVABLES PARA AGENTE: "+carNames[k].getLocalName());
+			//System.out.println("GOALS METIDOS COMO OBSTACULOS INSALVABLES PARA AGENTE: "+carNames[k].getLocalName());
 			for(int i=0; i<carNames.length; i++) {
 				if(i != k) {
 					mapAux[carLocalInfo[i][INDEX_OBJY]][carLocalInfo[i][INDEX_OBJX]] = 2;
-					System.out.println("("+carLocalInfo[i][INDEX_OBJY]+","+carLocalInfo[i][INDEX_OBJX]+")");         
+					//System.out.println("("+carLocalInfo[i][INDEX_OBJY]+","+carLocalInfo[i][INDEX_OBJX]+")");         
 				}
 			}
 			

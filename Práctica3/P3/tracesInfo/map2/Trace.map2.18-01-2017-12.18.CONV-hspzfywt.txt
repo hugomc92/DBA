@@ -1,0 +1,1379 @@
+ant -f "/Users/hugomaldonado/Documents/MEGA/UGR/2016-2017/1º Cuatrimestre/DBA/Prácticas/GitHub/DBA/Práctica3/P3" -Dnb.internal.action.name=run run
+init:
+Deleting: /Users/hugomaldonado/Documents/MEGA/UGR/2016-2017/1º Cuatrimestre/DBA/Prácticas/GitHub/DBA/Práctica3/P3/build/built-jar.properties
+deps-jar:
+Updating property file: /Users/hugomaldonado/Documents/MEGA/UGR/2016-2017/1º Cuatrimestre/DBA/Prácticas/GitHub/DBA/Práctica3/P3/build/built-jar.properties
+Compiling 3 source files to /Users/hugomaldonado/Documents/MEGA/UGR/2016-2017/1º Cuatrimestre/DBA/Prácticas/GitHub/DBA/Práctica3/P3/build/classes
+compile:
+run:
+log4j:WARN Continuable parsing error 23 and column 69
+log4j:WARN Document root element "log4j:configuration", must match DOCTYPE root "null".
+log4j:WARN Continuable parsing error 23 and column 69
+log4j:WARN Document is invalid: no grammar found.
+java.io.FileNotFoundException: configuration/Settings.xml (No such file or directory)Nombre: qpid://6f195_CAR0@localhost:8080 6f195_CAR0
+
+INFORMATION:
+MAP: map2
+CAR 0: 6f195_CAR0
+CAR 1: 1f6d7_CAR1
+CAR 2: 8c987_CAR2
+CAR 3: 26e07_CAR3
+AgetnController has just started
+AgentController execution
+ABRIENDO EL ARCHIVO: maps/map2.json
+MAPA COMPLETO
+qpid://Izar@localhost:8080
+map2
+AgentCar 6f195_CAR0 has just started
+AgentCar 6f195_CAR0 execution
+AgentCar 1f6d7_CAR1 has just started
+AgentCar 1f6d7_CAR1 execution
+AgentCar 8c987_CAR2 has just started
+AgentCar 8c987_CAR2 execution
+AgentCar 26e07_CAR3 has just started
+AgentCar 26e07_CAR3 execution
+Car 6f195_CAR0Capacidades
+Car 6f195_CAR0Range: 11
+Car 6f195_CAR0fuelRate: 4
+Car 6f195_CAR0fly: false
+Car 1f6d7_CAR1Capacidades
+Car 1f6d7_CAR1Range: 3
+Car 1f6d7_CAR1fuelRate: 2
+Car 1f6d7_CAR1fly: true
+Car 8c987_CAR2Capacidades
+Car 8c987_CAR2Range: 3
+Car 8c987_CAR2fuelRate: 2
+Car 8c987_CAR2fly: true
+Car 26e07_CAR3Capacidades
+Car 26e07_CAR3Range: 5
+Car 26e07_CAR3fuelRate: 1
+Car 26e07_CAR3fly: false
+GOALS METIDOS COMO OBSTACULOS INSALVABLES PARA AGENTE: 6f195_CAR0
+(46,57)
+(53,65)
+(46,64)
+GOALS METIDOS COMO OBSTACULOS INSALVABLES PARA AGENTE: 1f6d7_CAR1
+(46,65)
+(53,65)
+(46,64)
+Calculating Path to Goal
+CAMINO
+(5,84)(true)	(84,5)(true)
+(5,83)(true)	(83,5)(true)
+(5,82)(true)	(82,5)(true)
+(5,81)(true)	(81,5)(true)
+(5,80)(true)	(80,5)(true)
+(5,79)(true)	(79,5)(true)
+(5,78)(true)	(78,5)(true)
+(5,77)(true)	(77,5)(true)
+(5,76)(true)	(76,5)(true)
+(5,75)(true)	(75,5)(true)
+(6,74)(true)	(74,6)(true)
+(7,74)(true)	(74,7)(true)
+(8,74)(true)	(74,8)(true)
+(9,73)(true)	(73,9)(true)
+(10,72)(true)	(72,10)(true)
+(11,71)(true)	(71,11)(true)
+(12,70)(true)	(70,12)(true)
+(13,69)(true)	(69,13)(true)
+(14,69)(true)	(69,14)(true)
+(15,68)(true)	(68,15)(true)
+(16,67)(true)	(67,16)(false)
+(17,67)(true)	(67,17)(false)
+(18,66)(true)	(66,18)(false)
+(19,66)(true)	(66,19)(false)
+(20,66)(true)	(66,20)(true)
+(21,66)(true)	(66,21)(true)
+(22,66)(true)	(66,22)(true)
+(23,66)(true)	(66,23)(true)
+(24,66)(true)	(66,24)(true)
+(25,66)(true)	(66,25)(true)
+(26,66)(true)	(66,26)(true)
+(27,66)(true)	(66,27)(false)
+(28,66)(true)	(66,28)(false)
+(29,66)(true)	(66,29)(false)
+(30,66)(true)	(66,30)(false)
+(31,66)(true)	(66,31)(false)
+(32,66)(true)	(66,32)(false)
+(33,66)(true)	(66,33)(false)
+(34,66)(true)	(66,34)(false)
+(35,66)(true)	(66,35)(false)
+(36,66)(true)	(66,36)(true)
+(37,66)(true)	(66,37)(true)
+(38,66)(true)	(66,38)(true)
+(39,66)(true)	(66,39)(true)
+(40,66)(true)	(66,40)(false)
+(41,66)(true)	(66,41)(false)
+(42,66)(true)	(66,42)(false)
+(43,66)(true)	(66,43)(false)
+(44,66)(true)	(66,44)(false)
+(45,66)(true)	(66,45)(true)
+(46,65)(true)	(65,46)(true)
+GOALS METIDOS COMO OBSTACULOS INSALVABLES PARA AGENTE: 8c987_CAR2
+(46,65)
+(46,57)
+(46,64)
+Calculating Path to Goal
+GOALS METIDOS COMO OBSTACULOS INSALVABLES PARA AGENTE: 26e07_CAR3
+(46,65)
+(46,57)
+(53,65)
+Calculating Path to Goal
+Calculating Path to Goal
+CAMINO
+(5,86)(true)	(86,5)(true)
+(5,85)(true)	(85,5)(true)
+(5,84)(true)	(84,5)(true)
+(5,83)(true)	(83,5)(true)
+(5,82)(true)	(82,5)(true)
+(5,81)(true)	(81,5)(true)
+(5,80)(true)	(80,5)(true)
+(5,79)(true)	(79,5)(true)
+(5,78)(true)	(78,5)(true)
+(5,77)(true)	(77,5)(true)
+(5,76)(true)	(76,5)(true)
+(5,75)(true)	(75,5)(true)
+(6,74)(true)	(74,6)(true)
+(7,74)(true)	(74,7)(true)
+(8,74)(true)	(74,8)(true)
+(9,73)(true)	(73,9)(true)
+(10,72)(true)	(72,10)(true)
+(11,71)(true)	(71,11)(true)
+(12,70)(true)	(70,12)(true)
+(13,69)(true)	(69,13)(true)
+(14,69)(true)	(69,14)(true)
+(15,68)(true)	(68,15)(true)
+(16,67)(true)	(67,16)(false)
+(17,67)(true)	(67,17)(false)
+(18,66)(true)	(66,18)(false)
+(19,66)(true)	(66,19)(false)
+(20,66)(true)	(66,20)(true)
+(21,66)(true)	(66,21)(true)
+(22,66)(true)	(66,22)(true)
+(23,66)(true)	(66,23)(true)
+(24,66)(true)	(66,24)(true)
+(25,66)(true)	(66,25)(true)
+(26,66)(true)	(66,26)(true)
+(27,66)(true)	(66,27)(false)
+(28,66)(true)	(66,28)(false)
+(29,66)(true)	(66,29)(false)
+(30,66)(true)	(66,30)(false)
+(31,66)(true)	(66,31)(false)
+(32,66)(true)	(66,32)(false)
+(33,66)(true)	(66,33)(false)
+(34,66)(true)	(66,34)(false)
+(35,66)(true)	(66,35)(false)
+(36,66)(true)	(66,36)(true)
+(37,66)(true)	(66,37)(true)
+(38,66)(true)	(66,38)(true)
+(39,66)(true)	(66,39)(true)
+(40,66)(true)	(66,40)(false)
+(41,66)(true)	(66,41)(false)
+(42,66)(true)	(66,42)(false)
+(43,66)(true)	(66,43)(false)
+(44,66)(true)	(66,44)(false)
+(45,65)(true)	(65,45)(true)
+(46,64)(true)	(64,46)(true)
+0
+1
+2
+3
+AVISANDO AL CAR: 6f195_CAR0
+AVISANDO AL CAR: 1f6d7_CAR1
+AVISANDO AL CAR: 8c987_CAR2
+AVISANDO AL CAR: 26e07_CAR3
+
+Car 1f6d7_CAR1 POSICIÓN (5, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 26e07_CAR3 POSICIÓN (5, 87): 0
+Car 26e07_CAR3movement: moveW
+
+
+Car 6f195_CAR0 POSICIÓN (5, 85): 0
+Car 6f195_CAR0movement: moveW
+
+Car 1f6d7_CAR1 Nodo: (6, 53): 0
+
+Car 8c987_CAR2 POSICIÓN (104, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 26e07_CAR3 Nodo: (5, 86): 0
+Car 6f195_CAR0 Nodo: (5, 84): 0
+
+Car 1f6d7_CAR1 POSICIÓN (6, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (103, 78): 0
+AGENTE 26e07_CAR3 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,84)
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,86)
+Car 1f6d7_CAR1 Nodo: (7, 53): 0
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [84,5]
+xOtherAgent 84
+yOtherAgent 5
+posFound: 0
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [86,5]
+xOtherAgent 86
+yOtherAgent 5
+posFound: 3
+
+Car 1f6d7_CAR1 POSICIÓN (7, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (103, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 1f6d7_CAR1 Nodo: (8, 53): 0
+Car 8c987_CAR2 Nodo: (102, 78): 0
+
+Car 6f195_CAR0 POSICIÓN (5, 84): 0
+Car 6f195_CAR0movement: moveW
+
+
+Car 1f6d7_CAR1 POSICIÓN (8, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+Car 6f195_CAR0 Nodo: (5, 83): 0
+Car 1f6d7_CAR1 Nodo: (9, 53): 0
+
+Car 8c987_CAR2 POSICIÓN (102, 78): 0
+Car 8c987_CAR2movement: moveN
+
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,86)
+
+Car 1f6d7_CAR1 POSICIÓN (9, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (101, 78): 0
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [86,5]
+xOtherAgent 86
+yOtherAgent 5
+posFound: 3
+Car 1f6d7_CAR1 Nodo: (10, 53): 0
+
+Car 8c987_CAR2 POSICIÓN (101, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (10, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (100, 78): 0
+
+Car 6f195_CAR0 POSICIÓN (5, 83): 0
+Car 6f195_CAR0movement: moveW
+
+Car 1f6d7_CAR1 Nodo: (11, 53): 0
+
+Car 8c987_CAR2 POSICIÓN (100, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 6f195_CAR0 Nodo: (5, 82): 0
+Car 8c987_CAR2 Nodo: (99, 78): 0
+
+Car 1f6d7_CAR1 POSICIÓN (11, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,86)
+
+Car 8c987_CAR2 POSICIÓN (99, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 1f6d7_CAR1 Nodo: (12, 53): 0
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [86,5]
+xOtherAgent 86
+yOtherAgent 5
+posFound: 3
+Car 8c987_CAR2 Nodo: (98, 78): 0
+
+Car 1f6d7_CAR1 POSICIÓN (12, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (98, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 1f6d7_CAR1 Nodo: (13, 53): 0
+
+Car 6f195_CAR0 POSICIÓN (5, 82): 0
+Car 6f195_CAR0movement: moveW
+
+Car 8c987_CAR2 Nodo: (97, 78): 0
+
+Car 1f6d7_CAR1 POSICIÓN (13, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+Car 6f195_CAR0 Nodo: (5, 81): 0
+
+Car 8c987_CAR2 POSICIÓN (97, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 1f6d7_CAR1 Nodo: (14, 53): 0
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,86)
+Car 8c987_CAR2 Nodo: (96, 78): 0
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [86,5]
+xOtherAgent 86
+yOtherAgent 5
+posFound: 3
+
+Car 1f6d7_CAR1 POSICIÓN (14, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (96, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 1f6d7_CAR1 Nodo: (15, 53): 0
+Car 8c987_CAR2 Nodo: (95, 78): 0
+
+Car 6f195_CAR0 POSICIÓN (5, 81): 0
+Car 6f195_CAR0movement: moveW
+
+
+Car 1f6d7_CAR1 POSICIÓN (15, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (95, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 6f195_CAR0 Nodo: (5, 80): 0
+Car 1f6d7_CAR1 Nodo: (16, 53): 0
+Car 8c987_CAR2 Nodo: (94, 78): 0
+
+Car 1f6d7_CAR1 POSICIÓN (16, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (94, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 6f195_CAR0 POSICIÓN (5, 80): 0
+Car 6f195_CAR0movement: moveW
+
+Car 1f6d7_CAR1 Nodo: (17, 53): 0
+Car 8c987_CAR2 Nodo: (93, 78): 0
+Car 6f195_CAR0 Nodo: (5, 79): 0
+
+Car 1f6d7_CAR1 POSICIÓN (17, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (93, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 1f6d7_CAR1 Nodo: (18, 53): 0
+Car 8c987_CAR2 Nodo: (92, 78): 0
+
+Car 6f195_CAR0 POSICIÓN (5, 79): 0
+Car 6f195_CAR0movement: moveW
+
+
+Car 1f6d7_CAR1 POSICIÓN (18, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (92, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 26e07_CAR3 POSICIÓN (5, 86): 0
+Car 26e07_CAR3movement: moveW
+
+Car 6f195_CAR0 Nodo: (5, 78): 0
+Car 1f6d7_CAR1 Nodo: (19, 53): 0
+Car 8c987_CAR2 Nodo: (91, 78): 0
+Car 26e07_CAR3 Nodo: (5, 85): 0
+
+Car 1f6d7_CAR1 POSICIÓN (19, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (91, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 26e07_CAR3 POSICIÓN (5, 85): 0
+Car 26e07_CAR3movement: moveW
+
+
+Car 6f195_CAR0 POSICIÓN (5, 78): 0
+Car 6f195_CAR0movement: moveW
+
+Car 1f6d7_CAR1 Nodo: (20, 53): 0
+Car 8c987_CAR2 Nodo: (90, 78): 0
+Car 26e07_CAR3 Nodo: (5, 84): 0
+Car 6f195_CAR0 Nodo: (5, 77): 0
+
+Car 1f6d7_CAR1 POSICIÓN (20, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (90, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 26e07_CAR3 POSICIÓN (5, 84): 0
+Car 26e07_CAR3movement: moveW
+
+Car 1f6d7_CAR1 Nodo: (21, 53): 0
+Car 8c987_CAR2 Nodo: (89, 78): 0
+Car 26e07_CAR3 Nodo: (5, 83): 0
+
+Car 6f195_CAR0 POSICIÓN (5, 77): 0
+Car 6f195_CAR0movement: moveW
+
+
+Car 1f6d7_CAR1 POSICIÓN (21, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (89, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 26e07_CAR3 POSICIÓN (5, 83): 0
+Car 26e07_CAR3movement: moveW
+
+Car 6f195_CAR0 Nodo: (5, 76): 0
+Car 1f6d7_CAR1 Nodo: (22, 53): 0
+Car 8c987_CAR2 Nodo: (88, 78): 0
+Car 26e07_CAR3 Nodo: (5, 82): 0
+
+Car 1f6d7_CAR1 POSICIÓN (22, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (88, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 26e07_CAR3 POSICIÓN (5, 82): 0
+Car 26e07_CAR3movement: moveW
+
+
+Car 6f195_CAR0 POSICIÓN (5, 76): 0
+Car 6f195_CAR0movement: moveW
+
+Car 1f6d7_CAR1 Nodo: (23, 53): 0
+Car 8c987_CAR2 Nodo: (87, 78): 0
+Car 26e07_CAR3 Nodo: (5, 81): 0
+Car 6f195_CAR0 Nodo: (5, 75): 0
+
+
+Car 8c987_CAR2 POSICIÓN (87, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 1f6d7_CAR1 POSICIÓN (23, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 26e07_CAR3 POSICIÓN (5, 81): 0
+Car 26e07_CAR3movement: moveW
+
+Car 8c987_CAR2 Nodo: (86, 78): 0
+Car 1f6d7_CAR1 Nodo: (24, 53): 0
+Car 26e07_CAR3 Nodo: (5, 80): 0
+
+Car 6f195_CAR0 POSICIÓN (5, 75): 0
+Car 6f195_CAR0movement: moveSW
+
+
+Car 8c987_CAR2 POSICIÓN (86, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (24, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 26e07_CAR3 POSICIÓN (5, 80): 0
+Car 26e07_CAR3movement: moveW
+
+Car 6f195_CAR0 Nodo: (6, 74): 0
+Car 8c987_CAR2 Nodo: (85, 78): 0
+Car 1f6d7_CAR1 Nodo: (25, 53): 0
+Car 26e07_CAR3 Nodo: (5, 79): 0
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,79)
+
+Car 8c987_CAR2 POSICIÓN (85, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (25, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 26e07_CAR3 POSICIÓN (5, 79): 0
+Car 26e07_CAR3movement: moveW
+
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [79,5]
+xOtherAgent 79
+yOtherAgent 5
+posFound: -1
+Car 8c987_CAR2 Nodo: (84, 78): 0
+Car 1f6d7_CAR1 Nodo: (26, 53): 0
+Car 26e07_CAR3 Nodo: (5, 78): 0
+
+Car 8c987_CAR2 POSICIÓN (84, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (26, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (6, 74): 0
+Car 6f195_CAR0movement: moveS
+
+
+Car 26e07_CAR3 POSICIÓN (5, 78): 0
+Car 26e07_CAR3movement: moveW
+
+Car 8c987_CAR2 Nodo: (83, 78): 0
+Car 1f6d7_CAR1 Nodo: (27, 53): 0
+Car 6f195_CAR0 Nodo: (7, 74): 0
+Car 26e07_CAR3 Nodo: (5, 77): 0
+
+Car 8c987_CAR2 POSICIÓN (83, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (27, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,77)
+
+Car 26e07_CAR3 POSICIÓN (5, 77): 0
+Car 26e07_CAR3movement: moveW
+
+Car 8c987_CAR2 Nodo: (82, 78): 0
+Car 1f6d7_CAR1 Nodo: (28, 53): 0
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [77,5]
+xOtherAgent 77
+yOtherAgent 5
+posFound: -1
+Car 26e07_CAR3 Nodo: (5, 76): 0
+
+Car 8c987_CAR2 POSICIÓN (82, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (28, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+AGENTE 26e07_CAR3 HA ENCONTRADO A OTRO AGENTE EN LA POS: (7,74)
+Car 8c987_CAR2 Nodo: (81, 78): 0
+
+Car 6f195_CAR0 POSICIÓN (7, 74): 0
+Car 6f195_CAR0movement: moveS
+
+Car 1f6d7_CAR1 Nodo: (29, 53): 0
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [74,7]
+xOtherAgent 74
+yOtherAgent 7
+posFound: 0
+
+Car 8c987_CAR2 POSICIÓN (81, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 6f195_CAR0 Nodo: (8, 74): 0
+
+Car 1f6d7_CAR1 POSICIÓN (29, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (80, 78): 0
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,76)
+Car 1f6d7_CAR1 Nodo: (30, 53): 0
+
+Car 8c987_CAR2 POSICIÓN (80, 78): 0
+Car 8c987_CAR2movement: moveN
+
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [76,5]
+xOtherAgent 76
+yOtherAgent 5
+posFound: 3
+Car 8c987_CAR2 Nodo: (79, 78): 0
+
+Car 1f6d7_CAR1 POSICIÓN (30, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+Car 1f6d7_CAR1 Nodo: (31, 53): 0
+
+Car 8c987_CAR2 POSICIÓN (79, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 6f195_CAR0 POSICIÓN (8, 74): 0
+Car 6f195_CAR0movement: moveSW
+
+
+Car 1f6d7_CAR1 POSICIÓN (31, 53): 0
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (78, 78): 0
+Car 6f195_CAR0 Nodo: (9, 73): 0
+Car 1f6d7_CAR1 Nodo: (32, 53): 1
+
+Car 8c987_CAR2 POSICIÓN (78, 78): 0
+Car 8c987_CAR2movement: moveN
+
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,76)
+
+Car 1f6d7_CAR1 POSICIÓN (32, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (77, 78): 0
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [76,5]
+xOtherAgent 76
+yOtherAgent 5
+posFound: 3
+Car 1f6d7_CAR1 Nodo: (33, 53): 1
+
+Car 8c987_CAR2 POSICIÓN (77, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (33, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (76, 78): 0
+
+Car 6f195_CAR0 POSICIÓN (9, 73): 0
+Car 6f195_CAR0movement: moveSW
+
+Car 1f6d7_CAR1 Nodo: (34, 53): 1
+
+Car 8c987_CAR2 POSICIÓN (76, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 6f195_CAR0 Nodo: (10, 72): 0
+
+Car 1f6d7_CAR1 POSICIÓN (34, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (75, 78): 0
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (5,76)
+Car 1f6d7_CAR1 Nodo: (35, 53): 1
+
+Car 8c987_CAR2 POSICIÓN (75, 78): 0
+Car 8c987_CAR2movement: moveN
+
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [76,5]
+xOtherAgent 76
+yOtherAgent 5
+posFound: 3
+
+Car 1f6d7_CAR1 POSICIÓN (35, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (74, 78): 0
+Car 1f6d7_CAR1 Nodo: (36, 53): 1
+
+Car 8c987_CAR2 POSICIÓN (74, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 6f195_CAR0 POSICIÓN (10, 72): 0
+Car 6f195_CAR0movement: moveSW
+
+
+Car 1f6d7_CAR1 POSICIÓN (36, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (73, 78): 0
+Car 6f195_CAR0 Nodo: (11, 71): 0
+Car 1f6d7_CAR1 Nodo: (37, 53): 1
+
+Car 8c987_CAR2 POSICIÓN (73, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (37, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (72, 78): 0
+
+Car 6f195_CAR0 POSICIÓN (11, 71): 0
+Car 6f195_CAR0movement: moveSW
+
+Car 1f6d7_CAR1 Nodo: (38, 53): 1
+
+Car 8c987_CAR2 POSICIÓN (72, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 6f195_CAR0 Nodo: (12, 70): 0
+
+Car 1f6d7_CAR1 POSICIÓN (38, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+Car 8c987_CAR2 Nodo: (71, 78): 0
+Car 1f6d7_CAR1 Nodo: (39, 53): 1
+
+Car 8c987_CAR2 POSICIÓN (71, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 6f195_CAR0 POSICIÓN (12, 70): 0
+Car 6f195_CAR0movement: moveSW
+
+
+Car 1f6d7_CAR1 POSICIÓN (39, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 26e07_CAR3 POSICIÓN (5, 76): 0
+Car 26e07_CAR3movement: moveW
+
+Car 8c987_CAR2 Nodo: (70, 78): 0
+Car 6f195_CAR0 Nodo: (13, 69): 0
+Car 1f6d7_CAR1 Nodo: (40, 53): 1
+Car 26e07_CAR3 Nodo: (5, 75): 0
+
+Car 8c987_CAR2 POSICIÓN (70, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (40, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 26e07_CAR3 POSICIÓN (5, 75): 0
+Car 26e07_CAR3movement: moveSW
+
+Car 8c987_CAR2 Nodo: (69, 78): 0
+
+Car 6f195_CAR0 POSICIÓN (13, 69): 0
+Car 6f195_CAR0movement: moveS
+
+Car 1f6d7_CAR1 Nodo: (41, 53): 1
+Car 26e07_CAR3 Nodo: (6, 74): 0
+
+Car 8c987_CAR2 POSICIÓN (69, 78): 0
+Car 8c987_CAR2movement: moveN
+
+Car 6f195_CAR0 Nodo: (14, 69): 0
+
+Car 1f6d7_CAR1 POSICIÓN (41, 53): 1
+Car 1f6d7_CAR1movement: moveS
+
+
+Car 26e07_CAR3 POSICIÓN (6, 74): 0
+Car 26e07_CAR3movement: moveS
+
+Car 8c987_CAR2 Nodo: (68, 78): 0
+Car 1f6d7_CAR1 Nodo: (42, 53): 1
+Car 26e07_CAR3 Nodo: (7, 74): 0
+
+Car 6f195_CAR0 POSICIÓN (14, 69): 0
+Car 6f195_CAR0movement: moveSW
+
+
+Car 8c987_CAR2 POSICIÓN (68, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (42, 53): 1
+Car 1f6d7_CAR1movement: moveSE
+
+
+Car 26e07_CAR3 POSICIÓN (7, 74): 0
+Car 26e07_CAR3movement: moveS
+
+Car 6f195_CAR0 Nodo: (15, 68): 0
+Car 8c987_CAR2 Nodo: (67, 78): 0
+Car 1f6d7_CAR1 Nodo: (43, 54): 1
+Car 26e07_CAR3 Nodo: (8, 74): 0
+
+Car 8c987_CAR2 POSICIÓN (67, 78): 0
+Car 8c987_CAR2movement: moveN
+
+
+Car 1f6d7_CAR1 POSICIÓN (43, 54): 1
+Car 1f6d7_CAR1movement: moveSE
+
+
+Car 26e07_CAR3 POSICIÓN (8, 74): 0
+Car 26e07_CAR3movement: moveSW
+
+
+Car 6f195_CAR0 POSICIÓN (15, 68): 0
+Car 6f195_CAR0movement: moveSW
+
+Car 8c987_CAR2 Nodo: (66, 78): 0
+Car 1f6d7_CAR1 Nodo: (44, 55): 0
+Car 26e07_CAR3 Nodo: (9, 73): 0
+Car 6f195_CAR0 Nodo: (16, 67): 0
+
+Car 8c987_CAR2 POSICIÓN (66, 78): 0
+Car 8c987_CAR2movement: moveNW
+
+
+Car 1f6d7_CAR1 POSICIÓN (44, 55): 0
+Car 1f6d7_CAR1movement: moveSE
+
+
+Car 26e07_CAR3 POSICIÓN (9, 73): 0
+Car 26e07_CAR3movement: moveSW
+
+Car 8c987_CAR2 Nodo: (65, 77): 0
+Car 1f6d7_CAR1 Nodo: (45, 56): 0
+Car 26e07_CAR3 Nodo: (10, 72): 0
+
+Car 6f195_CAR0 POSICIÓN (16, 67): 0
+Car 6f195_CAR0movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (65, 77): 0
+Car 8c987_CAR2movement: moveNW
+
+
+Car 1f6d7_CAR1 POSICIÓN (45, 56): 0
+Car 1f6d7_CAR1movement: moveSE
+
+
+Car 26e07_CAR3 POSICIÓN (10, 72): 0
+Car 26e07_CAR3movement: moveSW
+
+Car 6f195_CAR0 Nodo: (17, 67): 0
+Car 8c987_CAR2 Nodo: (64, 76): 0
+Car 1f6d7_CAR1 Nodo: (46, 57): 3
+Car 26e07_CAR3 Nodo: (11, 71): 0
+
+Car 8c987_CAR2 POSICIÓN (64, 76): 0
+Car 8c987_CAR2movement: moveNW
+
+AGENTE 1f6d7_CAR1 HA TERMINADO LOS NODOS DEL PATH
+
+Car 26e07_CAR3 POSICIÓN (11, 71): 0
+Car 26e07_CAR3movement: moveSW
+
+
+Car 6f195_CAR0 POSICIÓN (17, 67): 0
+Car 6f195_CAR0movement: moveSW
+
+Car 8c987_CAR2 Nodo: (63, 75): 0
+Car 26e07_CAR3 Nodo: (12, 70): 0
+Car 6f195_CAR0 Nodo: (18, 66): 0
+
+Car 8c987_CAR2 POSICIÓN (63, 75): 0
+Car 8c987_CAR2movement: moveNW
+
+
+Car 26e07_CAR3 POSICIÓN (12, 70): 0
+Car 26e07_CAR3movement: moveSW
+
+Car 8c987_CAR2 Nodo: (62, 74): 0
+Car 26e07_CAR3 Nodo: (13, 69): 0
+
+Car 6f195_CAR0 POSICIÓN (18, 66): 0
+Car 6f195_CAR0movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (62, 74): 0
+Car 8c987_CAR2movement: moveNW
+
+
+Car 26e07_CAR3 POSICIÓN (13, 69): 0
+Car 26e07_CAR3movement: moveS
+
+Car 6f195_CAR0 Nodo: (19, 66): 0
+Car 8c987_CAR2 Nodo: (61, 73): 0
+Car 26e07_CAR3 Nodo: (14, 69): 0
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (14,69)
+
+Car 8c987_CAR2 POSICIÓN (61, 73): 0
+Car 8c987_CAR2movement: moveNW
+
+
+Car 26e07_CAR3 POSICIÓN (14, 69): 0
+Car 26e07_CAR3movement: moveSW
+
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [69,14]
+xOtherAgent 69
+yOtherAgent 14
+posFound: -1
+Car 8c987_CAR2 Nodo: (60, 72): 0
+Car 26e07_CAR3 Nodo: (15, 68): 0
+
+Car 8c987_CAR2 POSICIÓN (60, 72): 0
+Car 8c987_CAR2movement: moveNW
+
+
+Car 6f195_CAR0 POSICIÓN (19, 66): 0
+Car 6f195_CAR0movement: moveS
+
+
+Car 26e07_CAR3 POSICIÓN (15, 68): 0
+Car 26e07_CAR3movement: moveSW
+
+Car 8c987_CAR2 Nodo: (59, 71): 0
+Car 6f195_CAR0 Nodo: (20, 66): 0
+Car 26e07_CAR3 Nodo: (16, 67): 0
+
+Car 8c987_CAR2 POSICIÓN (59, 71): 0
+Car 8c987_CAR2movement: moveNW
+
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (16,67)
+Car 8c987_CAR2 Nodo: (58, 70): 0
+
+Car 26e07_CAR3 POSICIÓN (16, 67): 0
+Car 26e07_CAR3movement: moveS
+
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [67,16]
+xOtherAgent 67
+yOtherAgent 16
+posFound: -1
+
+Car 8c987_CAR2 POSICIÓN (58, 70): 0
+Car 8c987_CAR2movement: moveNW
+
+Car 26e07_CAR3 Nodo: (17, 67): 0
+Car 8c987_CAR2 Nodo: (57, 69): 0
+
+Car 26e07_CAR3 POSICIÓN (17, 67): 0
+Car 26e07_CAR3movement: moveSW
+
+
+Car 6f195_CAR0 POSICIÓN (20, 66): 0
+Car 6f195_CAR0movement: moveS
+
+
+Car 8c987_CAR2 POSICIÓN (57, 69): 0
+Car 8c987_CAR2movement: moveNW
+
+Car 26e07_CAR3 Nodo: (18, 66): 0
+Car 6f195_CAR0 Nodo: (21, 66): 0
+Car 8c987_CAR2 Nodo: (56, 68): 0
+
+Car 26e07_CAR3 POSICIÓN (18, 66): 0
+Car 26e07_CAR3movement: moveS
+
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (18,66)
+
+Car 8c987_CAR2 POSICIÓN (56, 68): 0
+Car 8c987_CAR2movement: moveNW
+
+Car 26e07_CAR3 Nodo: (19, 66): 0
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [66,18]
+xOtherAgent 66
+yOtherAgent 18
+posFound: 3
+Car 8c987_CAR2 Nodo: (55, 67): 0
+AGENTE 26e07_CAR3 HA ENCONTRADO A OTRO AGENTE EN LA POS: (21,66)
+
+Car 8c987_CAR2 POSICIÓN (55, 67): 0
+Car 8c987_CAR2movement: moveNW
+
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: -1
+
+otherAgents [66,21]
+xOtherAgent 66
+yOtherAgent 21
+posFound: 0
+
+Car 6f195_CAR0 POSICIÓN (21, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 8c987_CAR2 Nodo: (54, 66): 0
+Car 6f195_CAR0 Nodo: (22, 66): 0
+
+Car 8c987_CAR2 POSICIÓN (54, 66): 0
+Car 8c987_CAR2movement: moveNW
+
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (19,66)
+Car 8c987_CAR2 Nodo: (53, 65): 3
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [66,19]
+xOtherAgent 66
+yOtherAgent 19
+posFound: 3
+AGENTE 8c987_CAR2 HA TERMINADO LOS NODOS DEL PATH
+
+Car 6f195_CAR0 POSICIÓN (22, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 6f195_CAR0 Nodo: (23, 66): 0
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (19,66)
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [66,19]
+xOtherAgent 66
+yOtherAgent 19
+posFound: 3
+
+Car 6f195_CAR0 POSICIÓN (23, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 6f195_CAR0 Nodo: (24, 66): 0
+AGENTE 6f195_CAR0 HA ENCONTRADO A OTRO AGENTE EN LA POS: (19,66)
+bloquedCars
+bloqued[0]: -1
+bloqued[1]: -1
+bloqued[2]: -1
+bloqued[3]: 0
+
+otherAgents [66,19]
+xOtherAgent 66
+yOtherAgent 19
+posFound: 3
+
+Car 6f195_CAR0 POSICIÓN (24, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 6f195_CAR0 Nodo: (25, 66): 0
+
+Car 6f195_CAR0 POSICIÓN (25, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 6f195_CAR0 Nodo: (26, 66): 0
+
+Car 6f195_CAR0 POSICIÓN (26, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 6f195_CAR0 Nodo: (27, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (19, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (27, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (20, 66): 0
+Car 6f195_CAR0 Nodo: (28, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (20, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (28, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (21, 66): 0
+Car 6f195_CAR0 Nodo: (29, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (21, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (29, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (22, 66): 0
+Car 6f195_CAR0 Nodo: (30, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (22, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (30, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (23, 66): 0
+Car 6f195_CAR0 Nodo: (31, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (23, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (31, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (24, 66): 0
+Car 6f195_CAR0 Nodo: (32, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (24, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (32, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (25, 66): 0
+Car 6f195_CAR0 Nodo: (33, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (25, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (33, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (26, 66): 0
+Car 6f195_CAR0 Nodo: (34, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (26, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (34, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (27, 66): 0
+Car 6f195_CAR0 Nodo: (35, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (27, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (35, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (28, 66): 0
+Car 6f195_CAR0 Nodo: (36, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (28, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (36, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (29, 66): 0
+Car 6f195_CAR0 Nodo: (37, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (29, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (37, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (30, 66): 0
+Car 6f195_CAR0 Nodo: (38, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (30, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (38, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (31, 66): 0
+Car 6f195_CAR0 Nodo: (39, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (31, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (39, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (32, 66): 0
+Car 6f195_CAR0 Nodo: (40, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (32, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (40, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (33, 66): 0
+Car 6f195_CAR0 Nodo: (41, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (33, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (41, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (34, 66): 0
+Car 6f195_CAR0 Nodo: (42, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (34, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (42, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (35, 66): 0
+Car 6f195_CAR0 Nodo: (43, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (35, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (43, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (36, 66): 0
+Car 6f195_CAR0 Nodo: (44, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (36, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (44, 66): 0
+Car 6f195_CAR0movement: moveS
+
+Car 26e07_CAR3 Nodo: (37, 66): 0
+Car 6f195_CAR0 Nodo: (45, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (37, 66): 0
+Car 26e07_CAR3movement: moveS
+
+
+Car 6f195_CAR0 POSICIÓN (45, 66): 0
+Car 6f195_CAR0movement: moveSW
+
+Car 26e07_CAR3 Nodo: (38, 66): 0
+Car 6f195_CAR0 Nodo: (46, 65): 3
+
+Car 26e07_CAR3 POSICIÓN (38, 66): 0
+Car 26e07_CAR3movement: moveS
+
+AGENTE 6f195_CAR0 HA TERMINADO LOS NODOS DEL PATH
+Car 26e07_CAR3 Nodo: (39, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (39, 66): 0
+Car 26e07_CAR3movement: moveS
+
+Car 26e07_CAR3 Nodo: (40, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (40, 66): 0
+Car 26e07_CAR3movement: moveS
+
+Car 26e07_CAR3 Nodo: (41, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (41, 66): 0
+Car 26e07_CAR3movement: moveS
+
+Car 26e07_CAR3 Nodo: (42, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (42, 66): 0
+Car 26e07_CAR3movement: moveS
+
+Car 26e07_CAR3 Nodo: (43, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (43, 66): 0
+Car 26e07_CAR3movement: moveS
+
+Car 26e07_CAR3 Nodo: (44, 66): 0
+
+Car 26e07_CAR3 POSICIÓN (44, 66): 0
+Car 26e07_CAR3movement: moveSW
+
+Car 26e07_CAR3 Nodo: (45, 65): 0
+
+Car 26e07_CAR3 POSICIÓN (45, 65): 0
+Car 26e07_CAR3movement: moveSW
+
+Car 26e07_CAR3 Nodo: (46, 64): 3
+AGENTE 26e07_CAR3 HA TERMINADO LOS NODOS DEL PATH
+EN KILL AGENTS
+AgentCar 6f195_CAR0 has just finished
+AgentCar 1f6d7_CAR1 has just finished
+AgentCar 8c987_CAR2 has just finished
+AgentCar 26e07_CAR3 has just finished
+Agent Car :6f195_CAR0die
+Agent Car :1f6d7_CAR1die
+Agent Car :8c987_CAR2die
+Agent Car :26e07_CAR3die
+[-119,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,110,0,0,0,110,8,2,0,0,0,73,57,-79,-84,0,0,1,-47,73,68,65,84,120,-38,-19,-35,93,-114,-125,48,12,70,-47,-20,127,85,125,-12,-82,-104,106,-38,70,12,74,83,-61,16,-101,126,-71,86,-124,120,0,17,29,126,-30,24,36,-54,77,46,-54,-1,-30,-8,113,113,-124,18,74,40,115,93,-62,28,101,41,-105,101,41,86,-18,75,-25,-58,-51,-80,82,60,-83,110,63,59,101,-57,-47,19,-21,93,-90,-90,92,-34,-121,-19,116,-100,-102,114,-23,-122,-19,116,-124,-14,-83,-29,99,-59,-17,56,47,-91,-57,-79,73,-39,-39,113,70,74,-89,-29,6,116,96,-22,-90,71,105,99,30,-123,-78,-108,-2,113,6,-54,33,-108,99,-25,102,74,-108,-42,29,-87,-121,79,115,101,40,-83,-101,60,70,84,12,102,-96,12,42,-66,104,80,-90,59,66,9,-91,-101,50,-78,-73,-54,-108,-63,-67,-123,18,-54,-42,-92,59,-47,81,-115,50,-90,108,1,37,-108,80,66,9,37,-108,127,-117,105,80,-18,-96,-36,20,34,45,-80,-60,43,72,-71,-42,-124,-46,69,-39,-68,91,-95,-36,-39,-71,82,-6,-108,85,19,-54,19,40,31,-102,80,66,9,37,-108,80,50,-20,12,-90,36,69,63,-121,-14,-29,-9,86,80,-70,40,61,-97,-82,65,-39,-90,-36,104,66,121,-120,-14,-91,-71,-42,-127,-14,-96,102,45,106,84,32,40,-113,23,53,54,-102,-83,55,-73,6,-27,78,-51,-33,-121,-26,125,89,91,-45,17,-54,79,-102,-91,65,-7,108,80,30,100,-123,18,74,40,39,-90,-52,-55,-37,110,95,30,-107,50,63,5,22,-96,44,102,-119,23,-93,16,-27,51,-27,-52,-41,-4,122,-54,-21,104,42,80,94,68,83,-124,-14,10,-102,58,-108,-23,-102,82,-108,-71,-102,106,-108,-119,-102,-126,-108,89,-102,-102,-108,41,-102,-78,-108,-15,-102,-54,-108,-63,-102,-30,-108,-111,-102,-6,-108,27,77,40,79,-48,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-124,18,74,40,-95,-4,-14,8,-8,59,-44,44,-108,17,103,11,2,40,-95,-44,-115,31,-1,65,-111,12,91,-77,94,-45,0,0,0,0,73,69,78,68,-82,66,96,-126]
+WRITE
+AgentController has just finished!
+BUILD STOPPED (total time: 2 minutes 38 seconds)
