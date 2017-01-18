@@ -61,7 +61,6 @@ public class Map {
 				
         this.width = width;
         this.higth = higth;
-		
     }
 
     /**
@@ -75,11 +74,11 @@ public class Map {
      */
     public final Node getNode(int x, int y) {
         // TODO check parameter.
-        //return nodes[x][y];
-		if(nodes[x][y] != null)
+        return nodes[x][y];
+		/*if(nodes[x][y] != null)
 			return nodes[x][y];
 		else
-			return null;
+			return null;*/
     }
 
     /**
@@ -318,9 +317,9 @@ public class Map {
             }
         }
 		
-		if(adj.isEmpty()) {
+		/*if(adj.isEmpty()) {
 			System.out.println("ADYACENDTES VACÍO");
-		}
+		}*/
 		
         return adj;
     }

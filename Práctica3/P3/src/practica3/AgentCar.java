@@ -16,7 +16,7 @@ import javax.swing.JFrame;
  */
 public class AgentCar extends Agent {
     
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     
     private static final int IDLE = 0;
     private static final int GET_CAPABILITIES = 1;
@@ -537,10 +537,10 @@ public class AgentCar extends Agent {
         }*/
         
         //if(DEBUG){
-            System.out.println("CAMINO ELEGIDO POR EL CALCULATE PATH PARA EL AGENTE: "+this.getName());
+            /*System.out.println("CAMINO ELEGIDO POR EL CALCULATE PATH PARA EL AGENTE: "+this.getName());
             for (Node n : pathToGoal){
                 System.out.println("("+n.getyPosition()+","+n.getxPosition()+")"+"("+n.isWalkable()+")");
-            }
+            }*/
         //}
 
         if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {

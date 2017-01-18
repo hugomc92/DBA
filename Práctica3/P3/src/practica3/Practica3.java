@@ -19,7 +19,7 @@ public class Practica3 {
 	// Generamos los nombres de los agentes de forma aleatoria y única en cada ejecución para evitar la duplicidad de nombres con otros agentes en la plataforma
 	// Son constantes durante toda la ejecución.
 	private static final AgentID CONTROLLER_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5) + "_CONTROLLER");
-	private static final String MAP = "map300";
+	private static final String MAP = "map200";
 	private static final AgentID CAR1_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5) + "_CAR0");
 	private static final AgentID CAR2_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5) + "_CAR1");
 	private static final AgentID CAR3_NAME = new AgentID(UUID.randomUUID().toString().substring(0, 5) + "_CAR2");

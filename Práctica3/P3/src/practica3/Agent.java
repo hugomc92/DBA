@@ -12,7 +12,7 @@ import java.util.UUID;
  */
 public class Agent extends SingleAgent {
 	
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
     
     /**
      * Constructor
