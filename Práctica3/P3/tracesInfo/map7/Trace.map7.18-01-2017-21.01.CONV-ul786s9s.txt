@@ -1,0 +1,24 @@
+INFO MAP (map7):
+
+"Capabilities c6f72_CAR0:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities 355b9_CAR1:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities c7451_CAR2:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities 9be39_CAR3:    Range: 3    fuelRate: 2    fly: true"
+
+Car c6f72_CAR0 pasos al objetivo: 60
+Car c6f72_CAR0 pasos*fuelToGoal: 7200
+
+Car 355b9_CAR1 pasos al objetivo: 27
+Car 355b9_CAR1 pasos*fuelToGoal: 1458
+
+Car c7451_CAR2 pasos al objetivo: 60
+Car c7451_CAR2 pasos*fuelToGoal: 7200
+
+Car 9be39_CAR3 pasos al objetivo: 12
+Car 9be39_CAR3 pasos*fuelToGoal: 288
+
+
+TOTAL STEPS*FUEL: 16146

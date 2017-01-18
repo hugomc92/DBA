@@ -1,0 +1,24 @@
+INFO MAP (map8):
+
+"Capabilities 00a53_CAR0:    Range: 5    fuelRate: 1    fly: false"
+
+"Capabilities 4ccea_CAR1:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities d4115_CAR2:    Range: 5    fuelRate: 1    fly: false"
+
+"Capabilities ff3fa_CAR3:    Range: 3    fuelRate: 2    fly: true"
+
+Car 00a53_CAR0 pasos al objetivo: 102
+Car 00a53_CAR0 pasos*fuelToGoal: 10404
+
+Car 4ccea_CAR1 pasos al objetivo: 58
+Car 4ccea_CAR1 pasos*fuelToGoal: 6728
+
+Car d4115_CAR2 pasos al objetivo: 71
+Car d4115_CAR2 pasos*fuelToGoal: 5041
+
+Car ff3fa_CAR3 pasos al objetivo: 38
+Car ff3fa_CAR3 pasos*fuelToGoal: 2888
+
+
+TOTAL STEPS*FUEL: 25061

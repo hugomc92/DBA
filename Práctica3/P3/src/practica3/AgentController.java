@@ -811,9 +811,9 @@ public class AgentController extends Agent {
 					
 					// Añadirlo al mapa de la información
 					this.infoMap += String.format("%s\n", "Car " + inbox.getSender().getLocalName() + " pasos al objetivo: " + steps);
-					this.infoMap += String.format("%s\n\n", "Car " + inbox.getSender().getLocalName() + " pasos*fuelToGoal: " + steps*fuelToGoal);
+					this.infoMap += String.format("%s\n\n", "Car " + inbox.getSender().getLocalName() + " fuelToGoal: " + fuelToGoal);
 					
-					totalStepFuel += steps*fuelToGoal;
+					totalStepFuel += fuelToGoal;
 
 					this.carLocalInfo[row][INDEX_ACTUAL_FUEL] = actualFuel;
 					this.carLocalInfo[row][INDEX_FUEL_TO_GOAL] = fuelToGoal;
@@ -1372,8 +1372,6 @@ public class AgentController extends Agent {
             }
 			else {
 				String cap = Json.parse(receive.getContent()).asObject().get("capabilites").toString();
-				
-				System.out.println("cap: " + cap);
 				
 				this.infoMap += String.format("%s\n\n", cap);
 			}
