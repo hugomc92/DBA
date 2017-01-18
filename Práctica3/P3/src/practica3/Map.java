@@ -107,9 +107,11 @@ public class Map {
             print("|\n"); // boarder of map
         }
 
-        for (int i = 0; i < width; i++) {
+        for (int i = 0; i <= width; i++) {
                 print(" _"); // boarder of map
         }
+		
+		System.out.println("");
     }
 
     /**
