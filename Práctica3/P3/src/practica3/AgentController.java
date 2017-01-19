@@ -1320,7 +1320,7 @@ public class AgentController extends Agent {
 
 					fileWriter = new FileWriter(file);
 					
-					this.infoMap += String.format("\n%s", "TOTAL STEPS*FUEL: " + totalStepFuel);
+					this.infoMap += String.format("\n%s", "TOTAL FUEL TO GOAL: " + totalStepFuel);
 
 					fileWriter.write(this.infoMap);
 
