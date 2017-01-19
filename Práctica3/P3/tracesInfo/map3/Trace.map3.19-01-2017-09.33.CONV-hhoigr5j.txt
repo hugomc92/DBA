@@ -1,0 +1,24 @@
+INFO MAP (map3):
+
+"Capabilities d2364_CAR0:    Range: 5    fuelRate: 1    fly: false"
+
+"Capabilities a970c_CAR1:    Range: 11    fuelRate: 4    fly: false"
+
+"Capabilities 491bc_CAR2:    Range: 11    fuelRate: 4    fly: false"
+
+"Capabilities 133bc_CAR3:    Range: 3    fuelRate: 2    fly: true"
+
+Car d2364_CAR0 pasos al objetivo: 1
+Car d2364_CAR0 fuelToGoal: 1
+
+Car a970c_CAR1 pasos al objetivo: 102
+Car a970c_CAR1 fuelToGoal: 408
+
+Car 491bc_CAR2 pasos al objetivo: 104
+Car 491bc_CAR2 fuelToGoal: 416
+
+Car 133bc_CAR3 pasos al objetivo: 93
+Car 133bc_CAR3 fuelToGoal: 186
+
+
+TOTAL FUEL TO GOAL: 1011

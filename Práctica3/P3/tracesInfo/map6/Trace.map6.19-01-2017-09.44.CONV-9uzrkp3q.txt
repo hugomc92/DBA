@@ -1,0 +1,24 @@
+INFO MAP (map6):
+
+"Capabilities 9cdf4_CAR0:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities 1397d_CAR1:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities 8b15f_CAR2:    Range: 3    fuelRate: 2    fly: true"
+
+"Capabilities d335d_CAR3:    Range: 11    fuelRate: 4    fly: false"
+
+Car 9cdf4_CAR0 pasos al objetivo: 101
+Car 9cdf4_CAR0 fuelToGoal: 202
+
+Car 1397d_CAR1 pasos al objetivo: 45
+Car 1397d_CAR1 fuelToGoal: 90
+
+Car d335d_CAR3 pasos al objetivo: 107
+Car d335d_CAR3 fuelToGoal: 428
+
+Car 8b15f_CAR2 pasos al objetivo: 72
+Car 8b15f_CAR2 fuelToGoal: 144
+
+
+TOTAL FUEL TO GOAL: 864
