@@ -57,7 +57,7 @@ public class Agent extends SingleAgent {
     /**
      * Contesta a un mensaje previo de otro agente
 	 * 
-	 * @param receiver El agente que va a recivir el mensaje
+	 * @param receiver El agente que va a recibir el mensaje
 	 * @param performative La performativa usada para la transmisión del mensaje
 	 * @param inReplyTo El id al que se tiene que responder
 	 * @param conversationId El Id de la conversación

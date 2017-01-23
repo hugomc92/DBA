@@ -1,0 +1,7 @@
+En el JavaDoc de las clases de nuestro sistema aparecen los autores de toda la clase en el campo @author de la clase, aún así, también aparecen los 
+autores de los métodos (aunque en la mayoría coinciden). El "autor" de la clase o método es el que aparece el primero, siendo el resto que aparecen 
+el resto de personas que han ayudado en la implemenación de la clase (o método), modificación, depuración...
+
+Importante importar también las carpetas para la ejecución. Sobre todo la carpeta maps que es donde se van guardando los mapas en la exploración y de donde se leen (no sabemos por qué pero no crea la carpeta si no existe).
+
+Si se prueba un mundo que no lo tuvieramos accesible nosotros, hay que crear la carpeta con el nombre del mundo dentro de la carpeta traces y tracesInfo para que se puedan guardar las trazas obtenidas del servidor, y la información de la ejecución

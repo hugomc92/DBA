@@ -1,3 +1,3 @@
-En el JavaDoc de las clases de nuestro sistema aparecen los autores de toda la clase en el campo @author de la clase, aún así, también aparecen los
-autores de los métodos (aunque en la mayoría coinciden). El "autor" de la clase o método es el que aparece el primero, siendo el resto que aparecen
+﻿En el JavaDoc de las clases de nuestro sistema aparecen los autores de toda la clase en el campo @author de la clase, aún así, también aparecen los 
+autores de los métodos (aunque en la mayoría coinciden). El "autor" de la clase o método es el que aparece el primero, siendo el resto que aparecen 
 el resto de personas que han ayudado en la implemenación de la clase (o método), modificación, depuración...

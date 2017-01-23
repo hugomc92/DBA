@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * Clase que lanza el programa
  * 
- * @author Hugo Maldonado and JoseDavid
+ * @author Hugo Maldonado
  */
 public class Practica3 {
 	

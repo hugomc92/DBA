@@ -49,17 +49,19 @@ public class AgentCar extends Agent {
     private final AgentID serverName;
     private final AgentID controllerName;
     
+    private String errorMessage;
+    
     private String convIDServer;
     private String convIDController;
     private String replyWithServer;
     private String replyWithController;
     
+    private boolean inGoal;
+    
     private int range;
     private int fuelRate;
     private TypeAgent type;
-    private boolean inGoal;
-    
-    private String errorMessage;
+
     private int[][] radar;
     
     private int startExploringX;
@@ -107,10 +109,8 @@ public class AgentCar extends Agent {
         this.fuelLocal = -1;
         this.fuelGlobal = -1;
         this.fuelToGoal = -1;
-        this.inGoal = false;
         this.mapWorld = new int[this.SIZE_MAP][this.SIZE_MAP];
-		
-		//iniDraw = false;
+        this.inGoal = false;
         
         System.out.println("AgentCar " + this.getName() + " has just started");
     }
@@ -178,7 +178,6 @@ public class AgentCar extends Agent {
 			
             //Avisamos al server de que las hemos obtenido
             myJson = new JsonObject();
-            //myJson.add("capabilites","received");
 			myJson.add("capabilites",capabilities);
 			
             this.answerMessage(controllerName,ACLMessage.INFORM,replyWithController,convIDController,myJson.toString());
@@ -277,11 +276,6 @@ public class AgentCar extends Agent {
             else
 				movement = "moveSE";
         }
-		
-		/*System.out.println("");
-		System.out.println("Car " + this.getName() + " POSICIÓN (" + positionY + ", " + positionX + "): " + mapWorld[positionY][positionX]);
-		System.out.println("Car " + this.getName() + "movement: " + movement);
-		System.out.println("");*/
         
         //Se lo enviamos al Server
         JsonObject myJson = new JsonObject();
@@ -533,20 +527,6 @@ public class AgentCar extends Agent {
 			
     
         this.pathToGoal = this.type.calculatePath(positionX, positionY, goalPositionX, goalPositionY);
-        
-        //INVERTIMOS IMPARES (CHAPUZA)
-        /*for (int i = 0; i < pathToGoal.size(); i++){
-            if(i % 2 == 1 && (i != pathToGoal.size()-1)){ //INVERTIMOS
-                pathToGoal.get(i).setCoordinates(pathToGoal.get(i).getyPosition(), pathToGoal.get(i).getxPosition());
-            }
-        }*/
-        
-        //if(DEBUG){
-            /*System.out.println("CAMINO ELEGIDO POR EL CALCULATE PATH PARA EL AGENTE: "+this.getName());
-            for (Node n : pathToGoal){
-                System.out.println("("+n.getyPosition()+","+n.getxPosition()+")"+"("+n.isWalkable()+")");
-            }*/
-        //}
 
         if(this.pathToGoal != null && !this.pathToGoal.isEmpty()) {
 			//El size de pathToGoal es el numero de "movimientos" hasta el mismo, por eso se usa para el calculo del fuel
@@ -745,6 +725,7 @@ public class AgentCar extends Agent {
 			System.out.println("nodeY: " + this.pathToGoal.get(this.pathToGoal.size()-1).getyPosition());
 		}
 		
+        // Ha tenido algún problema en el movimiento. Se informa al controlador para evitar bloqueos
 		if(this.positionX != this.goalPositionX || this.positionY != this.goalPositionY) {
 			System.out.println("HEMOS TERMINADO LOS NODOS PERO NO ESTAMOS EN OBJETIVO");
 
@@ -757,7 +738,8 @@ public class AgentCar extends Agent {
 		
 		this.state = READY;
 		
-		System.out.println("AGENTE " + this.getName() + " HA TERMINADO LOS NODOS DEL PATH");
+        if(DEBUG)
+            System.out.println("AGENTE " + this.getName() + " HA TERMINADO LOS NODOS DEL PATH");
     }
     
     /**
@@ -949,9 +931,7 @@ public class AgentCar extends Agent {
 
         this.answerMessage(controllerName, ACLMessage.INFORM, replyWithController, convIDController, myJson.toString());
         
-        
-        //if(state != NOT_UND_FAILURE_REFUSE)
-            state = READY;
+        state = READY;
         
         //Destruimos la ventana
         jframe.setVisible(false);

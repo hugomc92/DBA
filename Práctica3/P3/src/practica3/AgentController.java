@@ -239,27 +239,6 @@ public class AgentController extends Agent {
 			
             sendMessage(serverName, ACLMessage.SUBSCRIBE, "", "", obj.toString());
             
-	
-            /*while(true){
-                ACLMessage receive = this.receiveMessage();
-                
-                if(receive.getPerformativeInt() == ACLMessage.FAILURE || receive.getPerformativeInt() == ACLMessage.NOT_UNDERSTOOD) {
-                    return false;
-                }
-                else if(receive.getContent().contains("trace")){
-                    System.out.println("Es la traza y su ide es"+receive.getConversationId());
-                    JsonArray trace = Json.parse(receive.getContent()).asObject().get("trace").asArray();
-                    this.saveTrace(trace, true);
-                }
-                else if(receive.getPerformativeInt() == ACLMessage.INFORM){
-                    receive = this.receiveMessage();
-                    this.conversationIdServer = receive.getConversationId();
-                    if(DEBUG)
-                        System.out.println("SUSCRITO. ConvIDServer:" + conversationIdServer);
-                    return true;
-                }
-            }*/
-            
             ACLMessage receive;
             
             receive = this.receiveMessage();
@@ -334,45 +313,8 @@ public class AgentController extends Agent {
             //Una vez tenemos los agentes despiertos y funcionando, pasamos a buscar el "volador"
             if(startCFP) {
                 for(AgentID carName : carNames)
-                    
                     sendMessage(carName, ACLMessage.CFP, this.generateReplyId(), this.conversationIdController, message.toString());
 
-                /*boolean flyingFound = false;
-                AgentID flyingAgents [] = new AgentID[4];
-                int cont = 0;
-
-                for(int i=0; i<4 && flyingFound; i++) {
-                    ACLMessage receive = this.receiveMessage();
-
-                    if(receive.getPerformativeInt() == ACLMessage.AGREE) {
-                        flyingFound = true;
-
-                        flyingAgents[cont] = receive.getSender();
-                        cont++;
-                    }	
-                }
-			
-                if(flyingFound) {
-                    //Si tenemos el agente volador, mandamos confirmación y la informacion necesaria y rechazamos al resto.
-                    JsonObject messageAccept = new JsonObject(message);
-
-                    messageAccept.add("startX", this.mapWorldPosX);
-                    messageAccept.add("startY", this.mapWorldPosY);
-                    messageAccept.add("size", this.mapWorldSize);
-                    messageAccept.add("direction", this.mapWorldDirection);
-
-                    for(AgentID carName : flyingAgents) {
-                        if(carName == flyingAgents[0])
-                            sendMessage(carName, ACLMessage.ACCEPT_PROPOSAL, this.generateReplyId(), conversationIdController, messageAccept.toString());
-                        else
-                            sendMessage(carName, ACLMessage.REJECT_PROPOSAL, this.generateReplyId(), conversationIdController, message.toString());
-
-                        this.state = EXPLORE_MAP;
-                    }
-                }
-                else
-                    this.state = RE_RUN;
-            }*/
                 boolean flyingFound = false;
                 AgentID flyingAgent = new AgentID();
                 for (int i = 0; i < carNames.length; i++){
@@ -557,22 +499,8 @@ public class AgentController extends Agent {
 	private void stateReRun() {
         
 		killAgents();
-        
-		/*boolean allOk = true;
-		
-		//Esperamos una contestación por cada uno de los mensajes enviados
-		for(AgentID carName : carNames) {
-			ACLMessage receive = this.receiveMessage();
-			//Si alguno de los mensajes no es un INFORM, la comunicación ha fallado
-			if(receive.getPerformativeInt() != ACLMessage.AGREE){
-				allOk = false;
-			}
-		}
-        
-		if(allOk)*/
-			this.state = CHECK_MAP;
-		/*else
-			this.state = FINALIZE;*/
+
+		this.state = CHECK_MAP;
 	}
 	
 	/**
@@ -669,11 +597,6 @@ public class AgentController extends Agent {
 				}
 			}
 		}
-
-		/*System.out.println("GOALS EXISTENTES:");
-		for(int i = 0; i < posObj.size(); i+=2){
-			System.out.println("("+Integer.toString(posObj.get(i+1))+","+Integer.toString(posObj.get(i))+")");
-		}*/
 		
 		// Calcular el X y el Y de los objetivos de cada uno de los agentes
 		for(int i=0; i<carNames.length; i++) {
@@ -745,6 +668,8 @@ public class AgentController extends Agent {
 			message.add("goalY", carLocalInfo[k][INDEX_OBJY]);
 		
 			this.sendMessage(carNames[k], ACLMessage.INFORM, this.generateReplyId(), conversationIdController, message.toString());
+            
+            System.out.println("ENVIANDO MAPA A " + carNames[k].getLocalName());
 		}
 		
 		this.state = FUEL_INFORMATION;
@@ -905,9 +830,7 @@ public class AgentController extends Agent {
 		   message.add("go-to-goal", "OK");
 		   this.sendMessage(carNames[i], ACLMessage.REQUEST, this.generateReplyId(), conversationIdController, message.toString());
 	   }
-
-   }
-        
+   } 
         
 	/**
 	 * Calcula el índice del mayor elemento de una lista de enteros
@@ -1293,11 +1216,6 @@ public class AgentController extends Agent {
 			Date today = Calendar.getInstance().getTime();        
 
 			String date = df.format(today);
-			
-//			if(error)
-//				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
-//			else
-//				fos = new FileOutputStream(new File("traces/" + map + "/Trace." + map + "." + date + "." + Integer.toString(numSentCars) + "." + Integer.toString(this.carsInGoal) +  ".png"));
 
 			if(error)
 				fos = new FileOutputStream(new File("traces/" + map + "/Error-Trace." + map + "." + date + "." + this.conversationIdServer + ".png"));
